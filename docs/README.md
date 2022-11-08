@@ -1,4 +1,4 @@
-png shematics from http://pellmill.com/NABU/Code-HTML/Index.html<br>
+png schematics from http://pellmill.com/NABU/Code-HTML/Index.html<br>
 <br>
 
 NABUPER1.IMD    Nabu Personal Computer<br>
