@@ -1,0 +1,2231 @@
+# File NabuPC-8K.z80
+0000			; z80dasm 1.1.5 
+0000			; command line: z80dasm -t -a -g0x00 --labels -b NabuPC-8K.txt -o NabuPC-8K.z80 NabuPC-2764.bin 
+0000			; disassembled by Ken Segler  
+0000			; https://github.com/TheCodeman/Nabu_PC 
+0000			; assemble with linux z80asm 
+0000			; z80asm --list=nabupc-8k.lst  NabuPC-8K.z80  -o nabu-8k.bin 
+0000			; last two bytes of 8k file are checksum 
+0000			; simple c code to generate it 
+0000			; 
+0000			; #include <stdio.h> 
+0000			; #include <stdint.h> 
+0000			; int main(void) { 
+0000			; FILE *fp; 
+0000			; uint16_t check=0; 
+0000			; uint16_t index=0; 
+0000			; uint8_t c=0; 
+0000			; fp=fopen("nabu-8k.bin","rb+"); 
+0000			; if(fp!=NULL) { 
+0000			; printf("starting\n\r"); 
+0000			; for(index=0;index<8190;index++){ 
+0000			; fread(&c, 1,1, fp); 
+0000			; check+=c; 
+0000			; } 
+0000			; printf("value %04x\n\r",check); 
+0000			; c=check&0x00ff; 
+0000			; fwrite(&c, 1, 1, fp) 
+0000			; c=(check>>8); 
+0000			; fwrite(&c, 1, 1, fp); 
+0000			; fclose(fp); 
+0000			; } 
+0000			; } 
+0000			; 
+0000			; 
+0000			; 
+0000			vdp_data:	equ	0a0h 
+0000			vdp_add:	equ	0a1h 
+0000			hcca:		equ	080h 
+0000			ctrl_reg:	equ	000h 
+0000			kbd_data:	equ	090h 
+0000			kbd_status:	equ	091h 
+0000			sg_data:	equ 040h 
+0000			sg_add:		equ	041h 
+0000			 
+0000			ctrl_reg_save: equ 0ffedh 
+0000			 
+0000				org	00000h 
+0000			 
+0000			l0000h: 
+0000 c3 0a 00			jp l000ah		                 
+0003 07				rlca			                 
+0004			l0004h: 
+0004 32 37 81			ld (08137h),a		             
+0007 0a				ld a,(bc)			             
+0008 09				add hl,bc			             
+0009			l0009h: 
+0009 0f				rrca			                 
+000a			l000ah: 
+000a 3e 02			ld a,002h		                 
+000c 32 ed ff			ld (ctrl_reg_save),a		             
+000f			l000fh: 
+000f d3 00			out (ctrl_reg),a		             
+0011 31 e0 fe			ld sp,0fee0h		             
+0014 cd 37 02			call init_vdp		             
+0017 cd 0f 03			call init_sg		             
+001a cd 01 03			call init_kbd		             
+001d cd 52 02			call sub_0252h		  ;clear screen ?           
+0020 ed 4b fe ff		ld bc,(0fffeh)		             
+0024 79				ld a,c			                 
+0025 d6 a5			sub 0a5h		                 
+0027 20 0b			jr nz,l0034h		             
+0029 78				ld a,b			                 
+002a d6 5a			sub 05ah		                 
+002c 20 06			jr nz,l0034h		             
+002e cd 02 02			call copy_rom_to_ram_disable_rom		             
+0031 c3 b7 00			jp l00b7h		 	;jump to ram                
+0034			l0034h: 
+0034 08				ex af,af'			             
+0035 af				xor a			                 
+0036 08				ex af,af'			             
+0037 cd 15 02			call sub_0215h		             
+003a 3a e1 fe			ld a,(0fee1h)		             
+003d 57				ld d,a			                 
+003e 3a e2 fe			ld a,(0fee2h)		             
+0041 5f				ld e,a			                 
+0042 af				xor a			                 
+0043 b2				or d			                 
+0044 20 0a			jr nz,l0050h		             
+0046 b3				or e			                 
+0047 20 07			jr nz,l0050h		             
+0049 3e 55			ld a,055h		                 
+004b 32 ec ff			ld (0ffech),a		             
+004e 18 0a			jr l005ah		                 
+0050			l0050h: 
+0050 3e aa			ld a,0aah		                 
+0052 32 ec ff			ld (0ffech),a		             
+0055 3e 01			ld a,001h		                 
+0057 32 e9 ff			ld (0ffe9h),a		             
+005a			l005ah: 
+005a 3e a5			ld a,0a5h		                 
+005c 32 fe ff			ld (0fffeh),a		             
+005f 3e 5a			ld a,05ah		                 
+0061 32 ff ff			ld (0ffffh),a		             
+0064 cd 26 11			call 01126h		                 
+0067 cd 02 02			call copy_rom_to_ram_disable_rom		             
+006a			l006ah: 
+006a 3a e0 fe			ld a,(0fee0h)		             
+006d 47				ld b,a			                 
+006e 3a e1 fe			ld a,(0fee1h)		             
+0071 57				ld d,a			                 
+0072 3a e2 fe			ld a,(0fee2h)		             
+0075 5f				ld e,a			                 
+0076 af				xor a			                 
+0077 80				add a,b			                 
+0078 82				add a,d			                 
+0079 83				add a,e			                 
+007a fe 01			cp 001h		                 
+007c 28 1c			jr z,l009ah		                 
+007e f2 a6 00			jp p,l00a6h		                 
+0081 21 2c 01			ld hl,adaptor_floppy_fail_txt	 
+0084 cd 3f 03			call print_string		             
+0087 08				ex af,af'			             
+0088 3c				inc a			                 
+0089 fe 03			cp 003h		                 
+008b 20 07			jr nz,l0094h		             
+008d 21 64 07			ld hl,something_wrong		         
+0090 cd 3f 03			call print_string		             
+0093 76				halt			                 
+0094			l0094h: 
+0094 08				ex af,af'			             
+0095 cd 15 02			call sub_0215h		             
+0098 18 d0			jr l006ah		                 
+009a			l009ah: 
+009a af				xor a			                 
+009b 32 e9 ff			ld (0ffe9h),a		             
+009e b0				or b			                 
+009f 20 38			jr nz,l00d9h		             
+00a1 b2				or d			                 
+00a2 20 4d			jr nz,l00f1h		             
+00a4 18 1c			jr l00c2h		                 
+00a6			l00a6h: 
+00a6 af				xor a			                 
+00a7 4f				ld c,a			                 
+00a8 b0				or b			                 
+00a9 28 03			jr z,l00aeh		                 
+00ab cb c1			set 0,c		                 
+00ad af				xor a			                 
+00ae			l00aeh: 
+00ae b2				or d			                 
+00af 28 03			jr z,l00b4h		                 
+00b1 cb c9			set 1,c		                 
+00b3 af				xor a			                 
+00b4			l00b4h: 
+00b4 cd e7 03			call l03e7h 
+00b7			; 
+00b7			; 
+00b7			; 
+00b7			; entry after copy rom to ram and disable rom		         
+00b7			l00b7h: 
+00b7 3a ec ff			ld a,(0ffech)		             
+00ba fe 55			cp 055h		                 
+00bc 28 1b			jr z,l00d9h		                 
+00be fe aa			cp 0aah		                 
+00c0			sub_00c0h: 
+00c0 28 2f			jr z,l00f1h		                 
+00c2			l00c2h: 
+00c2 21 4d 01			ld hl,boot_error_txt 
+00c5 cd 3f 03			call print_string		             
+00c8			l00c8h: 
+00c8 01 ff ff			ld bc,0ffffh		             
+00cb			l00cbh: 
+00cb dd e5			push ix		                 
+00cd dd e1			pop ix		                 
+00cf 10 fa			djnz l00cbh		                 
+00d1 0d				dec c			                 
+00d2 06 ff			ld b,0ffh		                 
+00d4 20 f5			jr nz,l00cbh		             
+00d6 c3 6a 00			jp l006ah		                 
+00d9			l00d9h: 
+00d9 21 69 01			ld hl,loading_from_cable_txt		         
+00dc cd 3f 03			call print_string		             
+00df cd 7a 04			call sub_047ah		             
+00e2 21 5b 01			ld hl,please_wait_txt	         
+00e5 cd 3f 03			call print_string		             
+00e8 cd 26 08			call sub_0826h		             
+00eb b7				or a			                 
+00ec 20 eb			jr nz,l00d9h		             
+00ee c3 0f 24			jp 0240fh		                 
+00f1			l00f1h: 
+00f1 3a e9 ff			ld a,(0ffe9h)		             
+00f4 b7				or a			                 
+00f5 20 20			jr nz,l0117h		             
+00f7 01 e6 02			ld bc,l02e6h		             
+00fa 11 d9 00			ld de,l00d9h		             
+00fd cd 50 03			call print_vdp		         
+0100 21 c0 01			ld hl,insert_system_disk_txt		         
+0103 cd 3f 03			call print_string		             
+0106			l0106h: 
+0106 db 91			in a,(kbd_status)		                 
+0108 cb 4f			bit 1,a		                 
+010a 28 fa			jr z,l0106h		                 
+010c db 90			in a,(kbd_data)		                 
+010e fe 0d			cp 00dh		                 
+0110 20 f4			jr nz,l0106h		             
+0112 3e 00			ld a,000h		                 
+0114 32 e9 ff			ld (0ffe9h),a		             
+0117			l0117h: 
+0117 01 e6 02			ld bc,l02e6h		             
+011a 11 d9 00			ld de,l00d9h		             
+011d cd 50 03			call print_vdp		         
+0120 21 7e 01			ld hl,loading_from_floppy_txt		         
+0123 cd 3f 03			call print_string		             
+0126 cd 30 09			call sub_0930h		         
+0129 c3 c2 00			jp l00c2h		                 
+012c			 
+012c			; BLOCK 'text_1' (start 0x012c end 0 
+012c			adaptor_floppy_fail_txt: 
+012c 1e				defb 01eh		                 
+012d 5d				defb 05dh		                 
+012e 02				defb 002h		                 
+012f ..				defm	"ADAPTOR OR FLOPPY DISK FAILURE" 
+014d			;text_1_end: 
+014d			 
+014d			; BLOCK 'text_2' (start 0x014d end 0x015b) 
+014d			boot_error_txt: 
+014d 0b				defb 00bh		                 
+014e 4a				defb 04ah		                 
+014f 03				defb 003h		                 
+0150 ..				defm	" BOOT ERROR" 
+015b			 
+015b			 
+015b			; BLOCK 'text_3' (start 0x015b end 0x0169) 
+015b			please_wait_txt: 
+015b 0b				defb 00bh		                 
+015c 22				defb 022h		                 
+015d 03				defb 003h		                 
+015e ..				defm	"PLEASE WAI" 
+0168			l0168h: 
+0168 54				defb 054h		                 
+0169			;text_3_end: 
+0169			 
+0169			; BLOCK 'text_4' (start 0x0169 end 0x017e) 
+0169			loading_from_cable_txt: 
+0169 12				defb 012h		                 
+016a d2				defb 0d2h		                 
+016b 02				defb 002h		                 
+016c ..				defm 	"LOADING FROM CABLE" 
+017e			;text_4_end: 
+017e			 
+017e			; BLOCK 'text_5' (start 0x017e end 0x01c0) 
+017e			loading_from_floppy_txt: 
+017e 3f				defb 03fh		                 
+017f d2				defb 0d2h		                 
+0180 02				defb 002h		                 
+0181 ..				defm	"LOADING FROM FLOPPY DISK                                       " 
+01c0			;text_5_end: 
+01c0			 
+01c0			; BLOCK 'text_6' (start 0x01c0 end 0x0202) 
+01c0			insert_system_disk_txt: 
+01c0 3f				defb 03fh		                 
+01c1 d2				defb 0d2h		                 
+01c2 02				defb 002h		                 
+01c3 ..				defm	"   INSERT SYSTEM DISK IN DRIVE A                   AND PRESS GO" 
+0202			; 
+0202			; 
+0202			; 
+0202			;copy rom to ram and disable rom ? 
+0202			copy_rom_to_ram_disable_rom: 
+0202 21 00 00			ld hl,l0000h		       
+0205 11 00 00			ld de,l0000h		       
+0208 01 00 20			ld bc,02000h		       
+020b ed b0			ldir		               
+020d 3a ed ff			ld a,(ctrl_reg_save)		       
+0210 cb c7			set 0,a		               
+0212 d3 00			out (ctrl_reg),a		       
+0214 c9				ret		 
+0215			; 
+0215			; 
+0215			; 
+0215			;		               
+0215			sub_0215h: 
+0215 af				xor a			           
+0216 32 e1 fe			ld (0fee1h),a		       
+0219 32 e2 fe			ld (0fee2h),a		       
+021c cd c0 08			call sub_08c0h		       
+021f 47				ld b,a			           
+0220 3e 01			ld a,001h		           
+0222			l0222h: 
+0222 cb 38			srl b		               
+0224 30 03			jr nc,l0229h		       
+0226 32 e1 fe			ld (0fee1h),a		       
+0229			l0229h: 
+0229 01 ff ff			ld bc,0ffffh		       
+022c ed 43 ea ff		ld (0ffeah),bc		       
+0230 cd ae 08			call sub_08aeh		       
+0233 32 e0 fe			ld (0fee0h),a		       
+0236 c9				ret	 
+0237			 
+0237			; 
+0237			; 
+0237			; 
+0237			;			               
+0237			init_vdp: 
+0237 21 4a 02			ld hl,vdp_init_data 
+023a 06 08			ld b,008h		           
+023c 0e a1			ld c,0a1h		           
+023e			l023eh: 
+023e ed a3			outi		               
+0240 78				ld a,b			           
+0241 f6 80			or 080h		               
+0243 d3 a1			out (vdp_add),a		       
+0245 e6 7f			and 07fh		           
+0247 20 f5			jr nz,l023eh		       
+0249 c9				ret	 
+024a			; 
+024a			; 
+024a			; 
+024a			;			               
+024a			vdp_init_data: 
+024a f5				defb	0f5h 	  
+024b 00				defb	000h 	  
+024c 00				defb 	000h 	 
+024d 04				defb	004h 	  
+024e 00				defb	000h 	  
+024f 00				defb	000h   
+0250 d0				defb	0d0h  
+0251 00				defb	000h   
+0252			; 
+0252			; 
+0252			; 
+0252			;copy 1160 bytes to vdp 
+0252			sub_0252h: 
+0252 af				xor a			           
+0253 d3 a1			out (vdp_add),a		       
+0255 3e 61			ld a,061h		           
+0257 d3 a1			out (vdp_add),a		       
+0259 0e a0			ld c,0a0h		           
+025b 16 91			ld d,091h		           
+025d 21 81 0a			ld hl,l0a81h		       
+0260			l0260h: 
+0260 06 08			ld b,008h		          ;8 bytes*91h 1160 bytes 
+0262 ed b3			otir		               
+0264 15				dec d			           
+0265 20 f9			jr nz,l0260h		       
+0267 af				xor a			           
+0268 d3 a1			out (vdp_add),a		       
+026a 3e 40			ld a,040h		           
+026c d3 a1			out (vdp_add),a		       
+026e 3e 20			ld a,020h		           
+0270 21 40 fc			ld hl,0fc40h		       
+0273 11 01 00			ld de,l0000h+1		       
+0276			l0276h: 
+0276 d3 a0			out (vdp_data),a		       
+0278 19				add hl,de			       
+0279 30 fb			jr nc,l0276h		       
+027b 06 07			ld b,007h		           
+027d 21 90 02			ld hl,l0290h		       
+0280 11 0f 00			ld de,l000fh		       
+0283			l0283h: 
+0283 c5				push bc			           
+0284 e5				push hl			           
+0285 d5				push de			           
+0286 cd 3f 03			call print_string		       
+0289 d1				pop de			           
+028a e1				pop hl			           
+028b c1				pop bc			           
+028c 19				add hl,de			       
+028d 10 f4			djnz l0283h		           
+028f c9				ret	 
+0290			 
+0290			 
+0290			l0290h: 
+0290 0c 0d 00 7e a9 7f 7f 7f 7f 7f 7f 7f 7f aa 80 0c		defb	00Ch,00Dh,000h,07Eh,0A9h,07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,07Fh,0AAh,080h,00Ch 
+02a0 35 00 ab 81 81 81 81 81		defb	035h,000h,0ABh,081h,081h,081h,081h,081h 
+02a8			l02a8h:	 
+02a8 81 81 81 81 81 ac 0c 5d 00 82 83 84 85 86 87 88		defb	081h,081h,081h,081h,081h,0ACh,00Ch,05Dh,000h,082h,083h,084h,085h,086h,087h,088h 
+02b8 89 8a 8b 8c 8d 0c 85 00 8e 8f 90 91 92 93 94		defb    089h,08Ah,08Bh,08Ch,08Dh,00Ch,085h,000h,08Eh,08Fh,090h,091h,092h,093h,094h 
+02c7			l02c7h: 
+02c7 95 96 97 98 99 0c ad 00 9a		defb	095h,096h,097h,098h,099h,00Ch,0ADh,000h,09Ah 
+02d0 9b 9c 9d 9e 9f a0 a1 a2 a3 a4 a5 0c d5 00 ad a6		defb	09Bh,09Ch,09Dh,09Eh,09Fh,0A0h,0A1h,0A2h,0A3h,0A4h,0A5h,00Ch,0D5h,000h,0ADh,0A6h 
+02e0 a6 a6 a6 a6 a6 a6		defb	0A6h,0A6h,0A6h,0A6h,0A6h,0A6h 
+02e6			l02e6h:	 
+02e6 a6 a6 a6 ae 0c fd 00 a7 af a8		defb	0A6h,0A6h,0A6h,0AEh,00Ch,0FDh,000h,0A7h,0AFh,0A8h 
+02f0 a8 a8 a8 a8 a8 a8 a8 b0 a7		defb	0A8h,0A8h,0A8h,0A8h,0A8h,0A8h,0A8h,0B0h,0A7h 
+02f9			l02f9h: 
+02f9 00 00 00 00 00 40 4e 04		defb	000h,000h,000h,000h,000h,040h,04Eh,004h 
+0301			 
+0301			init_kbd: 
+0301 21 f9 02			ld hl,l02f9h		       
+0304 06 08			ld b,008h		           
+0306			l0306h: 
+0306 7e				ld a,(hl)			       
+0307 d3 91			out (kbd_status),a		       
+0309 c5				push bc			           
+030a c1				pop bc			           
+030b 23				inc hl			           
+030c 10 f8			djnz l0306h		           
+030e c9				ret		 
+030f			; 
+030f			; 
+030f			; 
+030f			;		               
+030f			init_sg: 
+030f 06 04			ld b,004h		           
+0311 21 1f 03			ld hl,l031fh		       
+0314			l0314h: 
+0314 7e				ld a,(hl)			       
+0315 d3 41			out (sg_add),a		       
+0317 23				inc hl			           
+0318 7e				ld a,(hl)			       
+0319 d3 40			out (sg_data),a		       
+031b 23				inc hl			           
+031c 10 f6			djnz l0314h		           
+031e c9				ret		 
+031f			 
+031f			l031fh: 
+031f 07				defb	007h 	  
+0320 7f				defb	07fh 	  
+0321 08				defb	008h 	  
+0322 00				defb	000h 	  
+0323 09				defb	009h 	  
+0324 00				defb	000h 	  
+0325 0a				defb	00ah 	  
+0326 00				defb	000h  
+0327			; 
+0327			; 
+0327			; 
+0327			;		 	               
+0327			sub_0327h: 
+0327 3e 07			ld a,007h		           
+0329 d3 41			out (sg_add),a		       
+032b 3e 7e			ld a,07eh		           
+032d d3 40			out (sg_data),a		       
+032f 3e 08			ld a,008h		           
+0331 d3 41			out (sg_add),a		       
+0333 3e 06			ld a,006h		           
+0335 d3 40			out (sg_data),a		       
+0337 3e 01			ld a,001h		           
+0339 d3 41			out (sg_add),a		       
+033b 3d				dec a			           
+033c d3 40			out (sg_data),a		       
+033e c9				ret			               
+033f			; 
+033f			; 
+033f			; 
+033f			; 
+033f			print_string: 
+033f 46				ld b,(hl)			       
+0340 23				inc hl			           
+0341 7e				ld a,(hl)			       
+0342 d3 a1			out (vdp_add),a		       
+0344 23				inc hl			           
+0345 7e				ld a,(hl)			       
+0346 c6 40			add a,040h		           
+0348 d3 a1			out (vdp_add),a		       
+034a 23				inc hl			           
+034b 0e a0			ld c,0a0h		           
+034d ed b3			otir		               
+034f c9				ret			               
+0350			; 
+0350			; 
+0350			; 
+0350			;	 
+0350			print_vdp: 
+0350 79				ld a,c			           
+0351 d3 a1			out (vdp_add),a		       
+0353 78				ld a,b			           
+0354 c6 40			add a,040h		           
+0356 d3 a1			out (vdp_add),a		       
+0358			l0358h: 
+0358 3e 20			ld a,020h		           
+035a d3 a0			out (vdp_data),a		       
+035c 1b				dec de			           
+035d 7a				ld a,d			           
+035e b3				or e			           
+035f 20 f7			jr nz,l0358h		       
+0361 c9				ret			               
+0362			 
+0362			; BLOCK 'text_7' (start 0x0362 end 0x0385) 
+0362			select_loading_device_txt: 
+0362 20				defb 020h		                 
+0363 35				defb 035h		                 
+0364 02				defb 002h		                 
+0365 ..				defm 	"PLEASE SELECT THE LOADING DEVICE" 
+0385			text_7_end: 
+0385			 
+0385			; BLOCK 'text_8' (start 0x0385 end 0x0390) 
+0385			select_cable_txt: 
+0385 08				defb 008h		                 
+0386 88				defb 088h		                 
+0387 02				defb 002h		                 
+0388 ..				defm	"1. CABLE" 
+0390			text_8_end: 
+0390			 
+0390			; BLOCK 'text_9' (start 0x0390 end 0x03a1) 
+0390			select_floppy_txt: 
+0390 0e				defb 00eh		                 
+0391 d8				defb 0d8h		                 
+0392 02				defb 002h		                 
+0393 ..				defm	"2. FLOPPY DISK" 
+03a1			text_9_end: 
+03a1			 
+03a1			; BLOCK 'text_10' (start 0x03a1 end 0x03b0) 
+03a1			press_1_or_2_txt: 
+03a1 0c				defb 00ch		                 
+03a2 25				defb 025h		                 
+03a3 03				defb 003h		                 
+03a4 ..				defm 	"PRESS 1 OR 2" 
+03b0			 
+03b0			l03b0h: 
+03b0 62				defb	062h 
+03b1 03				defb	003h 
+03b2 85				defb	085h 
+03b3 03				defb	003h 
+03b4 90				defb	090h 
+03b5 03				defb	003h 
+03b6 a1				defb	0a1h 
+03b7 03				defb	003h 
+03b8			l03b8h: 
+03b8 62				defb	062h 
+03b9 03				defb	003h 
+03ba 90				defb	090h 
+03bb 03				defb	003h 
+03bc a1				defb	0a1h 
+03bd 03				defb	003h 
+03be			l03beh: 
+03be 62				defb	062h 
+03bf 03				defb	003h 
+03c0 85				defb	085h 
+03c1 03				defb	003h 
+03c2 a1				defb	0a1h 
+03c3 03				defb	003h 
+03c4 62				defb	062h 
+03c5 03				defb	003h 
+03c6 85				defb	085h 
+03c7 03				defb	003h 
+03c8 90				defb	090h 
+03c9 03				defb	003h 
+03ca					                 
+03ca			 
+03ca			; BLOCK 'text_11' (start 0x03ca end 0x03e7) 
+03ca			invalid_option: 
+03ca 1a				defb 01ah		                 
+03cb 75				defb 075h		                 
+03cc 03				defb 003h		                 
+03cd ..				defm	"INVALID OPTION,  TRY AGAIN" 
+03e7			 
+03e7			l03e7h: 
+03e7 c5				push bc			                 
+03e8 01 35 02			ld bc,00235h		             
+03eb 11 2c 01			ld de,adaptor_floppy_fail_txt	 
+03ee cd 50 03			call print_vdp		         
+03f1 c1				pop bc			                 
+03f2 c5				push bc			                 
+03f3 cb 39			srl c		                 
+03f5 38 08			jr c,l03ffh		                 
+03f7 06 03			ld b,003h		                 
+03f9 dd 21 b8 03		ld ix,l03b8h		             
+03fd 18 12			jr l0411h		                 
+03ff			l03ffh: 
+03ff cb 39			srl c		                 
+0401 38 08			jr c,l040bh		                 
+0403 06 03			ld b,003h		                 
+0405 dd 21 be 03		ld ix,l03beh		             
+0409 18 06			jr l0411h		                 
+040b			l040bh: 
+040b 06 04			ld b,004h		                 
+040d dd 21 b0 03		ld ix,l03b0h		         
+0411			l0411h: 
+0411 c5				push bc			                 
+0412 dd 6e 00			ld l,(ix+000h)		             
+0415 dd 66 01			ld h,(ix+001h)		             
+0418 cd 3f 03			call print_string		             
+041b c1				pop bc			                 
+041c dd 23			inc ix		                 
+041e dd 23			inc ix		                 
+0420 10 ef			djnz l0411h		                 
+0422			l0422h: 
+0422 c1				pop bc			                 
+0423 c5				push bc			                 
+0424 db 91			in a,(kbd_status)		                 
+0426 e6 02			and 002h		                 
+0428 28 f8			jr z,l0422h		                 
+042a db 90			in a,(kbd_data)		                 
+042c cb 39			srl c		                 
+042e 30 0b			jr nc,l043bh		             
+0430 fe 31			cp 031h		                 
+0432 20 07			jr nz,l043bh		             
+0434 3e 55			ld a,055h		                 
+0436 32 ec ff			ld (0ffech),a		             
+0439 18 1f			jr l045ah		                 
+043b			l043bh: 
+043b cb 39			srl c		                 
+043d 30 0b			jr nc,l044ah		             
+043f fe 32			cp 032h		                 
+0441 20 07			jr nz,l044ah		             
+0443 3e aa			ld a,0aah		                 
+0445 32 ec ff			ld (0ffech),a		             
+0448 18 10			jr l045ah		                 
+044a			l044ah: 
+044a fe a0			cp 0a0h		                 
+044c 30 04			jr nc,l0452h		             
+044e cb 7f			bit 7,a		                 
+0450 20 d0			jr nz,l0422h		             
+0452			l0452h: 
+0452 21 ca 03			ld hl,invalid_option		         
+0455 cd 3f 03			call print_string		             
+0458 18 c8			jr l0422h		                 
+045a			l045ah: 
+045a c1				pop bc			                 
+045b 3e 00			ld a,000h		                 
+045d 32 e9 ff			ld (0ffe9h),a		             
+0460 01 35 02			ld bc,00235h		             
+0463 11 68 01			ld de,l0168h		             
+0466 cd 50 03			call print_vdp		         
+0469 c9				ret			                 
+046a 3e 0e			ld a,00eh		                 
+046c d3 41			out (sg_add),a		             
+046e 79				ld a,c			                 
+046f d3 40			out (sg_data),a		             
+0471 3e 0f			ld a,00fh		                 
+0473 d3 41			out (sg_add),a		             
+0475 db 40			in a,(sg_data)		                 
+0477 cb 47			bit 0,a		                 
+0479 c9				ret			                 
+047a			sub_047ah: 
+047a cd eb 05			call sub_05ebh		             
+047d 28 03			jr z,l0482h		                 
+047f c3 2e 05			jp l052eh		                 
+0482			l0482h: 
+0482 cd 27 06			call sub_0627h		             
+0485 32 f8 ff			ld (0fff8h),a		             
+0488 28 03			jr z,l048dh		                 
+048a c3 2e 05			jp l052eh		                 
+048d			l048dh: 
+048d 21 f8 ff			ld hl,0fff8h		             
+0490 cb 7e			bit 7,(hl)		                 
+0492 20 03			jr nz,l0497h		             
+0494 c3 1b 05			jp l051bh		                 
+0497			l0497h: 
+0497 21 52 05			ld hl,type_chanel_code 
+049a cd 3f 03			call print_string		             
+049d			l049dh: 
+049d 21 f9 ff			ld hl,0fff9h		             
+04a0 11 c7 02			ld de,l02c7h		             
+04a3 cd b4 07			call l07b4h	         
+04a6 21 f9 ff			ld hl,0fff9h		             
+04a9 af				xor a			                 
+04aa 4f				ld c,a			                 
+04ab 06 04			ld b,004h		                 
+04ad			l04adh: 
+04ad 7e				ld a,(hl)			             
+04ae cb 40			bit 0,b		                 
+04b0 28 09			jr z,l04bbh		                 
+04b2 cb 27			sla a		                 
+04b4 cb 67			bit 4,a		                 
+04b6 28 03			jr z,l04bbh		                 
+04b8 cb a7			res 4,a		                 
+04ba 3c				inc a			                 
+04bb			l04bbh: 
+04bb 81				add a,c			                 
+04bc 4f				ld c,a			                 
+04bd 23				inc hl			                 
+04be 10 ed			djnz l04adh		                 
+04c0 e6 0f			and 00fh		                 
+04c2 be				cp (hl)			                 
+04c3 28 10			jr z,l04d5h		                 
+04c5 21 9f 05			ld hl,retype_chanel_code		         
+04c8 cd 3f 03			call print_string		             
+04cb 0e 90			ld c,090h		                 
+04cd 11 00 e0			ld de,0e000h		             
+04d0 cd c4 05			call sub_05c4h		         
+04d3 18 c8			jr l049dh		                 
+04d5			l04d5h: 
+04d5 21 f9 ff			ld hl,0fff9h		             
+04d8 06 04			ld b,004h		                 
+04da 11 00 00			ld de,l0000h		             
+04dd			l04ddh: 
+04dd 7e				ld a,(hl)			             
+04de cb 23			sla e		                 
+04e0 cb 12			rl d		                 
+04e2 cb 23			sla e		                 
+04e4 cb 12			rl d		                 
+04e6 cb 23			sla e		                 
+04e8 cb 12			rl d		                 
+04ea cb 23			sla e		                 
+04ec cb 12			rl d		                 
+04ee 83				add a,e			                 
+04ef 5f				ld e,a			                 
+04f0 23				inc hl			                 
+04f1 10 ea			djnz l04ddh		                 
+04f3 d5				push de			                 
+04f4 0e 85			ld c,085h		                 
+04f6 cd 45 06			call sub_0645h		             
+04f9 28 08			jr z,l0503h		                 
+04fb			l04fbh: 
+04fb 3e 05			ld a,005h		                 
+04fd 32 fe ff			ld (0fffeh),a		             
+0500 c3 00 00			jp l0000h		                 
+0503			l0503h: 
+0503 d1				pop de			                 
+0504 d5				push de			                 
+0505 4a				ld c,d			                 
+0506 cd 55 06			call sub_0655h		             
+0509 d1				pop de			                 
+050a 28 02			jr z,l050eh		                 
+050c 18 ed			jr l04fbh		                 
+050e			l050eh: 
+050e 4b				ld c,e			                 
+050f cd 55 06			call sub_0655h		             
+0512 20 e7			jr nz,l04fbh		             
+0514 0e e4			ld c,0e4h		                 
+0516 cd 67 06			call sub_0667h		             
+0519 20 e0			jr nz,l04fbh		             
+051b			l051bh: 
+051b 01 a8 02			ld bc,l02a8h		             
+051e 11 28 00			ld de,00028h		             
+0521 cd 50 03			call print_vdp		         
+0524 21 69 01			ld hl,loading_from_cable_txt		         
+0527 cd 3f 03			call print_string		             
+052a cd 0f 06			call sub_060fh		             
+052d c8				ret z			                 
+052e			l052eh: 
+052e 01 58 02			ld bc,00258h		                
+0531 11 c8 00			ld de,l00c8h		                
+0534 cd 50 03			call print_vdp		            
+0537 21 40 05			ld hl,adapter_fail		            
+053a cd 3f 03			call print_string		                
+053d c3 7a 04			jp sub_047ah		                
+0540			 
+0540			; BLOCK 'text_12' (start 0x0540 end 0x0 
+0540			adapter_fail: 
+0540 0f				defb 00fh		                 
+0541 8c				defb 08ch		                 
+0542 02				defb 002h		                 
+0543 ..				defm	"ADAPTOR FAILURE" 
+0552			 
+0552			; BLOCK 'text_13' (start 0x0552 end 0x059f) 
+0552			type_chanel_code: 
+0552 49				defb 049h		                 
+0553 ab				defb 0abh		                 
+0554 02				defb 002h		                 
+0555 ..				defm	"PLEASE TYPE IN CHANNEL CODE                                               " 
+059f			 
+059f			 
+059f			; BLOCK 'text_14' (start 0x059f end 0x05c4) 
+059f			retype_chanel_code: 
+059f 21				defb 021h		                 
+05a0 ab				defb 0abh		                 
+05a1 02				defb 002h		                 
+05a2 ..				defm	"RE-TYPE CHANNEL CODE              " 
+05c4				 
+05c4			sub_05c4h: 
+05c4 f5				push af			                 
+05c5 e5				push hl			                 
+05c6 c5				push bc			                 
+05c7 d5				push de			                 
+05c8 cd 27 03			call sub_0327h		             
+05cb af				xor a			                 
+05cc d3 41			out (sg_add),a		             
+05ce 79				ld a,c			                 
+05cf d3 40			out (sg_data),a		             
+05d1 21 01 00			ld hl,l0000h+1		             
+05d4 06 04			ld b,004h		                 
+05d6 eb				ex de,hl			             
+05d7			l05d7h: 
+05d7 19				add hl,de			             
+05d8 30 fd			jr nc,l05d7h		             
+05da e1				pop hl			                 
+05db e5				push hl			                 
+05dc 10 f9			djnz l05d7h		                 
+05de 3e 07			ld a,007h		                 
+05e0 d3 41			out (sg_add),a		             
+05e2 3e 7f			ld a,07fh		                 
+05e4 d3 40			out (sg_data),a		             
+05e6 d1				pop de			                 
+05e7 c1				pop bc			                 
+05e8 e1				pop hl			                 
+05e9 f1				pop af			                 
+05ea c9				ret	 
+05eb			; 
+05eb			; 
+05eb			; 
+05eb			;			                	 
+05eb			sub_05ebh: 
+05eb db 80			in a,(hcca)		                 
+05ed 06 04			ld b,004h		                 
+05ef			l05efh: 
+05ef 0e 83			ld c,083h		                 
+05f1 cd 55 06			call sub_0655h		             
+05f4 20 14			jr nz,l060ah		             
+05f6 0e 10			ld c,010h		                 
+05f8 cd 67 06			call sub_0667h		             
+05fb 20 0d			jr nz,l060ah		             
+05fd 0e 06			ld c,006h		                 
+05ff cd 67 06			call sub_0667h		             
+0602 20 06			jr nz,l060ah		             
+0604 0e e4			ld c,0e4h		                 
+0606 cd 67 06			call sub_0667h		             
+0609 c8				ret z			                 
+060a			l060ah: 
+060a 05				dec b			                 
+060b 20 e2			jr nz,l05efh		             
+060d 05				dec b			                 
+060e c9				ret		 
+060f			; 
+060f			; 
+060f			; 
+060f			;		                	 
+060f			sub_060fh: 
+060f 0e 81			ld c,081h		                 
+0611 cd 45 06			call sub_0645h		             
+0614 c0				ret nz			                 
+0615 0e 8f			ld c,08fh		                 
+0617 cd 55 06			call sub_0655h		             
+061a c0				ret nz			                 
+061b 0e 05			ld c,005h		                 
+061d cd 55 06			call sub_0655h		             
+0620 c0				ret nz			                 
+0621 0e e4			ld c,0e4h		                 
+0623 cd 67 06			call sub_0667h		             
+0626 c9				ret		 
+0627			; 
+0627			; 
+0627			; 
+0627			;	                	 
+0627			sub_0627h: 
+0627 0e 82			ld c,082h		                 
+0629 cd 45 06			call sub_0645h		             
+062c c0				ret nz			                 
+062d 0e 01			ld c,001h		                 
+062f cd 55 06			call sub_0655h		             
+0632 c0				ret nz			                 
+0633 cd 75 06			call sub_0675h		             
+0636 c0				ret nz			                 
+0637 47				ld b,a			                 
+0638 0e 10			ld c,010h		                 
+063a cd 67 06			call sub_0667h		             
+063d c0				ret nz			                 
+063e 0e e1			ld c,0e1h		                 
+0640 cd 67 06			call sub_0667h		             
+0643 78				ld a,b			                 
+0644 c9				ret			                	 
+0645			; 
+0645			; 
+0645			; 
+0645			; 
+0645			sub_0645h: 
+0645 cd 55 06			call sub_0655h		             
+0648 c0				ret nz			                 
+0649 0e 10			ld c,010h		                 
+064b cd 67 06			call sub_0667h		             
+064e c0				ret nz			                 
+064f 0e 06			ld c,006h		                 
+0651 cd 67 06			call sub_0667h		             
+0654 c9				ret			                	 
+0655			; 
+0655			; 
+0655			; 
+0655			; 
+0655			sub_0655h: 
+0655 ed 5b ea ff		ld de,(0ffeah)		             
+0659			l0659h: 
+0659 cd d9 08			call sub_08d9h		             
+065c c0				ret nz			                 
+065d cd 97 06			call sub_0697h		             
+0660 28 f7			jr z,l0659h		                 
+0662 79				ld a,c			                 
+0663 d3 80			out (hcca),a		             
+0665 af				xor a			                 
+0666 c9				ret			 
+0667			; 
+0667			; 
+0667			; 
+0667			;	                	 
+0667			sub_0667h: 
+0667 ed 5b ea ff		ld de,(0ffeah)		             
+066b			l066bh: 
+066b cd d9 08			call sub_08d9h		             
+066e c0				ret nz			                 
+066f db 80			in a,(hcca)		                 
+0671 b9				cp c			                 
+0672 20 f7			jr nz,l066bh		             
+0674 c9				ret		 
+0675			; 
+0675			; 
+0675			; 
+0675			;		                	 
+0675			sub_0675h: 
+0675 ed 5b ea ff		ld de,(0ffeah)		             
+0679			l0679h: 
+0679 cd d9 08			call sub_08d9h		             
+067c c0				ret nz			                 
+067d cd 86 06			call sub_0686h		             
+0680 28 f7			jr z,l0679h		                 
+0682 db 80			in a,(hcca)		                 
+0684 bf				cp a			                 
+0685 c9				ret			                	 
+0686			; 
+0686			; 
+0686			; 
+0686			; 
+0686			sub_0686h: 
+0686 3e 0e			ld a,00eh		                 
+0688 d3 41			out (sg_add),a		             
+068a 3e 80			ld a,080h		                 
+068c d3 40			out (sg_data),a		             
+068e 3e 0f			ld a,00fh		                 
+0690 d3 41			out (sg_add),a		             
+0692 db 40			in a,(sg_data)		                 
+0694 cb 47			bit 0,a		                	 
+0696 c9				ret			                	 
+0697			; 
+0697			; 
+0697			; 
+0697			; 
+0697			sub_0697h: 
+0697 3e 0e			ld a,00eh		                 
+0699 d3 41			out (sg_add),a		             
+069b 3e 40			ld a,040h		                 
+069d d3 40			out (sg_data),a		             
+069f 3e 0f			ld a,00fh		                 
+06a1 d3 41			out (sg_add),a		             
+06a3 db 40			in a,(sg_data)		                 
+06a5 cb 47			bit 0,a		                	 
+06a7 c9				ret			                	 
+06a8			; 
+06a8			; 
+06a8			; 
+06a8			; 
+06a8			l06a8h: 
+06a8 d9				exx			                	 
+06a9 af				xor a			                 
+06aa 3d				dec a			                 
+06ab 57				ld d,a			                 
+06ac 5f				ld e,a			                 
+06ad d9				exx			                	 
+06ae 0e 84			ld c,084h		                 
+06b0 cd 45 06			call sub_0645h		             
+06b3 c0				ret nz			                 
+06b4 06 04			ld b,004h		                 
+06b6 21 03 20			ld hl,02003h		             
+06b9			l06b9h: 
+06b9 cd 97 06			call sub_0697h		             
+06bc 28 fb			jr z,l06b9h		                 
+06be 7e				ld a,(hl)			             
+06bf d3 80			out (hcca),a		             
+06c1 2d				dec l			                 
+06c2 10 f5			djnz l06b9h		                 
+06c4 0e e4			ld c,0e4h		                 
+06c6 cd 67 06			call sub_0667h		             
+06c9 c0				ret nz			                 
+06ca 06 18			ld b,018h		                 
+06cc 11 01 00			ld de,l0000h+1		             
+06cf 21 00 00			ld hl,l0000h		             
+06d2			l06d2h: 
+06d2 19				add hl,de			             
+06d3 30 09			jr nc,l06deh		             
+06d5 10 07			djnz l06deh		                 
+06d7 21 64 07			ld hl,something_wrong		         
+06da cd 3f 03			call print_string		             
+06dd 76				halt			                 
+06de			l06deh: 
+06de cd 86 06			call sub_0686h		             
+06e1 28 ef			jr z,l06d2h		                 
+06e3 db 80			in a,(hcca)		                 
+06e5 fe 91			cp 091h		                	 
+06e7 28 0c			jr z,l06f5h		                 
+06e9 fe 90			cp 090h		                	 
+06eb c0				ret nz			                 
+06ec 21 9b 07			ld hl,adapter_not_auth		         
+06ef cd 3f 03			call print_string		             
+06f2 c3 a8 06			jp l06a8h		                 
+06f5			l06f5h: 
+06f5 3e 10			ld a,010h		                 
+06f7 d3 80			out (hcca),a		             
+06f9			l06f9h: 
+06f9 cd 97 06			call sub_0697h		             
+06fc 28 fb			jr z,l06f9h		                 
+06fe cd 86 06			call sub_0686h		             
+0701 2a 04 20			ld hl,(02004h)		             
+0704 01 00 00			ld bc,l0000h		             
+0707 cb 83			res 0,e		                	 
+0709 3e 06			ld a,006h		                 
+070b d3 80			out (hcca),a		             
+070d			l070dh: 
+070d d5				push de			                 
+070e 11 ff ff			ld de,0ffffh		             
+0711			l0711h: 
+0711 3e 0f			ld a,00fh		                 
+0713 d3 41			out (sg_add),a		             
+0715 db 40			in a,(sg_data)		                 
+0717 cb 47			bit 0,a		                	 
+0719 20 07			jr nz,l0722h		             
+071b cd d9 08			call sub_08d9h		             
+071e 20 3f			jr nz,l075fh		             
+0720 18 ef			jr l0711h		                 
+0722			l0722h: 
+0722 d1				pop de			                 
+0723 db 80			in a,(hcca)		                 
+0725 fe 10			cp 010h		                	 
+0727 20 12			jr nz,l073bh		             
+0729 cb 43			bit 0,e		                	 
+072b 28 0a			jr z,l0737h		                 
+072d cb 83			res 0,e		                	 
+072f 77				ld (hl),a			             
+0730 cd 09 0f			call sub_0f09h		             
+0733 23				inc hl			                 
+0734 03				inc bc			                 
+0735 18 d6			jr l070dh		                 
+0737			l0737h: 
+0737 cb c3			set 0,e		                	 
+0739 18 d2			jr l070dh		                 
+073b			l073bh: 
+073b cb 43			bit 0,e		                	 
+073d 20 08			jr nz,l0747h		             
+073f 77				ld (hl),a			             
+0740 cd 09 0f			call sub_0f09h		             
+0743 23				inc hl			                 
+0744 03				inc bc			                 
+0745 18 c6			jr l070dh		                 
+0747			l0747h: 
+0747 ed 43 06 20		ld (02006h),bc		             
+074b fe e1			cp 0e1h		                	 
+074d c2 a8 06			jp nz,l06a8h		             
+0750 d9				exx			                	 
+0751 7b				ld a,e			                 
+0752 fe 0f			cp 00fh		                	 
+0754 c2 a8 06			jp nz,l06a8h		             
+0757 7a				ld a,d			                 
+0758 fe 1d			cp 01dh		                	 
+075a c2 a8 06			jp nz,l06a8h		             
+075d af				xor a			                 
+075e c9				ret			                	 
+075f			l075fh: 
+075f d1				pop de			                 
+0760 d1				pop de			                 
+0761 af				xor a			                 
+0762 3d				dec a			                 
+0763 c9				ret			                	 
+0764			 
+0764			; BLOCK 'text_15' (start 0x0764 end 0x079b) 
+0764			something_wrong: 
+0764 34				defb 034h		                ;;0764	34 	4  
+0765 22				defb 022h		                ;;0765	22 	"  
+0766 03				defb 003h		                ;;0766	03 	.  
+0767 ..				defm	"SEE \"IF SOMETHING GOES WRONG\" IN        OWNERS GUIDE" 
+079b			 
+079b			 
+079b			; BLOCK 'text_16' (start 0x079b end 0x07b4) 
+079b			adapter_not_auth: 
+079b 16				defb 016h		                ;;079b	16 	.  
+079c 11				defb 011h		                ;;079c	11 	.  
+079d 02				defb 002h		                ;;079d	02 	.  
+079e ..				defm	"ADAPTOR NOT AUTHORIZED" 
+07b4			; 
+07b4			; 
+07b4			; 
+07b4			;	 
+07b4			l07b4h: 
+07b4 06 05			ld b,005h		          
+07b6			l07b6h: 
+07b6 db 91			in a,(kbd_status)		          
+07b8 cb 4f			bit 1,a		              
+07ba 28 fa			jr z,l07b6h		          
+07bc db 90			in a,(kbd_data)		          
+07be f5				push af			          
+07bf d6 30			sub 030h		          
+07c1 38 37			jr c,l07fah		          
+07c3 fe 0a			cp 00ah		              
+07c5 38 14			jr c,l07dbh		          
+07c7 d6 07			sub 007h		          
+07c9 fe 0a			cp 00ah		              
+07cb 38 2d			jr c,l07fah		          
+07cd fe 10			cp 010h		              
+07cf 38 0a			jr c,l07dbh		          
+07d1 d6 20			sub 020h		          
+07d3 fe 0a			cp 00ah		              
+07d5 38 23			jr c,l07fah		          
+07d7 fe 10			cp 010h		              
+07d9 30 1f			jr nc,l07fah		      
+07db			l07dbh: 
+07db 4f				ld c,a			          
+07dc 78				ld a,b			          
+07dd b7				or a			          
+07de 20 03			jr nz,l07e3h		      
+07e0 f1				pop af			          
+07e1 18 d3			jr l07b6h		          
+07e3			l07e3h: 
+07e3 7b				ld a,e			          
+07e4 d3 a1			out (vdp_add),a		      
+07e6 7a				ld a,d			          
+07e7 f6 40			or 040h		              
+07e9 d3 a1			out (vdp_add),a		      
+07eb f1				pop af			          
+07ec fe 5b			cp 05bh		              
+07ee 38 02			jr c,l07f2h		          
+07f0 d6 20			sub 020h		          
+07f2			l07f2h: 
+07f2 d3 a0			out (vdp_data),a		      
+07f4 71				ld (hl),c			      
+07f5 23				inc hl			          
+07f6 13				inc de			          
+07f7 05				dec b			          
+07f8 18 bc			jr l07b6h		          
+07fa			l07fah: 
+07fa f1				pop af			          
+07fb fe 0d			cp 00dh		              
+07fd 28 04			jr z,l0803h		          
+07ff fe e7			cp 0e7h		              
+0801 20 05			jr nz,l0808h		      
+0803			l0803h: 
+0803 78				ld a,b			          
+0804 b7				or a			          
+0805 20 af			jr nz,l07b6h		      
+0807 c9				ret			              
+0808			l0808h: 
+0808 fe 7f			cp 07fh		              
+080a 28 04			jr z,l0810h		          
+080c fe e1			cp 0e1h		              
+080e 20 a6			jr nz,l07b6h		      
+0810			l0810h: 
+0810 78				ld a,b			          
+0811 fe 05			cp 005h		              
+0813 28 a1			jr z,l07b6h		          
+0815 1b				dec de			          
+0816 2b				dec hl			          
+0817 04				inc b			          
+0818 7b				ld a,e			          
+0819 d3 a1			out (vdp_add),a		      
+081b 7a				ld a,d			          
+081c f6 48			or 048h		              
+081e d3 a1			out (vdp_add),a		      
+0820 3e 20			ld a,020h		          
+0822 d3 a0			out (vdp_data),a		      
+0824 18 90			jr l07b6h		          
+0826			sub_0826h: 
+0826 af				xor a			          
+0827 32 00 20			ld (02000h),a		      
+082a 32 01 20			ld (02001h),a		      
+082d 32 03 20			ld (02003h),a		      
+0830 3c				inc a			          
+0831 32 02 20			ld (02002h),a		      
+0834 01 0b 20			ld bc,0200bh		      
+0837 ed 43 04 20		ld (02004h),bc		      
+083b 01 0d 24			ld bc,0240dh		      
+083e ed 43 08 20		ld (02008h),bc		      
+0842 af				xor a			          
+0843 32 0b 24			ld (0240bh),a		      
+0846 32 0c 24			ld (0240ch),a		      
+0849 af				xor a			          
+084a d3 41			out (sg_add),a		      
+084c d3 40			out (sg_data),a		      
+084e cd 27 03			call sub_0327h		      
+0851			l0851h: 
+0851 cd a8 06			call l06a8h		          
+0854 b7				or a			          
+0855 28 07			jr z,l085eh		          
+0857 fe 03			cp 003h		              
+0859 28 cb			jr z,sub_0826h		      
+085b 3e ff			ld a,0ffh		          
+085d c9				ret			              
+085e			l085eh: 
+085e af				xor a			          
+085f d3 41			out (sg_add),a		      
+0861 3a 03 20			ld a,(02003h)		      
+0864 cb 27			sla a		              
+0866 cb 27			sla a		              
+0868 2f				cpl			              
+0869 d3 40			out (sg_data),a		      
+086b 2a 04 20			ld hl,(02004h)		      
+086e 01 0b 00			ld bc,l000ah+1		      
+0871 09				add hl,bc			      
+0872 7e				ld a,(hl)			      
+0873 32 0a 20			ld (0200ah),a		      
+0876 2a 06 20			ld hl,(02006h)		      
+0879 01 ee ff			ld bc,0ffeeh		      
+087c 09				add hl,bc			      
+087d e5				push hl			          
+087e c1				pop bc			          
+087f 2a 0b 24			ld hl,(0240bh)		      
+0882 09				add hl,bc			      
+0883 22 0b 24			ld (0240bh),hl		      
+0886 2a 04 20			ld hl,(02004h)		      
+0889 11 10 00			ld de,l000fh+1		      
+088c 19				add hl,de			      
+088d ed 5b 08 20		ld de,(02008h)		      
+0891 ed b0			ldir		              
+0893 ed 53 08 20		ld (02008h),de		      
+0897 3a 0a 20			ld a,(0200ah)		      
+089a cb 67			bit 4,a		              
+089c 20 06			jr nz,l08a4h		      
+089e 21 03 20			ld hl,02003h		      
+08a1 34				inc (hl)			      
+08a2 18 ad			jr l0851h		          
+08a4			l08a4h: 
+08a4 3e 07			ld a,007h		          
+08a6 d3 41			out (sg_add),a		      
+08a8 3e 7f			ld a,07fh		          
+08aa d3 40			out (sg_data),a		      
+08ac af				xor a			          
+08ad c9				ret			              
+08ae			sub_08aeh: 
+08ae cd eb 05			call sub_05ebh		      
+08b1 20 0b			jr nz,l08beh		      
+08b3 cd 27 06			call sub_0627h		      
+08b6 32 f8 ff			ld (0fff8h),a		      
+08b9 20 03			jr nz,l08beh		      
+08bb 3e 01			ld a,001h		          
+08bd c9				ret			              
+08be			l08beh: 
+08be af				xor a			          
+08bf c9				ret			              
+08c0			sub_08c0h: 
+08c0 11 00 00			ld de,l0000h		      
+08c3 0e cf			ld c,0cfh		          
+08c5 06 04			ld b,004h		          
+08c7			l08c7h: 
+08c7 ed 78			in a,(c)		          
+08c9 fe 10			cp 010h		              
+08cb 20 02			jr nz,l08cfh		      
+08cd 16 01			ld d,001h		          
+08cf			l08cfh: 
+08cf 79				ld a,c			          
+08d0 c6 10			add a,010h		          
+08d2 4f				ld c,a			          
+08d3 10 f2			djnz l08c7h		          
+08d5 af				xor a			          
+08d6 82				add a,d			          
+08d7 83				add a,e			          
+08d8 c9				ret			              
+08d9			sub_08d9h: 
+08d9 1b				dec de			          
+08da 7a				ld a,d			          
+08db b3				or e			          
+08dc 28 02			jr z,l08e0h		          
+08de af				xor a			          
+08df 3d				dec a			          
+08e0			l08e0h: 
+08e0 3c				inc a			          
+08e1 c9				ret			              
+08e2			 
+08e2			; BLOCK 'text_17' (start 0x08e2 end 0x0909) 
+08e2			load_error: 
+08e2 24				defb 024h		                
+08e3 72				defb 072h		                
+08e4 03				defb 003h		                
+08e5 ..				defm	"LOAD ERROR-   RESET NPC             " 
+0909			 
+0909			 
+0909			; BLOCK 'text_18' (start 0x0909 end 0x0930) 
+0909			disk_no_system: 
+0909 24				defb 024h		                
+090a 9a				defb 09ah		                
+090b 03				defb 003h		                
+090c ..				defm	"DISK DOES NOT CONTAIN A SYSTEM TRACK" 
+0930			; 
+0930			; 
+0930			; 
+0930			;	 
+0930			sub_0930h: 
+0930 f3				di			                 
+0931 cd b4 09			call sub_09b4h		         
+0934 cd 10 0a			call sub_0a10h		         
+0937 b7				or a			             
+0938 28 04			jr z,l093eh		             
+093a cd 5a 0a			call sub_0a5ah		         
+093d c9				ret			                 
+093e			l093eh: 
+093e 06 05			ld b,005h		             
+0940			l0940h: 
+0940 c5				push bc			             
+0941 3a f3 fe			ld a,(0fef3h)		         
+0944 4f				ld c,a			             
+0945 3e 01			ld a,001h		             
+0947 ed 79			out (c),a		             
+0949 21 00 c0			ld hl,0c000h		         
+094c 3e 88			ld a,088h		             
+094e cd 65 0a			call sub_0a65h		         
+0951 3a f1 fe			ld a,(0fef1h)		         
+0954 57				ld d,a			             
+0955 3a f4 fe			ld a,(0fef4h)		         
+0958 5f				ld e,a			             
+0959			l0959h: 
+0959 4a				ld c,d			             
+095a			l095ah: 
+095a ed 78			in a,(c)		             
+095c 1f				rra			                 
+095d 30 09			jr nc,l0968h		         
+095f 1f				rra			                 
+0960 30 f8			jr nc,l095ah		         
+0962 4b				ld c,e			             
+0963 ed a2			ini		                 
+0965 04				inc b			             
+0966 18 f1			jr l0959h		             
+0968			l0968h: 
+0968 ed 78			in a,(c)		             
+096a e6 fc			and 0fch		             
+096c 28 0e			jr z,l097ch		             
+096e c1				pop bc			             
+096f 10 cf			djnz l0940h		             
+0971			l0971h: 
+0971 cd 5a 0a			call sub_0a5ah		         
+0974 21 e2 08			ld hl,load_error		     
+0977 cd 3f 03			call print_string		         
+097a			l097ah: 
+097a 18 fe			jr l097ah		             
+097c			l097ch: 
+097c c1				pop bc			             
+097d cd 5a 0a			call sub_0a5ah		         
+0980 21 00 c0			ld hl,0c000h		         
+0983 7e				ld a,(hl)			         
+0984 4f				ld c,a			             
+0985 16 00			ld d,000h		             
+0987 06 19			ld b,019h		             
+0989			l0989h: 
+0989 23				inc hl			             
+098a 7e				ld a,(hl)			         
+098b a9				xor c			             
+098c 20 01			jr nz,l098fh		         
+098e 14				inc d			             
+098f			l098fh: 
+098f 10 f8			djnz l0989h		             
+0991 7a				ld a,d			             
+0992 fe 19			cp 019h		                 
+0994 c2 00 c0			jp nz,0c000h		         
+0997 21 09 09			ld hl,disk_no_system		     
+099a cd 3f 03			call print_string		         
+099d c1				pop bc			             
+099e c3 c2 00			jp l00c2h		             
+09a1			sub_09a1h: 
+09a1 cd ea 09			call sub_09eah		         
+09a4 3e 09			ld a,009h		             
+09a6 cd 65 0a			call sub_0a65h		         
+09a9 cd ea 09			call sub_09eah		         
+09ac 3a f2 fe			ld a,(0fef2h)		         
+09af 4f				ld c,a			             
+09b0 af				xor a			             
+09b1 ed 79			out (c),a		             
+09b3 c9				ret			                 
+09b4			sub_09b4h: 
+09b4 0e cf			ld c,0cfh		             
+09b6 06 04			ld b,004h		             
+09b8			l09b8h: 
+09b8 ed 78			in a,(c)		             
+09ba fe 10			cp 010h		                 
+09bc 28 09			jr z,l09c7h		             
+09be 79				ld a,c			             
+09bf c6 10			add a,010h		             
+09c1 4f				ld c,a			             
+09c2 10 f4			djnz l09b8h		             
+09c4 c3 71 09			jp l0971h		             
+09c7			l09c7h: 
+09c7 79				ld a,c			             
+09c8 d6 0f			sub 00fh		             
+09ca 47				ld b,a			             
+09cb 32 f0 fe			ld (0fef0h),a		         
+09ce 32 f1 fe			ld (0fef1h),a		         
+09d1 3c				inc a			             
+09d2 32 f2 fe			ld (0fef2h),a		         
+09d5 3c				inc a			             
+09d6 32 f3 fe			ld (0fef3h),a		         
+09d9 3c				inc a			             
+09da 32 f4 fe			ld (0fef4h),a		         
+09dd 79				ld a,c			             
+09de 32 f5 fe			ld (0fef5h),a		         
+09e1 51				ld d,c			             
+09e2 cd 73 0a			call sub_0a73h		         
+09e5 af				xor a			             
+09e6 4a				ld c,d			             
+09e7 ed 79			out (c),a		             
+09e9 c9				ret			                 
+09ea			sub_09eah: 
+09ea c5				push bc			             
+09eb 3a f1 fe			ld a,(0fef1h)		         
+09ee 4f				ld c,a			             
+09ef 11 ff ff			ld de,0ffffh		         
+09f2			l09f2h: 
+09f2 ed 78			in a,(c)		             
+09f4 1f				rra			                 
+09f5 30 09			jr nc,l0a00h		         
+09f7 1b				dec de			             
+09f8 7b				ld a,e			             
+09f9 b2				or d			             
+09fa 20 f6			jr nz,l09f2h		         
+09fc c1				pop bc			             
+09fd 3e 01			ld a,001h		             
+09ff c9				ret			                 
+0a00			l0a00h: 
+0a00 c1				pop bc			             
+0a01 af				xor a			             
+0a02 c9				ret			                 
+0a03			sub_0a03h: 
+0a03 c5				push bc			             
+0a04			l0a04h: 
+0a04 0e a2			ld c,0a2h		             
+0a06			l0a06h: 
+0a06 0d				dec c			             
+0a07 40				ld b,b			             
+0a08 49				ld c,c			             
+0a09 20 fb			jr nz,l0a06h		         
+0a0b 3d				dec a			             
+0a0c 20 f6			jr nz,l0a04h		         
+0a0e c1				pop bc			             
+0a0f c9				ret			                 
+0a10			sub_0a10h: 
+0a10 cd 73 0a			call sub_0a73h		         
+0a13 3a f5 fe			ld a,(0fef5h)		         
+0a16 4f				ld c,a			             
+0a17 3e 02			ld a,002h		             
+0a19 ed 79			out (c),a		             
+0a1b 06 fa			ld b,0fah		             
+0a1d 3a f1 fe			ld a,(0fef1h)		         
+0a20 4f				ld c,a			             
+0a21			l0a21h: 
+0a21 3e 02			ld a,002h		             
+0a23 cd 03 0a			call sub_0a03h		         
+0a26 ed 78			in a,(c)		             
+0a28 cb 4f			bit 1,a		                 
+0a2a 20 05			jr nz,l0a31h		         
+0a2c 10 f3			djnz l0a21h		             
+0a2e 3e 01			ld a,001h		             
+0a30 c9				ret			                 
+0a31			l0a31h: 
+0a31 3e 02			ld a,002h		             
+0a33 cd 03 0a			call sub_0a03h		         
+0a36 ed 78			in a,(c)		             
+0a38 cb 4f			bit 1,a		                 
+0a3a 28 05			jr z,l0a41h		             
+0a3c 10 f3			djnz l0a31h		             
+0a3e 3e 01			ld a,001h		             
+0a40 c9				ret			                 
+0a41			l0a41h: 
+0a41 3a f2 fe			ld a,(0fef2h)		         
+0a44 4f				ld c,a			             
+0a45 af				xor a			             
+0a46 ed 79			out (c),a		             
+0a48 06 03			ld b,003h		             
+0a4a			l0a4ah: 
+0a4a cd ea 09			call sub_09eah		         
+0a4d b7				or a			             
+0a4e c0				ret nz			             
+0a4f 3e 49			ld a,049h		             
+0a51 cd 65 0a			call sub_0a65h		         
+0a54 10 f4			djnz l0a4ah		             
+0a56 cd a1 09			call sub_09a1h		         
+0a59 c9				ret			                 
+0a5a			sub_0a5ah: 
+0a5a cd ea 09			call sub_09eah		         
+0a5d 3a f5 fe			ld a,(0fef5h)		         
+0a60 4f				ld c,a			             
+0a61 af				xor a			             
+0a62 ed 79			out (c),a		             
+0a64 c9				ret			                 
+0a65			sub_0a65h: 
+0a65 f5				push af			             
+0a66 3a f0 fe			ld a,(0fef0h)		         
+0a69 4f				ld c,a			             
+0a6a f1				pop af			             
+0a6b ed 79			out (c),a		             
+0a6d 3e 0e			ld a,00eh		             
+0a6f			l0a6fh: 
+0a6f 3d				dec a			             
+0a70 20 fd			jr nz,l0a6fh		         
+0a72 c9				ret			                 
+0a73			sub_0a73h: 
+0a73 3a f0 fe			ld a,(0fef0h)		         
+0a76 4f				ld c,a			             
+0a77 3e d0			ld a,0d0h		             
+0a79 ed 79			out (c),a		             
+0a7b			l0a7bh: 
+0a7b 3e 10			ld a,010h		             
+0a7d			l0a7dh: 
+0a7d 3d				dec a			             
+0a7e 20 fd			jr nz,l0a7dh		         
+0a80 c9				ret			  
+0a81			; 
+0a81			; 
+0a81			; 
+0a81			;	                
+0a81			l0a81h: 
+0a81 00 00 00 00 00 00 00 00 20 20 20 20 20 00 20 00	    defb	000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 020h, 020h, 020h, 020h, 020h, 000h, 020h, 000h 
+0a91 00 50 50 50 00 00 00 00 50 50 f8 50 f8 50 50 00	    defb	000h, 050h, 050h, 050h, 000h, 000h, 000h, 000h, 050h, 050h, 0F8h, 050h, 0F8h, 050h, 050h, 000h 
+0aa1 20 78 a0 70 28 f0 20 00 c0 c8 10 20 40 98 18 00	    defb	020h, 078h, 0A0h, 070h, 028h, 0F0h, 020h, 000h, 0C0h, 0C8h, 010h, 020h, 040h, 098h, 018h, 000h 
+0ab1 40 a0 a0 40 a8 90 68 00 00 20 20 20 00 00 00 00	    defb	040h, 0A0h, 0A0h, 040h, 0A8h, 090h, 068h, 000h, 000h, 020h, 020h, 020h, 000h, 000h, 000h, 000h 
+0ac1 10 20 40 40 40 20 10 00 40 20 10 10 10 20 40 00	    defb	010h, 020h, 040h, 040h, 040h, 020h, 010h, 000h, 040h, 020h, 010h, 010h, 010h, 020h, 040h, 000h 
+0ad1 20 a8 70 20 70 a8 20 00 00 20 20 f8 20 20 00 00	    defb	020h, 0A8h, 070h, 020h, 070h, 0A8h, 020h, 000h, 000h, 020h, 020h, 0F8h, 020h, 020h, 000h, 000h 
+0ae1 00 00 00 00 20 20 40 00 00 00 00 78 00 00 00 00	    defb	000h, 000h, 000h, 000h, 020h, 020h, 040h, 000h, 000h, 000h, 000h, 078h, 000h, 000h, 000h, 000h 
+0af1 00 00 00 00 00 00 20 00 00 08 10 20 40 80 00 00	    defb	000h, 000h, 000h, 000h, 000h, 000h, 020h, 000h, 000h, 008h, 010h, 020h, 040h, 080h, 000h, 000h 
+0b01 30 48 48 48 48 48 30 00 20 60 20 20 20 20 70 00	    defb	030h, 048h, 048h, 048h, 048h, 048h, 030h, 000h, 020h, 060h, 020h, 020h, 020h, 020h, 070h, 000h 
+0b11 30 48 08 30 40 40 78 00 78 08 10 30 08 48 30 00	    defb	030h, 048h, 008h, 030h, 040h, 040h, 078h, 000h, 078h, 008h, 010h, 030h, 008h, 048h, 030h, 000h 
+0b21 08 18 28 48 78 08 08 00 78 40 70 08 08 48 30 00	    defb	008h, 018h, 028h, 048h, 078h, 008h, 008h, 000h, 078h, 040h, 070h, 008h, 008h, 048h, 030h, 000h 
+0b31 10 20 40 70 48 48 30 00 78 08 10 20 20 20 20 00	    defb	010h, 020h, 040h, 070h, 048h, 048h, 030h, 000h, 078h, 008h, 010h, 020h, 020h, 020h, 020h, 000h 
+0b41 30 48 48 30 48 48 30 00 30 48 48 38 08 10 20 00		defb	030h, 048h, 048h, 030h, 048h, 048h, 030h, 000h, 030h, 048h, 048h, 038h, 008h, 010h, 020h, 000h 
+0b51 00 00 20 00 20 00 00 00 00 00 20 00 20 20 40 00		defb	000h, 000h, 020h, 000h, 020h, 000h, 000h, 000h, 000h, 000h, 020h, 000h, 020h, 020h, 040h, 000h 
+0b61 08 10 20 40 20 10 08 00 00 00 78 00 78 00 00 00		defb	008h, 010h, 020h, 040h, 020h, 010h, 008h, 000h, 000h, 000h, 078h, 000h, 078h, 000h, 000h, 000h 
+0b71 40 20 10 08 10 20 40 00 30 48 08 30 20 00 20 00		defb	040h, 020h, 010h, 008h, 010h, 020h, 040h, 000h, 030h, 048h, 008h, 030h, 020h, 000h, 020h, 000h 
+0b81 70 88 a8 b8 b0 80 78 00 00 30 48 48 78 48 48 00		defb	070h, 088h, 0A8h, 0B8h, 0B0h, 080h, 078h, 000h, 000h, 030h, 048h, 048h, 078h, 048h, 048h, 000h 
+0b91 00 70 48 70 48 48 70 00 00 30 48 40 40 48 30 00		defb	000h, 070h, 048h, 070h, 048h, 048h, 070h, 000h, 000h, 030h, 048h, 040h, 040h, 048h, 030h, 000h 
+0ba1 00 70 48 48 48 48 70 00 00 78 40 70 40 40 78 00		defb	000h, 070h, 048h, 048h, 048h, 048h, 070h, 000h, 000h, 078h, 040h, 070h, 040h, 040h, 078h, 000h 
+0bb1 00 78 40 70 40 40 40 00 00 30 48 40 58 48 30 00		defb	000h, 078h, 040h, 070h, 040h, 040h, 040h, 000h, 000h, 030h, 048h, 040h, 058h, 048h, 030h, 000h 
+0bc1 00 48 48 78 48 48 48 00 00 70 20 20 20 20 70 00		defb	000h, 048h, 048h, 078h, 048h, 048h, 048h, 000h, 000h, 070h, 020h, 020h, 020h, 020h, 070h, 000h 
+0bd1 00 38 10 10 10 50 20 00 00 48 50 60 50 48 48 00		defb	000h, 038h, 010h, 010h, 010h, 050h, 020h, 000h, 000h, 048h, 050h, 060h, 050h, 048h, 048h, 000h 
+0be1 00 40 40 40 40 40 78 00 00 88 d8 a8 88 88 88 00		defb	000h, 040h, 040h, 040h, 040h, 040h, 078h, 000h, 000h, 088h, 0D8h, 0A8h, 088h, 088h, 088h, 000h 
+0bf1 00 48 48 68 58 48 48 00 00 30 48 48 48 48 30 00		defb	000h, 048h, 048h, 068h, 058h, 048h, 048h, 000h, 000h, 030h, 048h, 048h, 048h, 048h, 030h, 000h 
+0c01 00 70 48 48 70 40 40 00 00 30 48 48 68 50 28 00		defb	000h, 070h, 048h, 048h, 070h, 040h, 040h, 000h, 000h, 030h, 048h, 048h, 068h, 050h, 028h, 000h 
+0c11 00 70 48 48 70 50 48 00 00 38 40 30 08 08 70 00		defb	000h, 070h, 048h, 048h, 070h, 050h, 048h, 000h, 000h, 038h, 040h, 030h, 008h, 008h, 070h, 000h 
+0c21 00 7c 10 10 10 10 10 00 00 48 48 48 48 48 30 00		defb	000h, 07Ch, 010h, 010h, 010h, 010h, 010h, 000h, 000h, 048h, 048h, 048h, 048h, 048h, 030h, 000h 
+0c31 00 48 48 48 48 50 60 00 00 88 88 88 a8 d8 88 00		defb	000h, 048h, 048h, 048h, 048h, 050h, 060h, 000h, 000h, 088h, 088h, 088h, 0A8h, 0D8h, 088h, 000h 
+0c41 00 88 50 20 50 88 88 00 00 44 28 10 10 10 10 00		defb	000h, 088h, 050h, 020h, 050h, 088h, 088h, 000h, 000h, 044h, 028h, 010h, 010h, 010h, 010h, 000h 
+0c51 00 78 08 10 20 40 78 00 78 40 40 40 40 40 78 00		defb	000h, 078h, 008h, 010h, 020h, 040h, 078h, 000h, 078h, 040h, 040h, 040h, 040h, 040h, 078h, 000h 
+0c61 00 80 40 20 10 08 00 00 78 08 08 08 08 08 78 00		defb	000h, 080h, 040h, 020h, 010h, 008h, 000h, 000h, 078h, 008h, 008h, 008h, 008h, 008h, 078h, 000h 
+0c71 00 00 20 50 88 00 00 00 00 00 00 00 00 00 00 78		defb	000h, 000h, 020h, 050h, 088h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 078h 
+0c81 40 60 70 78 70 60 40 00 00 00 70 08 38 48 38 00		defb	040h, 060h, 070h, 078h, 070h, 060h, 040h, 000h, 000h, 000h, 070h, 008h, 038h, 048h, 038h, 000h 
+0c91 40 40 70 48 48 48 70 00 00 00 38 40 40 40 38 00		defb	040h, 040h, 070h, 048h, 048h, 048h, 070h, 000h, 000h, 000h, 038h, 040h, 040h, 040h, 038h, 000h 
+0ca1 08 08 38 48 48 48 38 00 00 00 30 48 70 40 38 00		defb	008h, 008h, 038h, 048h, 048h, 048h, 038h, 000h, 000h, 000h, 030h, 048h, 070h, 040h, 038h, 000h 
+0cb1 10 28 20 70 20 20 20 00 00 00 30 48 48 38 08 70		defb	010h, 028h, 020h, 070h, 020h, 020h, 020h, 000h, 000h, 000h, 030h, 048h, 048h, 038h, 008h, 070h 
+0cc1 40 40 70 48 48 48 48 00 20 00 20 20 20 20 70 00		defb	040h, 040h, 070h, 048h, 048h, 048h, 048h, 000h, 020h, 000h, 020h, 020h, 020h, 020h, 070h, 000h 
+0cd1 10 00 10 10 10 10 50 20 40 40 48 50 60 50 48 00		defb	010h, 000h, 010h, 010h, 010h, 010h, 050h, 020h, 040h, 040h, 048h, 050h, 060h, 050h, 048h, 000h 
+0ce1 30 10 10 10 10 10 38 00 00 00 d8 a8 a8 88 88 00		defb	030h, 010h, 010h, 010h, 010h, 010h, 038h, 000h, 000h, 000h, 0D8h, 0A8h, 0A8h, 088h, 088h, 000h 
+0cf1 00 00 70 48 48 48 48 00 00 00 30 48 48 48 30 00		defb	000h, 000h, 070h, 048h, 048h, 048h, 048h, 000h, 000h, 000h, 030h, 048h, 048h, 048h, 030h, 000h 
+0d01 00 00 70 48 48 70 40 40 00 00 38 48 48 38 08 08		defb	000h, 000h, 070h, 048h, 048h, 070h, 040h, 040h, 000h, 000h, 038h, 048h, 048h, 038h, 008h, 008h 
+0d11 00 00 38 40 40 40 40 00 00 00 38 40 30 08 70 00		defb	000h, 000h, 038h, 040h, 040h, 040h, 040h, 000h, 000h, 000h, 038h, 040h, 030h, 008h, 070h, 000h 
+0d21 20 20 70 20 20 20 30 00 00 00 48 48 48 48 30 00		defb	020h, 020h, 070h, 020h, 020h, 020h, 030h, 000h, 000h, 000h, 048h, 048h, 048h, 048h, 030h, 000h 
+0d31 00 00 48 48 48 50 60 00 00 00 88 88 a8 a8 d8 00		defb	000h, 000h, 048h, 048h, 048h, 050h, 060h, 000h, 000h, 000h, 088h, 088h, 0A8h, 0A8h, 0D8h, 000h 
+0d41 00 00 88 50 20 50 88 00 00 00 48 48 48 38 08 70		defb	000h, 000h, 088h, 050h, 020h, 050h, 088h, 000h, 000h, 000h, 048h, 048h, 048h, 038h, 008h, 070h 
+0d51 00 00 78 10 20 40 78 00 18 20 10 60 10 20 18 00		defb	000h, 000h, 078h, 010h, 020h, 040h, 078h, 000h, 018h, 020h, 010h, 060h, 010h, 020h, 018h, 000h 
+0d61 00 48 48 48 48 48 00 00 60 10 20 18 20 10 60 00		defb	000h, 048h, 048h, 048h, 048h, 048h, 000h, 000h, 060h, 010h, 020h, 018h, 020h, 010h, 060h, 000h 
+0d71 00 00 00 00 00 00 00 1c fc 00 00 fc fc 00 00 fc		defb	000h, 000h, 000h, 000h, 000h, 000h, 000h, 01Ch, 0FCh, 000h, 000h, 0FCh, 0FCh, 000h, 000h, 0FCh 
+0d81 00 00 00 00 00 00 00 e0 fc fc 00 fc fc fc fc 00		defb	000h, 000h, 000h, 000h, 000h, 000h, 000h, 0E0h, 0FCh, 0FCh, 000h, 0FCh, 0FCh, 0FCh, 0FCh, 000h 
+0d91 fc fc f0 f0 f0 f0 f0 f0 fc fc 3c 3c 1c 1c 0c 0c		defb	0FCh, 0FCh, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0FCh, 0FCh, 03Ch, 03Ch, 01Ch, 01Ch, 00Ch, 00Ch 
+0da1 fc fc 84 84 84 84 84 84 fc fc fc fc fc fc fc fc		defb	0FCh, 0FCh, 084h, 084h, 084h, 084h, 084h, 084h, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh 
+0db1 fc fc 80 80 80 00 00 10 fc fc fc fc fc 7c 7c 7c		defb	0FCh, 0FCh, 080h, 080h, 080h, 000h, 000h, 010h, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh, 07Ch, 07Ch, 07Ch 
+0dc1 fc fc c0 c0 c0 c0 c0 c0 fc fc 00 00 00 f0 fc fc		defb	0FCh, 0FCh, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0FCh, 0FCh, 000h, 000h, 000h, 0F0h, 0FCh, 0FCh 
+0dd1 fc fc fc 3c 1c 1c 0c 0c fc fc 84 84 84 84 84 84		defb	0FCh, 0FCh, 0FCh, 03Ch, 01Ch, 01Ch, 00Ch, 00Ch, 0FCh, 0FCh, 084h, 084h, 084h, 084h, 084h, 084h 
+0de1 fc fc f0 f0 f0 f0 f0 f0 fc fc 3c 3c 3c 3c 3c 3c		defb	0FCh, 0FCh, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0FCh, 0FCh, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch 
+0df1 f0 f0 f0 f0 f0 f0 f0 f0 04 04 00 20 20 30 30 38		defb	0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 004h, 004h, 000h, 020h, 020h, 030h, 030h, 038h 
+0e01 84 84 84 84 04 04 04 04 f8 f8 f8 f0 f0 f0 e0 e0		defb	084h, 084h, 084h, 084h, 004h, 004h, 004h, 004h, 0F8h, 0F8h, 0F8h, 0F0h, 0F0h, 0F0h, 0E0h, 0E0h 
+0e11 10 10 38 38 38 00 00 00 3c 3c 3c 1c 1c 1c 0c 0c		defb	010h, 010h, 038h, 038h, 038h, 000h, 000h, 000h, 03Ch, 03Ch, 03Ch, 01Ch, 01Ch, 01Ch, 00Ch, 00Ch 
+0e21 c0 c0 c0 c0 c0 c0 c0 c0 fc f0 00 00 00 f0 fc fc		defb	0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0FCh, 0F0h, 000h, 000h, 000h, 0F0h, 0FCh, 0FCh 
+0e31 0c 1c 1c 3c 1c 1c 0c 0c 84 84 84 84 84 84 84 84		defb	00Ch, 01Ch, 01Ch, 03Ch, 01Ch, 01Ch, 00Ch, 00Ch, 084h, 084h, 084h, 084h, 084h, 084h, 084h, 084h 
+0e41 f0 f0 f0 f0 f0 f0 f0 f0 3c 3c 3c 3c 3c 3c 3c 3c		defb	0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch, 03Ch 
+0e51 f0 f0 f0 f0 f0 fc fc 00 38 3c 3c 3c 3c fc fc 00		defb	0F0h, 0F0h, 0F0h, 0F0h, 0F0h, 0FCh, 0FCh, 000h, 038h, 03Ch, 03Ch, 03Ch, 03Ch, 0FCh, 0FCh, 000h 
+0e61 04 04 04 84 84 fc fc 00 e0 c0 c0 c0 c0 fc fc 00		defb	004h, 004h, 004h, 084h, 084h, 0FCh, 0FCh, 000h, 0E0h, 0C0h, 0C0h, 0C0h, 0C0h, 0FCh, 0FCh, 000h 
+0e71 7c 7c fc fc fc fc fc 00 0c 04 84 84 84 fc fc 00		defb	07Ch, 07Ch, 0FCh, 0FCh, 0FCh, 0FCh, 0FCh, 000h, 00Ch, 004h, 084h, 084h, 084h, 0FCh, 0FCh, 000h 
+0e81 c0 c0 c0 c0 c0 fc fc 00 fc f0 00 00 00 fc fc 00		defb	0C0h, 0C0h, 0C0h, 0C0h, 0C0h, 0FCh, 0FCh, 000h, 0FCh, 0F0h, 000h, 000h, 000h, 0FCh, 0FCh, 000h 
+0e91 0c 1c 1c 3c fc fc fc 00 84 80 c0 e0 f0 fc fc 00		defb	00Ch, 01Ch, 01Ch, 03Ch, 0FCh, 0FCh, 0FCh, 000h, 084h, 080h, 0C0h, 0E0h, 0F0h, 0FCh, 0FCh, 000h 
+0ea1 f0 e0 00 00 04 fc fc 00 3c 3c 7c fc fc fc fc 00		defb	0F0h, 0E0h, 000h, 000h, 004h, 0FCh, 0FCh, 000h, 03Ch, 03Ch, 07Ch, 0FCh, 0FCh, 0FCh, 0FCh, 000h 
+0eb1 fc fc fc fc 00 fc fc fc 00 00 00 00 00 00 00 00		defb	0FCh, 0FCh, 0FCh, 0FCh, 000h, 0FCh, 0FCh, 0FCh, 000h, 000h, 000h, 000h, 000h, 000h, 000h, 000h 
+0ec1 00 00 fc fc 00 00 fc 00 0c 00 00 fc fc 00 00 fc		defb	000h, 000h, 0FCh, 0FCh, 000h, 000h, 0FCh, 000h, 00Ch, 000h, 000h, 0FCh, 0FCh, 000h, 000h, 0FCh 
+0ed1 c0 00 00 fc fc 00 00 fc 1c 1c 00 7c		defb	0C0h, 000h, 000h, 0FCh, 0FCh, 000h, 000h, 0FCh, 01Ch, 01Ch, 000h, 07Ch 
+0edd			l0eddh: 
+0edd 7c 7c 7c 00		defb	07Ch, 07Ch, 07Ch, 000h 
+0ee1 e0 e0 00 f8 f8 f8 f8 00 7c 7c 7c 7c 00 1c 1c 1c		defb	0E0h, 0E0h, 000h, 0F8h, 0F8h, 0F8h, 0F8h, 000h, 07Ch, 07Ch, 07Ch, 07Ch, 000h, 01Ch, 01Ch, 01Ch 
+0ef1 f8 f8 f8 f8 00 e0 e0 e0 00 00 fc fc 00 00 0c 00		defb	0F8h, 0F8h, 0F8h, 0F8h, 000h, 0E0h, 0E0h, 0E0h, 000h, 000h, 0FCh, 0FCh, 000h, 000h, 00Ch, 000h 
+0f01			l0f01h: 
+0f01 00 00 fc fc 00 00 c0 00		defb	000h, 000h, 0FCh, 0FCh, 000h, 000h, 0C0h, 000h  
+0f09				 
+0f09			; 
+0f09			; 
+0f09			; 
+0f09			;	                 
+0f09			sub_0f09h: 
+0f09 f5				push af			             
+0f0a d9				exx			                 
+0f0b aa				xor d			             
+0f0c 4f				ld c,a			             
+0f0d 06 00			ld b,000h		             
+0f0f cb 21			sla c		                 
+0f11 cb 10			rl b		                 
+0f13 53				ld d,e			             
+0f14 fd 21 26 0f		ld iy,l0f26h		         
+0f18 fd 09			add iy,bc		             
+0f1a fd 7e 00			ld a,(iy+000h)		         
+0f1d 5f				ld e,a			             
+0f1e fd 7e 01			ld a,(iy+001h)		         
+0f21 aa				xor d			             
+0f22 57				ld d,a			             
+0f23 d9				exx			                 
+0f24 f1				pop af			             
+0f25			l0f25h: 
+0f25 c9				ret			   
+0f26			; 
+0f26			; 
+0f26			; 
+0f26			;	                 
+0f26			l0f26h: 
+0f26 00 00 21 10 42 20 63 30 84 40 a5 50 c6 60 e7 70	    defb    000h, 000h, 021h, 010h, 042h, 020h, 063h, 030h, 084h, 040h, 0A5h, 050h, 0C6h, 060h, 0E7h, 070h 
+0f36 08 81 29 91 4a a1 6b b1 8c c1 ad d1 ce e1 ef f1	    defb    008h, 081h, 029h, 091h, 04Ah, 0A1h, 06Bh, 0B1h, 08Ch, 0C1h, 0ADh, 0D1h, 0CEh, 0E1h, 0EFh, 0F1h 
+0f46 31 12 10 02 73 32 52 22 b5 52 94 42 f7 72 d6 62	    defb    031h, 012h, 010h, 002h, 073h, 032h, 052h, 022h, 0B5h, 052h, 094h, 042h, 0F7h, 072h, 0D6h, 062h 
+0f56 39 93 18 83 7b b3 5a a3 bd d3 9c c3 ff f3 de e3	    defb    039h, 093h, 018h, 083h, 07Bh, 0B3h, 05Ah, 0A3h, 0BDh, 0D3h, 09Ch, 0C3h, 0FFh, 0F3h, 0DEh, 0E3h 
+0f66 62 24 43 34 20 04 01 14 e6 64 c7 74 a4 44 85 54	    defb    062h, 024h, 043h, 034h, 020h, 004h, 001h, 014h, 0E6h, 064h, 0C7h, 074h, 0A4h, 044h, 085h, 054h 
+0f76 6a a5 4b b5 28 85 09 95 ee e5 cf f5 ac c5 8d d5	    defb    06Ah, 0A5h, 04Bh, 0B5h, 028h, 085h, 009h, 095h, 0EEh, 0E5h, 0CFh, 0F5h, 0ACh, 0C5h, 08Dh, 0D5h 
+0f86 53 36 72 26 11 16 30 06 d7 76 f6 66 95 56 b4 46	    defb    053h, 036h, 072h, 026h, 011h, 016h, 030h, 006h, 0D7h, 076h, 0F6h, 066h, 095h, 056h, 0B4h, 046h 
+0f96 5b b7 7a a7 19 97 38 87 df f7 fe e7 9d d7 bc c7	    defb    05Bh, 0B7h, 07Ah, 0A7h, 019h, 097h, 038h, 087h, 0DFh, 0F7h, 0FEh, 0E7h, 09Dh, 0D7h, 0BCh, 0C7h 
+0fa6 c4 48 e5 58 86 68 a7 78 40 08 61 18 02 28 23 38	    defb    0C4h, 048h, 0E5h, 058h, 086h, 068h, 0A7h, 078h, 040h, 008h, 061h, 018h, 002h, 028h, 023h, 038h 
+0fb6 cc c9 ed d9 8e e9 af f9 48 89 69 99 0a a9 2b b9	    defb    0CCh, 0C9h, 0EDh, 0D9h, 08Eh, 0E9h, 0AFh, 0F9h, 048h, 089h, 069h, 099h, 00Ah, 0A9h, 02Bh, 0B9h 
+0fc6 f5 5a d4 4a b7 7a 96 6a 71 1a 50 0a 33 3a 12 2a	    defb    0F5h, 05Ah, 0D4h, 04Ah, 0B7h, 07Ah, 096h, 06Ah, 071h, 01Ah, 050h, 00Ah, 033h, 03Ah, 012h, 02Ah 
+0fd6 fd db dc cb bf fb 9e eb 79 9b 58 8b 3b bb 1a ab	    defb    0FDh, 0DBh, 0DCh, 0CBh, 0BFh, 0FBh, 09Eh, 0EBh, 079h, 09Bh, 058h, 08Bh, 03Bh, 0BBh, 01Ah, 0ABh 
+0fe6 a6 6c 87 7c e4 4c c5 5c 22 2c 03 3c 60 0c 41 1c	    defb    0A6h, 06Ch, 087h, 07Ch, 0E4h, 04Ch, 0C5h, 05Ch, 022h, 02Ch, 003h, 03Ch, 060h, 00Ch, 041h, 01Ch 
+0ff6 ae ed 8f fd ec cd cd dd 2a ad 0b bd 68 8d 49 9d	    defb    0AEh, 0EDh, 08Fh, 0FDh, 0ECh, 0CDh, 0CDh, 0DDh, 02Ah, 0ADh, 00Bh, 0BDh, 068h, 08Dh, 049h, 09Dh 
+1006 97 7e b6 6e d5 5e f4 4e 13 3e 32 2e 51 1e 70 0e	    defb    097h, 07Eh, 0B6h, 06Eh, 0D5h, 05Eh, 0F4h, 04Eh, 013h, 03Eh, 032h, 02Eh, 051h, 01Eh, 070h, 00Eh 
+1016 9f ff be ef dd df fc cf 1b bf 3a af 59 9f 78 8f	    defb    09Fh, 0FFh, 0BEh, 0EFh, 0DDh, 0DFh, 0FCh, 0CFh, 01Bh, 0BFh, 03Ah, 0AFh, 059h, 09Fh, 078h, 08Fh 
+1026 88 91 a9 81 ca b1 eb a1 0c d1 2d c1 4e f1 6f e1	    defb    088h, 091h, 0A9h, 081h, 0CAh, 0B1h, 0EBh, 0A1h, 00Ch, 0D1h, 02Dh, 0C1h, 04Eh, 0F1h, 06Fh, 0E1h 
+1036 80 10 a1 00 c2 30 e3 20 04 50 25 40 46 70 67 60	    defb    080h, 010h, 0A1h, 000h, 0C2h, 030h, 0E3h, 020h, 004h, 050h, 025h, 040h, 046h, 070h, 067h, 060h 
+1046 b9 83 98 93 fb a3 da b3 3d c3 1c d3 7f e3 5e f3	    defb    0B9h, 083h, 098h, 093h, 0FBh, 0A3h, 0DAh, 0B3h, 03Dh, 0C3h, 01Ch, 0D3h, 07Fh, 0E3h, 05Eh, 0F3h 
+1056 b1 02 90 12 f3 22 d2 32 35 42 14 52 77 62 56 72	    defb    0B1h, 002h, 090h, 012h, 0F3h, 022h, 0D2h, 032h, 035h, 042h, 014h, 052h, 077h, 062h, 056h, 072h 
+1066 ea b5 cb a5 a8 95 89 85 6e f5 4f e5 2c d5 0d c5	    defb    0EAh, 0B5h, 0CBh, 0A5h, 0A8h, 095h, 089h, 085h, 06Eh, 0F5h, 04Fh, 0E5h, 02Ch, 0D5h, 00Dh, 0C5h 
+1076 e2 34 c3 24 a0 14 81 04 66 74 47 64 24 54 05 44	    defb    0E2h, 034h, 0C3h, 024h, 0A0h, 014h, 081h, 004h, 066h, 074h, 047h, 064h, 024h, 054h, 005h, 044h 
+1086 db a7 fa b7 99 87 b8 97 5f e7 7e f7 1d c7 3c d7	    defb    0DBh, 0A7h, 0FAh, 0B7h, 099h, 087h, 0B8h, 097h, 05Fh, 0E7h, 07Eh, 0F7h, 01Dh, 0C7h, 03Ch, 0D7h 
+1096 d3 26 f2 36 91 06 b0 16 57 66 76 76 15 46 34 56	    defb    0D3h, 026h, 0F2h, 036h, 091h, 006h, 0B0h, 016h, 057h, 066h, 076h, 076h, 015h, 046h, 034h, 056h 
+10a6 4c d9 6d c9 0e f9 2f e9 c8 99 e9 89 8a b9 ab a9	    defb    04Ch, 0D9h, 06Dh, 0C9h, 00Eh, 0F9h, 02Fh, 0E9h, 0C8h, 099h, 0E9h, 089h, 08Ah, 0B9h, 0ABh, 0A9h 
+10b6 44 58 65 48 06 78 27 68 c0 18 e1 08 82 38 a3 28	    defb    044h, 058h, 065h, 048h, 006h, 078h, 027h, 068h, 0C0h, 018h, 0E1h, 008h, 082h, 038h, 0A3h, 028h 
+10c6 7d cb 5c db 3f eb 1e fb f9 8b d8 9b bb ab 9a bb	    defb    07Dh, 0CBh, 05Ch, 0DBh, 03Fh, 0EBh, 01Eh, 0FBh, 0F9h, 08Bh, 0D8h, 09Bh, 0BBh, 0ABh, 09Ah, 0BBh 
+10d6 75 4a 54 5a 37 6a 16 7a f1 0a d0 1a b3 2a 92 3a	    defb    075h, 04Ah, 054h, 05Ah, 037h, 06Ah, 016h, 07Ah, 0F1h, 00Ah, 0D0h, 01Ah, 0B3h, 02Ah, 092h, 03Ah 
+10e6 2e fd 0f ed 6c dd 4d cd aa bd 8b ad e8 9d c9 8d	    defb    02Eh, 0FDh, 00Fh, 0EDh, 06Ch, 0DDh, 04Dh, 0CDh, 0AAh, 0BDh, 08Bh, 0ADh, 0E8h, 09Dh, 0C9h, 08Dh 
+10f6 26 7c 07 6c 64 5c 45 4c a2 3c 83 2c e0 1c c1 0c	    defb    026h, 07Ch, 007h, 06Ch, 064h, 05Ch, 045h, 04Ch, 0A2h, 03Ch, 083h, 02Ch, 0E0h, 01Ch, 0C1h, 00Ch 
+1106 1f ef 3e ff 5d cf 7c df 9b af ba bf d9 8f f8 9f	    defb    01Fh, 0EFh, 03Eh, 0FFh, 05Dh, 0CFh, 07Ch, 0DFh, 09Bh, 0AFh, 0BAh, 0BFh, 0D9h, 08Fh, 0F8h, 09Fh 
+1116 17 6e 36 7e 55 4e 74 5e 93 2e b2 3e d1 0e f0 1e	    defb    017h, 06Eh, 036h, 07Eh, 055h, 04Eh, 074h, 05Eh, 093h, 02Eh, 0B2h, 03Eh, 0D1h, 00Eh, 0F0h, 01Eh 
+1126			 
+1126			 
+1126			l1126h: 
+1126 af				xor a			 
+1127 21 ee ff			ld hl,0ffeeh	 
+112a 11 ef ff			ld de,0ffefh	 
+112d 01 09 00			ld bc,l0009h	 
+1130 77				ld (hl),a		 
+1131 ed b0			ldir		 
+1133 3e 3a			ld a,03ah	 
+1135 d3 00			out (000h),a 
+1137 32 ed ff			ld (ctrl_reg_save),a	 
+113a 26 0a			ld h,00ah		 
+113c 0e 20			ld c,020h		 
+113e 11 00 e0			ld de,0e000h	 
+1141 06 01			ld b,001h		 
+1143			l1143h: 
+1143 cd d9 08			call sub_08d9h		           
+1146 28 04			jr z,l114ch		               
+1148 10 02			djnz l114ch		               
+114a 18 22			jr l116eh		               
+114c			l114ch: 
+114c cd 09 14			call sub_1409h		           
+114f 28 f2			jr z,l1143h		               
+1151 db 90			in a,(kbd_data)		               
+1153 fe 31			cp 031h		                 
+1155 28 0d			jr z,l1164h		               
+1157 fe 3d			cp 03dh		                 
+1159 20 e8			jr nz,l1143h		           
+115b cb 44			bit 0,h		                 
+115d 28 e4			jr z,l1143h		               
+115f			l115fh: 
+115f 25				dec h			               
+1160 28 08			jr z,l116ah		               
+1162 18 df			jr l1143h		               
+1164			l1164h: 
+1164 cb 44			bit 0,h		                 
+1166 20 db			jr nz,l1143h		           
+1168 18 f5			jr l115fh		               
+116a			l116ah: 
+116a 21 ee ff			ld hl,0ffeeh		           
+116d 34				inc (hl)			           
+116e			l116eh: 
+116e 3a f6 ff			ld a,(0fff6h)		           
+1171 cb 47			bit 0,a		                 
+1173 20 08			jr nz,l117dh		           
+1175 cd f6 13			call sub_13f6h		           
+1178 d3 00			out (ctrl_reg),a		           
+117a 32 ed ff			ld (ctrl_reg_save),a		           
+117d			l117dh: 
+117d dd 21 fd 1f		ld ix,01ffdh		           
+1181 11 ff ff			ld de,0ffffh		           
+1184 af				xor a			               
+1185 67				ld h,a			               
+1186 6f				ld l,a			               
+1187 47				ld b,a			               
+1188			l1188h: 
+1188 dd 4e 00			ld c,(ix+000h)		           
+118b 09				add hl,bc			           
+118c dd 19			add ix,de		               
+118e 38 f8			jr c,l1188h		               
+1190 3a fe 1f			ld a,(01ffeh)		          ;checksum 
+1193 bd				cp l			               
+1194 20 06			jr nz,l119ch		           
+1196 3a ff 1f			ld a,(01fffh)		          ;checksum 
+1199 94				sub h			               
+119a 28 03			jr z,l119fh		               
+119c			l119ch: 
+119c cd cb 13			call sub_13cbh		           
+119f			l119fh: 
+119f cd 10 13			call sub_1310h		           
+11a2 af				xor a			               
+11a3 d3 a1			out (vdp_add),a		           
+11a5 3e 40			ld a,040h		               
+11a7 d3 a1			out (vdp_add),a		           
+11a9 af				xor a			               
+11aa 11 01 00			ld de,l0000h+1		           
+11ad dd 21 00 c0		ld ix,0c000h		           
+11b1			l11b1h: 
+11b1 d3 a0			out (vdp_data),a		           
+11b3 3c				inc a			               
+11b4 dd 19			add ix,de		               
+11b6 30 f9			jr nc,l11b1h		           
+11b8 dd 21 00 c0		ld ix,0c000h		           
+11bc af				xor a			               
+11bd 4f				ld c,a			               
+11be 47				ld b,a			               
+11bf 67				ld h,a			               
+11c0 6f				ld l,a			               
+11c1			l11c1h: 
+11c1 7d				ld a,l			               
+11c2 d3 a1			out (vdp_add),a		           
+11c4 7c				ld a,h			               
+11c5 d3 a1			out (vdp_add),a		           
+11c7 db a0			in a,(vdp_data)		               
+11c9 b9				cp c			               
+11ca 20 18			jr nz,l11e4h		           
+11cc 7d				ld a,l			               
+11cd d3 a1			out (vdp_add),a		           
+11cf 7c				ld a,h			               
+11d0 f6 40			or 040h		                 
+11d2 d3 a1			out (vdp_add),a		           
+11d4 79				ld a,c			               
+11d5 2f				cpl			                 
+11d6 d3 a0			out (vdp_data),a		           
+11d8 7d				ld a,l			               
+11d9 d3 a1			out (vdp_add),a		           
+11db 7c				ld a,h			               
+11dc d3 a1			out (vdp_add),a		           
+11de db a0			in a,(vdp_data)		               
+11e0 2f				cpl			                 
+11e1 b9				cp c			               
+11e2 28 03			jr z,l11e7h		               
+11e4			l11e4h: 
+11e4 cd cb 13			call sub_13cbh		           
+11e7			l11e7h: 
+11e7 0c				inc c			               
+11e8 23				inc hl			               
+11e9 11 01 00			ld de,l0000h+1		           
+11ec dd 19			add ix,de		               
+11ee 30 d1			jr nc,l11c1h		           
+11f0 cd 52 02			call sub_0252h		           
+11f3 cd 19 14			call sub_1419h		           
+11f6 cd 10 13			call sub_1310h		           
+11f9 01 00 80			ld bc,08000h		           
+11fc 11 00 82			ld de,08200h		           
+11ff cd bd 12			call sub_12bdh		           
+1202 b7				or a			               
+1203 20 1c			jr nz,l1221h		           
+1205 21 bd 12			ld hl,sub_12bdh		           
+1208 11 00 80			ld de,08000h		           
+120b 01 53 00			ld bc,00053h		           
+120e ed b0			ldir		                 
+1210 01 00 00			ld bc,l0000h		           
+1213 11 00 80			ld de,08000h		           
+1216 21 1e 12			ld hl,l121eh		           
+1219 e5				push hl			               
+121a 21 00 80			ld hl,08000h		           
+121d e9				jp (hl)			               
+121e			l121eh: 
+121e b7				or a			               
+121f 28 03			jr z,l1224h		               
+1221			l1221h: 
+1221 cd cb 13			call sub_13cbh		           
+1224			l1224h: 
+1224 cd 10 13			call sub_1310h		           
+1227 06 10			ld b,010h		               
+1229			l1229h: 
+1229 0e 00			ld c,000h		               
+122b 78				ld a,b			               
+122c 3d				dec a			               
+122d d3 41			out (sg_add),a		           
+122f 79				ld a,c			               
+1230 d3 40			out (sg_data),a		           
+1232 10 f5			djnz l1229h		               
+1234 0e 00			ld c,000h		               
+1236			l1236h: 
+1236 06 ff			ld b,0ffh		               
+1238			l1238h: 
+1238 79				ld a,c			               
+1239 d3 41			out (sg_add),a		           
+123b 78				ld a,b			               
+123c d3 40			out (sg_data),a		           
+123e db 40			in a,(sg_data)		               
+1240 cd 52 12			call sub_1252h		           
+1243 c4 cb 13			call nz,sub_13cbh		       
+1246 cb 38			srl b		                 
+1248 38 ee			jr c,l1238h		               
+124a 0c				inc c			               
+124b 3e 0e			ld a,00eh		               
+124d b9				cp c			               
+124e 20 e6			jr nz,l1236h		           
+1250 18 1b			jr l126dh		               
+1252			sub_1252h: 
+1252 21 5f 12			ld hl,l125fh		           
+1255 59				ld e,c			               
+1256 16 00			ld d,000h		               
+1258 19				add hl,de			           
+1259 a6				and (hl)			           
+125a 5f				ld e,a			               
+125b 78				ld a,b			               
+125c a6				and (hl)			           
+125d bb				cp e			               
+125e c9				ret			                 
+125f			l125fh: 
+125f ff				rst 38h			               
+1260 0f				rrca			               
+1261 ff				rst 38h			               
+1262 0f				rrca			               
+1263 ff				rst 38h			               
+1264 0f				rrca			               
+1265 1f				rra			                 
+1266 ff				rst 38h			               
+1267 1f				rra			                 
+1268 1f				rra			                 
+1269 1f				rra			                 
+126a ff				rst 38h			               
+126b ff				rst 38h			               
+126c 0f				rrca			               
+126d			l126dh: 
+126d cd 10 13			call sub_1310h		           
+1270 cd 0f 03			call init_sg		           
+1273 11 00 00			ld de,l0000h		           
+1276 06 05			ld b,005h		               
+1278			l1278h: 
+1278 0e 20			ld c,020h		               
+127a cd 09 14			call sub_1409h		           
+127d 28 35			jr z,l12b4h		               
+127f db 90			in a,(kbd_data)		               
+1281 fe 95			cp 095h		                 
+1283 30 2f			jr nc,l12b4h		           
+1285 fe 91			cp 091h		                 
+1287 38 2b			jr c,l12b4h		               
+1289 fe 94			cp 094h		                 
+128b 28 03			jr z,l1290h		               
+128d			l128dh: 
+128d cd cb 13			call sub_13cbh		           
+1290			l1290h: 
+1290 cd 10 13			call sub_1310h		           
+1293 3a ee ff			ld a,(0ffeeh)		           
+1296 b7				or a			               
+1297 c8				ret z			               
+1298 cd ae 08			call sub_08aeh		           
+129b b7				or a			               
+129c 20 03			jr nz,l12a1h		           
+129e cd cb 13			call sub_13cbh		           
+12a1			l12a1h: 
+12a1 cd 10 13			call sub_1310h		           
+12a4 cd c0 08			call sub_08c0h		           
+12a7 cb 3f			srl a		                 
+12a9 38 03			jr c,l12aeh		               
+12ab cd cb 13			call sub_13cbh		           
+12ae			l12aeh: 
+12ae cd 10 13			call sub_1310h		           
+12b1 c3 6e 11			jp l116eh		               
+12b4			l12b4h: 
+12b4 1b				dec de			               
+12b5 7a				ld a,d			               
+12b6 b3				or e			               
+12b7 20 bf			jr nz,l1278h		           
+12b9 10 bd			djnz l1278h		               
+12bb 18 d0			jr l128dh		               
+12bd			sub_12bdh: 
+12bd c5				push bc			               
+12be d5				push de			               
+12bf 78				ld a,b			               
+12c0 b1				or c			               
+12c1 20 07			jr nz,l12cah		           
+12c3 3a ed ff			ld a,(ctrl_reg_save)		           
+12c6 cb c7			set 0,a		                 
+12c8 d3 00			out (ctrl_reg),a		           
+12ca			l12cah: 
+12ca af				xor a			               
+12cb e1				pop hl			               
+12cc dd e1			pop ix		                 
+12ce dd e5			push ix		                 
+12d0 e5				push hl			               
+12d1 11 01 00			ld de,l0000h+1		           
+12d4			l12d4h: 
+12d4 dd 77 00			ld (ix+000h),a		           
+12d7 3c				inc a			               
+12d8 dd 23			inc ix		                 
+12da 19				add hl,de			           
+12db 30 f7			jr nc,l12d4h		           
+12dd af				xor a			               
+12de 4f				ld c,a			               
+12df e1				pop hl			             
+12e0 dd e1			pop ix		                 
+12e2 dd e5			push ix		                 
+12e4 47				ld b,a			             
+12e5			l12e5h: 
+12e5 dd 7e 00			ld a,(ix+000h)		         
+12e8 b9				cp c			             
+12e9 20 14			jr nz,l12ffh		         
+12eb 2f				cpl			                 
+12ec dd 77 00			ld (ix+000h),a		         
+12ef dd 7e 00			ld a,(ix+000h)		         
+12f2 2f				cpl			                 
+12f3 b9				cp c			             
+12f4 20 09			jr nz,l12ffh		         
+12f6 dd 23			inc ix		                 
+12f8 0c				inc c			             
+12f9 19				add hl,de			           
+12fa 30 e9			jr nc,l12e5h		           
+12fc af				xor a			               
+12fd 18 02			jr l1301h		               
+12ff			l12ffh: 
+12ff 3e 01			ld a,001h		               
+1301			l1301h: 
+1301 c1				pop bc			               
+1302 f5				push af			               
+1303 78				ld a,b			               
+1304 b1				or c			               
+1305 20 07			jr nz,l130eh		           
+1307 3a ed ff			ld a,(ctrl_reg_save)		           
+130a cb 87			res 0,a		                 
+130c d3 00			out (ctrl_reg),a		           
+130e			l130eh: 
+130e f1				pop af			               
+130f c9				ret	 
+1310			; 
+1310			; 
+1310			; 
+1310			;	            
+1310			sub_1310h: 
+1310 0e 50			ld c,050h		               
+1312 21 f6 ff			ld hl,0fff6h		           
+1315 cb 4e			bit 1,(hl)		               
+1317 28 02			jr z,l131bh		               
+1319 0e 90			ld c,090h		               
+131b			l131bh: 
+131b 11 00 cc			ld de,0cc00h		           
+131e cd c4 05			call sub_05c4h		       
+1321 cb 8e			res 1,(hl)		               
+1323 21 00 80			ld hl,08000h		           
+1326 11 01 00			ld de,l0000h+1		           
+1329			l1329h: 
+1329 19				add hl,de			           
+132a 30 fd			jr nc,l1329h		           
+132c 3a ee ff			ld a,(0ffeeh)		           
+132f b7				or a			               
+1330 28 0c			jr z,l133eh		               
+1332 3a f7 ff			ld a,(0fff7h)		           
+1335 4f				ld c,a			               
+1336 d6 06			sub 006h		               
+1338 28 0e			jr z,l1348h		               
+133a c6 07			add a,007h		               
+133c 18 0a			jr l1348h		               
+133e			l133eh: 
+133e 3a f7 ff			ld a,(0fff7h)		           
+1341 4f				ld c,a			               
+1342 d6 04			sub 004h		               
+1344 28 02			jr z,l1348h		               
+1346 c6 05			add a,005h		               
+1348			l1348h: 
+1348 32 f7 ff			ld (0fff7h),a		           
+134b 3a f6 ff			ld a,(0fff6h)		           
+134e			sub_134eh: 
+134e cb 47			bit 0,a		                 
+1350 20 08			jr nz,l135ah		           
+1352 cd f6 13			call sub_13f6h		           
+1355 d3 00			out (ctrl_reg),a		           
+1357 32 ed ff			ld (ctrl_reg_save),a		           
+135a			l135ah: 
+135a 3a ee ff			ld a,(0ffeeh)		           
+135d b7				or a			            
+135e 28 3a			jr z,l139ah		            
+1360 06 08			ld b,008h		            
+1362 dd 21 ef 14		ld ix,l14efh	 
+1366			l1366h: 
+1366 c5				push bc			            
+1367 dd 6e 00			ld l,(ix+000h)		        
+136a dd 66 01			ld h,(ix+001h)		        
+136d dd 23			inc ix		                
+136f dd 23			inc ix		                
+1371 cd 3f 03			call print_string		        
+1374 c1				pop bc			            
+1375 10 ef			djnz l1366h		            
+1377 3e 02			ld a,002h		            
+1379 32 f9 ff			ld (0fff9h),a		        
+137c 11 28 00			ld de,00028h		        
+137f 41				ld b,c			            
+1380 04				inc b			            
+1381 21 2b 01			ld hl,0012bh		        
+1384			l1384h: 
+1384 19				add hl,de			        
+1385 10 fd			djnz l1384h		            
+1387 22 fa ff			ld (0fffah),hl		        
+138a 21 ef ff			ld hl,0ffefh		        
+138d 09				add hl,bc			        
+138e 11 fc ff			ld de,0fffch		        
+1391 cd b1 13			call sub_13b1h		      
+1394 21 f9 ff			ld hl,0fff9h		      
+1397 c3 3f 03			jp print_string		      
+139a			l139ah: 
+139a 21 ef ff			ld hl,0ffefh		      
+139d 06 00			ld b,000h		          
+139f 09				add hl,bc			      
+13a0 7e				ld a,(hl)			      
+13a1 b7				or a			          
+13a2 c8				ret z			          
+13a3 21 46 14			ld hl,rom_fail_txt_start 
+13a6 11 13 00			ld de,00013h		      
+13a9 0c				inc c			          
+13aa			l13aah: 
+13aa 0d				dec c			          
+13ab ca 3f 03			jp z,print_string		      
+13ae 19				add hl,de			      
+13af 18 f9			jr l13aah		          
+13b1			sub_13b1h: 
+13b1 7e				ld a,(hl)			      
+13b2 cb 3f			srl a		              
+13b4 cb 3f			srl a		              
+13b6 cb 3f			srl a		              
+13b8 cb 3f			srl a		              
+13ba cd c1 13			call sub_13c1h		      
+13bd 13				inc de			          
+13be 7e				ld a,(hl)			      
+13bf e6 0f			and 00fh		          
+13c1			sub_13c1h: 
+13c1 c6 30			add a,030h		          
+13c3 fe 3a			cp 03ah		              
+13c5 38 02			jr c,l13c9h		          
+13c7 c6 07			add a,007h		          
+13c9			l13c9h: 
+13c9 12				ld (de),a			      
+13ca c9				ret			              
+13cb			sub_13cbh: 
+13cb f5				push af			          
+13cc d5				push de			          
+13cd e5				push hl			          
+13ce 3a f6 ff			ld a,(0fff6h)		      
+13d1 cb 47			bit 0,a		              
+13d3 20 0a			jr nz,l13dfh		      
+13d5 cd f6 13			call sub_13f6h		      
+13d8 f6 10			or 010h		              
+13da d3 00			out (ctrl_reg),a		      
+13dc 32 ed ff			ld (ctrl_reg_save),a		      
+13df			l13dfh: 
+13df 3e 03			ld a,003h		          
+13e1 32 f6 ff			ld (0fff6h),a		      
+13e4 21 ef ff			ld hl,0ffefh		      
+13e7 16 00			ld d,000h		          
+13e9 3a f7 ff			ld a,(0fff7h)		      
+13ec 5f				ld e,a			          
+13ed 19				add hl,de			      
+13ee 34				inc (hl)			      
+13ef 20 01			jr nz,l13f2h		      
+13f1 35				dec (hl)			      
+13f2			l13f2h: 
+13f2 e1				pop hl			          
+13f3 d1				pop de			          
+13f4 f1				pop af			          
+13f5 c9				ret			              
+13f6			sub_13f6h: 
+13f6 21 02 14			ld hl,l1402h		      
+13f9 3a f7 ff			ld a,(0fff7h)		      
+13fc 5f				ld e,a			          
+13fd 16 00			ld d,000h		          
+13ff 19				add hl,de			      
+1400 7e				ld a,(hl)			      
+1401 c9				ret			              
+1402			l1402h: 
+1402 02				ld (bc),a			      
+1403 0a				ld a,(bc)			      
+1404 2a 22 02			ld hl,(l0222h)		      
+1407 02				ld (bc),a			      
+1408 02				ld (bc),a			      
+1409			sub_1409h: 
+1409 3e 0e			ld a,00eh		          
+140b d3 41			out (sg_add),a		      
+140d 79				ld a,c			          
+140e d3 40			out (sg_data),a		      
+1410 3e 0f			ld a,00fh		          
+1412 d3 41			out (sg_add),a		      
+1414 db 40			in a,(sg_data)		          
+1416 cb 47			bit 0,a		              
+1418 c9				ret			              
+1419			sub_1419h: 
+1419 0e 06			ld c,006h		          
+141b c5				push bc			          
+141c			l141ch: 
+141c cd 5a 13			call l135ah		          
+141f c1				pop bc			          
+1420 0d				dec c			          
+1421 fa 27 14			jp m,l1427h		          
+1424 c5				push bc			          
+1425 18 f5			jr l141ch		          
+1427			l1427h: 
+1427 3a ee ff			ld a,(0ffeeh)		      
+142a b7				or a			          
+142b c8				ret z			          
+142c 2a a5 14			ld hl,(word_1_start)	 
+142f 22 f9 ff			ld (0fff9h),hl		     
+1432 3a a7 14			ld a,(byte_1_start)		 
+1435 32 fb ff			ld (0fffbh),a		     
+1438 ed 5b 04 00		ld de,(l0004h)		     
+143c ed 53 fc ff		ld (0fffch),de		     
+1440 21 f9 ff			ld hl,0fff9h		     
+1443 c3 3f 03			jp print_string		     
+1446			 
+1446			; BLOCK 'rom_fail_txt' (start 0x1446 end 0x1459) 
+1446			rom_fail_txt_start: 
+1446 10				defb 010h		                
+1447 4e				defb 04eh		                
+1448 01				defb 001h		                
+1449 ..				defm	"ROM FAILURE     " 
+1459			 
+1459			 
+1459			; BLOCK 'vram_fail_txt' (start 0x1459 end 0x146c) 
+1459			vram_fail_txt_start: 
+1459 10				defb 010h		               
+145a 76				defb 076h		               
+145b 01				defb 001h		               
+145c ..				defm 	"VRAM FAILURE    " 
+146c			 
+146c			 
+146c			; BLOCK 'ram_fail_txt' (start 0x146c end 0x147f) 
+146c			ram_fail_txt_start: 
+146c 10				defb 010h		               
+146d 9e				defb 09eh		               
+146e 01				defb 001h		               
+146f ..				defm	"RAM FAILURE     " 
+147f			 
+147f			 
+147f			; BLOCK 'sound_fail_txt' (start 0x147f end 0x1492) 
+147f			sound_fail_txt_start: 
+147f 10				defb 010h		            
+1480 c6				defb 0c6h		            
+1481 01				defb 001h		            
+1482 ..				defm	"SOUND FAILURE   " 
+1492			 
+1492			 
+1492			; BLOCK 'kbd_fail_txt' (start 0x1492 end 0x14a5) 
+1492			kbd_fail_txt_start: 
+1492 10				defb 010h		              
+1493 ee				defb 0eeh		              
+1494 01				defb 001h		              
+1495 ..				defm	"KEYBOARD FAILURE" 
+14a5			 
+14a5			 
+14a5			; BLOCK 'word_1' (start 0x14a5 end 0x14a7) 
+14a5			word_1_start: 
+14a5 02 5b			defw 05b02h		             
+14a7			;word_1_end: 
+14a7			 
+14a7			; BLOCK 'byte_1' (start 0x14a7 end 0x14a8) 
+14a7			byte_1_start: 
+14a7 03				defb 003h		             
+14a8			 
+14a8			 
+14a8			; BLOCK 'rom_txt' (start 0x14a8 end 0x14ae) 
+14a8			rom_txt_start: 
+14a8 03				defb 003h		             
+14a9 44				defb 044h		             
+14aa 01				defb 001h		             
+14ab ..				defm	"ROM" 
+14ae			 
+14ae			 
+14ae			; BLOCK 'vram_txt' (start 0x14ae end 0x14b5) 
+14ae			vram_txt_start: 
+14ae 04				defb 004h		                 
+14af 6c				defb 06ch		                 
+14b0 01				defb 001h		                 
+14b1 ..				defm	"VRAM" 
+14b5			 
+14b5			 
+14b5			; BLOCK 'ram_txt' (start 0x14b5 end 0x14bb) 
+14b5			ram_txt_start: 
+14b5 03				defb 003h		                 
+14b6 94				defb 094h		                 
+14b7 01				defb 001h		                 
+14b8 ..				defm	"RAM" 
+14bb			 
+14bb			 
+14bb			; BLOCK 'sound_txt' (start 0x14bb end 0x14c3) 
+14bb			sound_txt_start: 
+14bb 05				defb 005h		                
+14bc bc				defb 0bch		                
+14bd 01				defb 001h		                
+14be ..				defm	"SOUND" 
+14c3			 
+14c3			 
+14c3			; BLOCK 'keyboard_txt' (start 0x14c3 end 0x14ce) 
+14c3			keyboard_txt_start: 
+14c3 08				defb 008h		               
+14c4 e4				defb 0e4h		               
+14c5 01				defb 001h		               
+14c6 ..				defm	"KEYBOARD" 
+14ce			 
+14ce			 
+14ce			; BLOCK 'adapter_txt' (start 0x14ce end 0x14d8) 
+14ce			adapter_txt_start: 
+14ce 07				defb 007h		                
+14cf 0c				defb 00ch		                
+14d0 02				defb 002h		                
+14d1 ..				defm	"ADAPTOR" 
+14d8			 
+14d8			 
+14d8			; BLOCK 'floppy_txt' (start 0x14d8 end 0x14e1) 
+14d8			floppy_txt_start: 
+14d8 06				defb 006h		               
+14d9 34				defb 034h		               
+14da 02				defb 002h		               
+14db ..				defm	"FLOPPY" 
+14e1			 
+14e1			 
+14e1			; BLOCK 'rom_version_txt' (start 0x14e1 end 0x14ef) 
+14e1			rom_version_txt_start: 
+14e1 0b				defb 00bh		            
+14e2 4c				defb 04ch		            
+14e3 03				defb 003h		            
+14e4 ..				defm	"ROM VERSION" 
+14ef			l14efh: 
+14ef a8				defb	0a8h  
+14f0 14				defb	014h  
+14f1 ae				defb	0aeh  
+14f2 14				defb	014h  
+14f3 b5				defb	0b5h  
+14f4 14				defb	014h  
+14f5 bb				defb	0bbh  
+14f6 14				defb	014h  
+14f7 c3				defb	0c3h  
+14f8 14				defb	014h 	 
+14f9 ce				defb	0ceh  
+14fa 14				defb	014h  
+14fb d8				defb	0d8h  
+14fc 14				defb	014h  
+14fd e1				defb	0e1h  
+14fe 14				defb	014h 	            
+# End of file NabuPC-8K.z80
+14ff

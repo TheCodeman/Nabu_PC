@@ -1,0 +1,71 @@
+
+;ADAPTOR OR FLOPPY DISK FAILURE
+; BOOT ERROR
+;PLEASE WAIT
+;LOADING FROM CABLE?
+;LOADING FROM FLOPPY DISK                                       
+;   INSERT SYSTEM DISK IN DRIVE A                   AND PRESS GO!
+;PLEASE SELECT THE LOADING DEVICE
+;1. CABLE
+;2. FLOPPY DISK
+;PRESS 1 OR 2
+;INVALID OPTION,  TRY AGAIN
+;ADAPTOR FAILURE
+;PLEASE TYPE IN CHANNEL CODE                                               
+;RE-TYPE CHANNEL CODE              
+;SEE "IF SOMETHING GOES WRONG" IN        OWNERS GUIDE
+;ADAPTOR NOT AUTHORIZED
+;LOAD ERROR-   RESET NPC             
+;DISK DOES NOT CONTAIN A SYSTEM TRACK
+;ROM FAILURE     
+;VRAM FAILURE    
+;RAM FAILURE     
+;SOUND FAILURE   
+;KEYBOARD FAILURE
+;VRAM
+;SOUND
+;KEYBOARD
+;ADAPTOR
+;FLOPPY
+;ROM VERSION
+;
+;
+;
+text_1: start 0x12c end 0x14d type bytedata
+text_2: start 0x14d end 0x15b type bytedata
+text_3: start 0x15b end 0x169 type bytedata
+text_4: start 0x169 end 0x17e type bytedata
+text_5: start 0x17e end 0x1c0 type bytedata
+text_6: start 0x1c0 end 0x202 type bytedata
+text_7: start 0x362 end 0x385 type bytedata
+text_8: start 0x385 end 0x390 type bytedata
+text_9: start 0x390 end 0x3a1 type bytedata
+text_10: start 0x3a1 end 0x3b0 type bytedata
+text_11: start 0x3ca end 0x3e7 type bytedata
+text_12: start 0x540 end 0x552 type bytedata
+text_13: start 0x552 end 0x59f type bytedata
+text_14: start 0x59f end 0x5c4 type bytedata
+text_15: start 0x764 end 0x79b type bytedata
+text_16: start 0x79b end 0x7b4 type bytedata
+text_17: start 0x8e2 end 0x909 type bytedata
+text_18: start 0x909 end 0x930 type bytedata
+rom_fail_txt: start 0x1446 end 0x1459 type bytedata
+vram_fail_txt: start 0x1459 end 0x146c type bytedata
+ram_fail_txt: start 0x146c end 0x147f type bytedata
+sound_fail_txt: start 0x147f end 0x1492 type bytedata
+kbd_fail_txt: start 0x1492 end 0x14a5 type bytedata
+word_1: start 0x14a5 end 0x14a7 type worddata
+byte_1: start 0x14a7 end 0x14a8 type bytedata
+rom_txt: start 0x14a8 end 0x14ae type bytedata
+vram_txt: start 0x14ae end 0x14b5 type bytedata
+ram_txt: start 0x14b5 end 0x14bb type bytedata
+sound_txt: start 0x14bb end 0x14c3 type bytedata
+keyboard_txt: start 0x14c3 end 0x14ce type bytedata
+adapter_txt: start 0x14ce end 0x14d8 type bytedata
+floppy_txt: start 0x14d8 end 0x14e1 type bytedata
+rom_version_txt: start 0x14e1 end 0x14ef type bytedata
+table:  start 0x0f26 end 0x1126 type bytedata
+
+
+
+

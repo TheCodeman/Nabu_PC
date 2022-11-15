@@ -1,0 +1,11 @@
+ti9918_init: start 0x6c9 end 0x6d1 type bytedata
+text_1: start 0x6d1 end 0x6f5 type bytedata
+text_2: start 0x6f5 end 0x72c type bytedata
+text_3: start 0x72c end 0x73a type bytedata
+text_4: start 0x73a end 0x7ac type bytedata
+text_5: start 0x7ac end 0x7d0 type bytedata
+word_1: start 0x7d0 end 0x7d2 type worddata
+byte_1: start 0x7d2 end 0x7d3 type bytedata
+logo: start 0x7d3 end 0xb74 type bytedata
+table: start 0xb74 end 0xd74 type bytedata
+not_sure: start 0x4dd end 0x4e3 type bytedata

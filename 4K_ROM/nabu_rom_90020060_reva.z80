@@ -1,0 +1,3510 @@
+; z80dasm 1.1.5
+; command line: z80dasm -a -t -g0x00 --labels -b nabu_rom_text.txt -o nabu_rom_90020060_reva.z80 NABU_ROM_90020060_revA.BIN
+HCCA:		equ	080h
+CTRL_REG:	equ	000h
+VDP_DATA:	equ 0a0h
+VDP_ADD:	equ	0a1h
+SG_DATA:	equ	040h
+SG_ADD:		equ	041h
+KB_DATA:	equ	090h
+KB_STATUS:	equ	091h
+
+	org	00000h
+
+l0000h:
+	ld a,002h		
+	ld (0ffeeh),a	
+	out (CTRL_REG),a	;video switch	
+	ld sp,0ffeeh		
+	ld hl,ti9918_init_start		
+	ld b,008h	
+l000fh:
+	ld c,0a1h	
+l0011h:
+	outi		
+l0013h:
+	ld a,b			                
+	or 080h		                    
+	out (VDP_ADD),a		            
+	and 07fh		                
+	jr nz,l0011h		            
+	ld hl,0ffefh		            
+	ld de,0fff0h		            
+	ld bc,00009h		            
+	xor a			                
+	ld (hl),a			            
+	ldir		    
+
+	call sub_0521h		            
+	xor a			                
+	call sub_052ah		;send 0 to kb	            
+	call sub_052ah		;send 0 to kb
+	call sub_052ah		;send 0 to kb            
+	call sub_052ah		;send 0 to kb            
+	call sub_052ah		;send 0 to kb            
+	ld a,040h		                
+	call sub_052ah		;send 0x40 to kb            
+	ld a,04eh		                
+	call sub_052ah		;send 0x4b to kb            
+	ld a,004h		                
+	call sub_052ah		;send 0x04 to kb            
+	call sub_04e3h		               
+	call sub_0532h		            
+	jp z,l01cah		           
+;
+;	     
+	ld a,03ah		                
+	out (CTRL_REG),a		        
+	ld h,00ah		                
+	ld c,020h		                
+	ld de,0e000h		            
+	ld b,001h		                
+l0061h:
+	call sub_0363h		            
+	jr z,l006ah		                
+	djnz l006ah		                
+	jr l008ch		                
+l006ah:
+	call sub_064dh		            
+	jr z,l0061h		                
+	in a,(KB_DATA)		                
+	cp 031h		                    
+	jr z,l0082h		                
+	cp 03dh		                    
+	jr nz,l0061h		            
+	bit 0,h		                    
+	jr z,l0061h		                
+l007dh:
+	dec h			                
+	jr z,l0088h		                
+	jr l0061h		                
+l0082h:
+	bit 0,h		                    
+	jr nz,l0061h		            
+	jr l007dh		                
+l0088h:
+	ld hl,0ffefh		            
+	inc (hl)			            
+l008ch:
+	ld a,(0fff6h)		            
+	bit 0,a		                    
+	jr nz,l0098h		            
+	call sub_04d1h		            
+	out (CTRL_REG),a		        
+l0098h:
+	xor a			                
+	ld (0ffffh),a		            
+	ld ix,l0ffch+1		            
+	ld de,0ffffh		            
+	xor a			                
+	ld h,a			                
+	ld l,a			                
+	ld b,a			                
+l00a7h:
+	ld c,(ix+000h)		            
+	add hl,bc			            
+	add ix,de		                
+	jr c,l00a7h		                
+	ld a,(l0ffeh)		            
+	cp l			                
+	jr nz,l00bbh		            
+	ld a,(l0fffh)		            
+	sub h			                
+	jr z,l00beh		                
+l00bbh:
+	call sub_04a6h		            
+l00beh:
+	call sub_046ah		            
+	xor a			                
+	out (VDP_ADD),a		            
+	ld a,040h		                
+	out (VDP_ADD),a		            
+	xor a			                
+	ld de,l0000h+1		            
+	ld ix,0c000h		            
+l00d0h:
+	out (VDP_DATA),a		            
+	inc a			                
+	add ix,de		                
+	jr nc,l00d0h		            
+	ld ix,0c000h		            
+	xor a			                
+	ld c,a			                
+	ld b,a			                
+	ld h,a			                
+	ld l,a			                
+l00e0h:
+	ld a,l			                
+	out (VDP_ADD),a		            
+	ld a,h			                
+	out (VDP_ADD),a		            
+	in a,(VDP_DATA)		                
+	cp c			                
+	jr nz,l0103h		            
+	ld a,l			                
+	out (VDP_ADD),a		            
+	ld a,h			                
+	or 040h		                    
+	out (VDP_ADD),a		            
+	ld a,c			                
+	cpl			                    
+	out (VDP_DATA),a		            
+	ld a,l			                
+	out (VDP_ADD),a		            
+	ld a,h			                
+	out (VDP_ADD),a		            
+	in a,(VDP_DATA)		                
+	cpl			                    
+	cp c			                
+	jr z,l0106h		                
+l0103h:
+	call sub_04a6h		            
+l0106h:
+	inc c			                
+	inc hl			                
+	ld de,l0000h+1		            
+	add ix,de		                
+	jr nc,l00e0h		            
+	call sub_04e3h		                
+	call sub_053eh		            
+	call sub_046ah		            
+	xor a			                
+	ld ix,02000h		            
+	ld hl,02100h		            
+	ld de,l0000h+1		            
+l0123h:
+	ld (ix+000h),a		            
+	inc a			                
+	inc ix		                    
+	add hl,de			            
+	jr nc,l0123h		            
+	xor a			                
+	ld c,a			                
+	ld hl,02100h		            
+	ld ix,02000h		            
+	ld b,a			                
+l0136h:
+	ld a,(ix+000h)		            
+	cp c			                
+	jr nz,l0147h		            
+	cpl			                    
+	ld (ix+000h),a		            
+	ld a,(ix+000h)		            
+	cpl			                    
+	cp c			                
+	jr z,l014ah		                
+l0147h:
+	call sub_04a6h		            
+l014ah:
+	inc ix		                    
+	inc c			                
+	add hl,de			            
+	jr nc,l0136h		            
+	call sub_046ah		            
+	ld b,010h		                
+	ld c,000h		                
+l0157h:
+	ld a,b			                
+	dec a			                
+	out (SG_ADD),a		            
+	ld a,c			                
+	out (SG_DATA),a		            
+	djnz l0157h		                
+	ld c,000h		                
+l0162h:
+	ld b,0ffh		                
+l0164h:
+	ld a,c			                
+	out (SG_ADD),a		            
+	ld a,b			                
+	out (SG_DATA),a		            
+	in a,(SG_DATA)		                
+	call sub_017eh		            
+	call nz,sub_04a6h		        
+	srl b		                    
+	jr c,l0164h		                
+	inc c			                
+	ld a,00eh		                
+	cp c			                
+	jr nz,l0162h		            
+	jr l0199h		                
+sub_017eh:
+	ld hl,l018bh		            
+	ld e,c			                
+	ld d,000h		                
+	add hl,de			            
+	and (hl)			            
+	ld e,a			                
+	ld a,b			                
+	and (hl)			            
+	cp e			                
+	ret			                    
+l018bh:
+	rst 38h			                
+	rrca			                
+	rst 38h			                
+	rrca			                
+	rst 38h			                
+	rrca			                
+	rra			                    
+	rst 38h			                
+	rra			                    
+	rra			                    
+	rra			                    
+	rst 38h			                
+	rst 38h			                
+	rrca			                
+l0199h:
+	call sub_046ah		            
+	call sub_0521h		            
+	ld de,l0000h		            
+	ld b,005h		                
+l01a4h:
+	ld c,020h		                
+	call sub_064dh		            
+	jr z,l01c1h		                
+	in a,(KB_DATA)		                
+	cp 095h		                    
+	jr nc,l01c1h		            
+	cp 091h		                    
+	jr c,l01c1h		                
+	cp 094h		                    
+	jr z,l01bch		                
+l01b9h:
+	call sub_04a6h		            
+l01bch:
+	call sub_046ah		            
+	jr l01cah		                
+l01c1h:
+	dec de			                
+	ld a,d			                
+	or e			                
+	jr nz,l01a4h		            
+	djnz l01a4h		                
+	jr l01b9h		                
+l01cah:
+	in a,(HCCA)		                
+	call sub_0386h		            
+	jr z,l01e3h		                
+	call sub_04a6h		            
+	jr l0206h		                
+l01d6h:
+	ld a,005h		                
+	ld (0fff7h),a		            
+	ld (0fffeh),a		            
+	call sub_04a6h		            
+	jr l01cah		                
+l01e3h:
+	ld c,082h		                
+	call sub_0379h		            
+	jr nz,l01d6h		            
+	ld a,001h		                
+	out (HCCA),a		            
+	call sub_067ah		            
+	in a,(HCCA)		                
+	jr nz,l01d6h		            
+	ld (0fff8h),a		            
+	ld c,010h		                
+	call sub_036ch		            
+	jr nz,l01d6h		            
+	ld c,0e1h		                
+	call sub_036ch		            
+	jr nz,l01d6h		            
+l0206h:
+	call sub_0532h		            
+	call nz,sub_046ah		        
+	ld a,(0ffefh)		            
+	or a			                
+	jp nz,l008ch		            
+	ld a,(0fff6h)		            
+	bit 0,a		                    
+	jr nz,l0221h		            
+	ld a,002h		                
+	ld (0ffeeh),a		            
+	out (CTRL_REG),a		        
+l0221h:
+	ld hl,0fff8h		            
+	bit 7,(hl)		                
+	jr z,l029fh		                
+	ld hl,text_1_start		    
+	call print_string		            
+l022eh:
+	ld hl,0fff9h		            
+	ld de,002c7h		            
+	call sub_057ch		            
+	ld hl,0fff9h		            
+	xor a			                
+	ld c,a			                
+	ld b,004h		                
+l023eh:
+	ld a,(hl)			            
+	bit 0,b		                    
+	jr z,l024ch		                
+	sla a		                    
+	bit 4,a		                    
+	jr z,l024ch		                
+	res 4,a		                    
+	inc a			                
+l024ch:
+	add a,c			                
+	ld c,a			                
+	inc hl			                
+	djnz l023eh		                
+	and 00fh		                
+	cp (hl)			                
+	jr z,l0266h		                
+	ld hl,text_5_start		        
+	call print_string		            
+	ld c,090h		                
+	ld de,0e000h		            
+	call sub_06a2h		            
+	jr l022eh		                
+l0266h:
+	ld hl,0fff9h		            
+	ld b,004h		                
+	ld de,l0000h		            
+l026eh:
+	ld a,(hl)			            
+	sla e		                    
+	rl d		                    
+	sla e		                    
+	rl d		                    
+	sla e		                    
+	rl d		                    
+	sla e		                    
+	rl d		                    
+	add a,e			                
+	ld e,a			                
+	inc hl			                
+	djnz l026eh		                
+	push de			                
+	ld c,085h		                
+	call sub_0379h		            
+	jp nz,l01d6h		            
+	pop de			                
+	ld a,d			                
+	out (HCCA),a		            
+	ld c,040h		                
+	call sub_064dh		            
+	ld a,e			                
+	out (HCCA),a		            
+	call sub_05eeh		            
+	jp nz,l01d6h		            
+l029fh:
+	ld c,081h		                
+	call sub_0379h		            
+	jp nz,l01d6h		            
+	ld a,08fh		                
+	out (HCCA),a		            
+	ld c,040h		                
+	call sub_064dh		            
+	ld a,005h		                
+	out (HCCA),a		            
+	call sub_05eeh		            
+	jp nz,l01d6h		            
+	ld a,005h		                
+	ld (0fff8h),a		            
+	ld hl,l0000h		            
+	ld de,l0000h		            
+	ld bc,01000h		            
+	ldir		                    
+	ld a,(0ffeeh)		            
+	set 0,a		                    
+	out (CTRL_REG),a		        
+	ld hl,text_3_start		        
+	call print_string		            
+l02d7h:
+	xor a			                
+	ld (01000h),a		            
+	ld (01001h),a		            
+	ld (01003h),a		            
+	inc a			                
+	ld (01002h),a		            
+	ld bc,0100bh		            
+	ld (01004h),bc		            
+	ld bc,0140dh		            
+	ld (01008h),bc		            
+	xor a			                
+	ld (0140bh),a		            
+	ld (0140ch),a		            
+	xor a			                
+	out (SG_ADD),a		            
+	out (SG_DATA),a		            
+	call sub_068ah		            
+l0302h:
+	call sub_03b0h		            
+	jp nz,l01d6h		            
+	xor a			                
+	out (SG_ADD),a		            
+	ld a,(01003h)		            
+	sla a		                    
+	sla a		                    
+	cpl			                    
+	out (SG_DATA),a		            
+	ld hl,(01004h)		            
+	ld bc,0000bh		            
+	add hl,bc			            
+	ld a,(hl)			            
+	ld (0100ah),a		            
+	ld hl,(01006h)		            
+	ld bc,0ffeeh		            
+	add hl,bc			            
+	push hl			                
+	pop bc			                
+	ld hl,(0140bh)		            
+	add hl,bc			            
+	ld (0140bh),hl		            
+	ld hl,(01004h)		            
+	ld de,l000fh+1		            
+	add hl,de			            
+	ld de,(01008h)		            
+	ldir		                    
+	ld (01008h),de		            
+	ld a,(0100ah)		            
+	bit 4,a		                    
+	jr nz,l034eh		            
+	ld hl,01003h		            
+	inc (hl)			            
+	jr l0302h		                
+l034eh:
+	ld a,0a5h		                
+	ld (0fffeh),a		            
+	ld a,05ah		                
+	ld (0ffffh),a		            
+	ld a,007h		                
+	out (SG_ADD),a		            
+	ld a,07fh		                
+	out (SG_DATA),a		            
+	jp 0140fh		                
+sub_0363h:
+	dec de			                
+	ld a,d			                
+	or e			                
+	jr z,l036ah		                
+	xor a			                
+	dec a			                
+l036ah:
+	inc a			                
+	ret		
+;
+;
+;
+;		                    
+sub_036ch:
+	push bc			                
+	call sub_067ah		            
+	pop bc			                
+	ret nz			                
+	in a,(HCCA)		                
+	sub c			                
+	ret z			                
+	ld a,002h		                
+	ret		
+;
+;
+;
+;		                    
+sub_0379h:
+	ld a,c			                
+	out (HCCA),a		            
+	ld c,010h		                
+	call sub_036ch		            
+	ret nz			                
+	ld c,006h		                
+	jr sub_036ch		            
+sub_0386h:
+	ld b,004h		                
+l0388h:
+	ld a,083h		                
+	push af			                
+	out (HCCA),a		            
+l038dh:
+	pop af			                
+	ld c,010h		                
+	ld hl,l03a4h		            
+l0393h:
+	push hl			                
+	call sub_036ch		            
+	cp 002h		                    
+	jr z,l038dh		                
+	cp 000h		                    
+	ret z			                
+	pop af			                
+	djnz l0388h		                
+	xor a			                
+	inc a			                
+	ret			                    
+l03a4h:
+	ld c,006h		                
+	ld hl,l03abh		            
+	jr l0393h		                
+l03abh:
+	ld c,0e4h		                
+	pop hl			                
+	jr l0393h		                
+sub_03b0h:
+	exx			                    
+	xor a			                
+	dec a			                
+	ld d,a			                
+	ld e,a			                
+	exx			                    
+	ld c,084h		                
+	call sub_0379h		            
+	ret nz			                
+	ld b,004h		                
+	ld hl,01003h		            
+l03c1h:
+	ld c,040h		                
+	call sub_064dh		            
+	jr z,l03c1h		                
+	ld a,(hl)			            
+	out (HCCA),a		            
+	dec l			                
+	djnz l03c1h		                
+	ld c,0e4h		                
+	call sub_036ch		            
+	ret nz			                
+	ld b,018h		                
+	ld de,l0000h+1		            
+	ld hl,l0000h		            
+l03dch:
+	add hl,de			            
+	jr nc,l03ebh		            
+	djnz l03ebh		                
+	ld hl,text_2_start		        
+	call print_string		            
+	pop bc			                
+	jp l02d7h		                
+l03ebh:
+	ld c,080h		                
+	call sub_064dh		            
+	jr z,l03dch		                
+	in a,(HCCA)		                
+	sub 091h		                
+	ret nz			                
+	ld a,010h		                
+	out (HCCA),a		            
+l03fbh:
+	ld c,040h		                
+	call sub_064dh		            
+	jr z,l03fbh		                
+	ld c,080h		                
+	call sub_064dh		            
+	ld hl,(01004h)		            
+	ld bc,l0000h		            
+	res 0,e		                    
+	ld a,006h		                
+	out (HCCA),a		            
+l0413h:
+	push de			                
+	ld de,0ffffh		            
+l0417h:
+	ld a,00fh		                
+	out (SG_ADD),a		            
+	in a,(SG_DATA)		                
+	bit 0,a		                    
+	jr nz,l0428h		            
+	call sub_0363h		            
+	jr nz,l0465h		            
+	jr l0417h		                
+l0428h:
+	pop de			                
+	in a,(HCCA)		                
+	cp 010h		                    
+	jr nz,l0441h		            
+	bit 0,e		                    
+	jr z,l043dh		                
+	res 0,e		                    
+	ld (hl),a			            
+	call sub_065dh		            
+	inc hl			                
+	inc bc			                
+	jr l0413h		                
+l043dh:
+	set 0,e		                    
+	jr l0413h		                
+l0441h:
+	bit 0,e		                    
+	jr nz,l044dh		            
+	ld (hl),a			            
+	call sub_065dh		            
+	inc hl			                
+	inc bc			                
+	jr l0413h		                
+l044dh:
+	ld (01006h),bc		            
+	cp 0e1h		                    
+	jp nz,sub_03b0h		            
+	exx			                    
+	ld a,e			                
+	cp 00fh		                    
+	jp nz,sub_03b0h		            
+	ld a,d			                
+	cp 01dh		                    
+	jp nz,sub_03b0h		            
+	xor a			                
+	ret			
+;
+;
+;
+;	                    
+l0465h:
+	pop de			                
+	pop de			                
+	jp l01d6h		                
+sub_046ah:
+	ld c,050h		                
+	ld hl,0fff6h		            
+	bit 1,(hl)		                
+	jr z,l0475h		                
+	ld c,090h		                
+l0475h:
+	ld de,0cc00h		            
+	call sub_06a2h		            
+	res 1,(hl)		                
+	ld hl,08000h		            
+	ld de,l0000h+1		            
+l0483h:
+	add hl,de			            
+	jr nc,l0483h		            
+	ld a,(0fff7h)		            
+	ld c,a			                
+	sub 005h		                
+	jr z,l0490h		                
+	add a,006h		                
+l0490h:
+	ld (0fff7h),a		            
+	ld a,(0fff6h)		            
+	bit 0,a		                    
+	jp nz,l05f3h		            
+	call sub_04d1h		            
+	out (CTRL_REG),a		        
+	ld (0ffeeh),a		            
+	jp l05f3h		                
+sub_04a6h:
+	push af			                
+	push de			                
+	push hl			                
+	ld a,(0fff6h)		            
+	bit 0,a		                    
+	jr nz,l04bah		            
+	call sub_04d1h		            
+	or 010h		                    
+	out (CTRL_REG),a		        
+	ld (0ffeeh),a		            
+l04bah:
+	ld a,003h		                
+	ld (0fff6h),a		            
+	ld hl,0fff0h		            
+	ld d,000h		                
+	ld a,(0fff7h)		            
+	ld e,a			                
+	add hl,de			            
+	inc (hl)			            
+	jr nz,l04cdh		            
+	dec (hl)			            
+l04cdh:
+	pop hl			                
+	pop de			                
+	pop af			                
+	ret	
+;	
+;
+;
+;
+sub_04d1h:
+	ld hl,l04ddh		            
+	ld a,(0fff7h)		            
+	ld e,a			                
+	ld d,000h		                
+	add hl,de			            
+	ld a,(hl)			            
+	ret			                    
+;
+;
+;
+;
+l04ddh:
+	defb 02ah		;04dd
+	defb 00ah		;04de
+	defb 02ah		;04df
+	defb 00ah		;04e0
+	defb 022h		;04e1
+	defb 002h		;04e2
+sub_04e3h:
+	xor a			;04e3
+	out (VDP_ADD),a		            
+	ld a,041h		                
+	out (VDP_ADD),a		            
+	ld c,VDP_DATA	;0a0h		                
+	ld d,004h		                
+	ld hl,l083ch		            
+l04f1h:
+	ld b,0ffh		                
+	otir		                    
+	dec d			;copy 1k                
+	jr nz,l04f1h		            
+	xor a			                
+	out (VDP_ADD),a		            
+	ld a,048h		                
+	out (VDP_ADD),a		            
+	ld a,020h		                
+	ld hl,0fc40h		            
+	ld de,l0000h+1		            
+l0507h:
+	out (VDP_DATA),a		            
+	add hl,de			            
+	jr nc,l0507h		            
+	ld b,007h		                
+	ld hl,logo_start		        
+	ld de,l000fh		            
+l0514h:
+	push bc			                
+	push hl			                
+	push de			                
+	call print_string		            
+	pop de			                
+	pop hl			                
+	pop bc			                
+	add hl,de			            
+	djnz l0514h		                
+	ret		
+;
+;
+;
+;		                    
+sub_0521h:
+	ld a,007h		                
+	out (SG_ADD),a	;add	            
+	ld a,07fh		                
+	out (SG_DATA),a	;data	            
+	ret		
+;	
+;
+;
+;		                    
+sub_052ah:
+	out (KB_STATUS),a		            
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	ret	
+;
+;
+;
+;			                    
+sub_0532h:
+	ld hl,0fffeh		            
+	ld a,(hl)			            
+	sub 0a5h		                
+	ret nz			                
+	inc hl			                
+	ld a,(hl)			            
+	sub 05ah		                
+	ret	
+;
+;
+;
+;			                    
+sub_053eh:
+	ld c,005h		                
+	push bc			                
+l0541h:
+	call l05f3h		                
+	pop bc			                
+	dec c			                
+	jp m,l054ch		                
+	push bc			                
+	jr l0541h		                
+l054ch:
+	ld a,(0ffefh)		            
+	or a			                
+	ret z			                
+	ld hl,(word_1_start)		        
+	ld (0fff9h),hl		            
+	ld a,(byte_1_start)		        
+	ld (0fffbh),a		            
+	ld de,(l0ffch)		            
+	ld (0fffch),de		            
+	ld hl,0fff9h		            
+	jp print_string	
+;
+;
+;
+; Print string 		            
+print_string:
+	ld b,(hl)		;string len	            
+	inc hl			                
+	ld a,(hl)		;ab		            
+	out (VDP_ADD),a		            
+	inc hl			                
+	ld a,(hl)		;02	            
+	add a,048h		                
+	out (VDP_ADD),a		            
+	inc hl			                
+	ld c,VDP_DATA	;0a0h		                
+	otir		                    
+	ret			                    
+;
+;
+;
+;read keyboard ?
+sub_057ch:
+	ld b,005h		                
+l057eh:
+	in a,(KB_STATUS)		                
+	bit 1,a		                    
+	jr z,l057eh		                
+	in a,(KB_DATA)		                
+	push af			                
+	sub 030h		                
+	jr c,l05c2h		                
+	cp 00ah		                    
+	jr c,l05a3h		                
+	sub 007h		                
+	cp 00ah		                    
+	jr c,l05c2h		                
+	cp 010h		                    
+	jr c,l05a3h		                
+	sub 020h		                
+	cp 00ah		                    
+	jr c,l05c2h		                
+	cp 010h		                    
+	jr nc,l05c2h		            
+l05a3h:
+	ld c,a			                
+	ld a,b			                
+	or a			                
+	jr nz,l05abh		            
+	pop af			                
+	jr l057eh		                
+l05abh:
+	ld a,e			                
+	out (VDP_ADD),a		            
+	ld a,d			                
+	or 048h		                    
+	out (VDP_ADD),a		            
+	pop af			                
+	cp 05bh		                    
+	jr c,l05bah		                
+	sub 020h		                
+l05bah:
+	out (VDP_DATA),a		            
+	ld (hl),c			            
+	inc hl			                
+	inc de			                
+	dec b			                
+	jr l057eh		                
+l05c2h:
+	pop af			                
+	cp 00dh		                    
+	jr z,l05cbh		                
+	cp 0e7h		                    
+	jr nz,l05d0h		            
+l05cbh:
+	ld a,b			                
+	or a			                
+	jr nz,l057eh		            
+	ret			                    
+;
+;
+;
+;
+l05d0h:
+	cp 07fh		                    
+	jr z,l05d8h		                
+	cp 0e1h		                    
+	jr nz,l057eh		            
+l05d8h:
+	ld a,b			                
+	cp 005h		                    
+	jr z,l057eh		                
+	dec de			                
+	dec hl			                
+	inc b			                
+	ld a,e			                
+	out (VDP_ADD),a		            
+	ld a,d			                
+	or 048h		                    
+	out (VDP_ADD),a		            
+	ld a,020h		                
+	out (VDP_DATA),a		            
+	jr l057eh		                
+sub_05eeh:
+	ld c,0e4h		                
+	jp sub_036ch		            
+l05f3h:
+	ld a,(0ffefh)		            
+	or a			                
+	jr z,l061ch		                
+	ld a,002h		                
+	ld (0fff9h),a		            
+	ld de,00028h		            
+	ld b,c			                
+	inc b			                
+	ld hl,0012bh		            
+l0606h:
+	add hl,de			            
+	djnz l0606h		                
+	ld (0fffah),hl		            
+	ld hl,0fff0h		            
+	add hl,bc			            
+	ld de,0fffch		            
+	call sub_0633h		            
+	ld hl,0fff9h		            
+	jp print_string		            
+l061ch:
+	ld hl,0fff0h		            
+	ld b,000h		                
+	add hl,bc			            
+	ld a,(hl)			            
+	or a			                
+	ret z			                
+	ld hl,text_4_start		        
+	ld de,l0013h		            
+	inc c			                
+l062ch:
+	dec c			                
+	jp z,print_string		            
+	add hl,de			            
+	jr l062ch		                
+sub_0633h:
+	ld a,(hl)			            
+	srl a		                    
+	srl a		                    
+	srl a		                    
+	srl a		                    
+	call sub_0643h		            
+	inc de			                
+	ld a,(hl)			            
+	and 00fh		                
+sub_0643h:
+	add a,030h		                
+	cp 03ah		                    
+	jr c,l064bh		                
+	add a,007h		                
+l064bh:
+	ld (de),a			            
+	ret			                    
+sub_064dh:
+	ld a,00eh		                
+	out (SG_ADD),a		            
+	ld a,c			                
+	out (SG_DATA),a		            
+	ld a,00fh		                
+	out (SG_ADD),a		            
+	in a,(SG_DATA)		                
+	bit 0,a		                    
+	ret		
+;
+;
+;
+;	                    
+sub_065dh:
+	push af			                
+	exx			                    
+	xor d			                
+	ld c,a			                
+	ld b,000h		                
+	sla c		                    
+	rl b		                    
+	ld d,e			                
+	ld iy,table_start		            
+	add iy,bc		                
+	ld a,(iy+000h)		            
+	ld e,a			                
+	ld a,(iy+001h)		            
+	xor d			                
+	ld d,a			                
+	exx			                    
+	pop af			                
+	ret		
+;
+;
+;
+;		                    
+sub_067ah:
+	ld de,0ffffh		            
+l067dh:
+	call sub_0363h		            
+	ret nz			                
+	ld c,080h		                
+	call sub_064dh		            
+	jr z,l067dh		                
+	xor a			                
+	ret			                    
+;
+;
+;
+;
+sub_068ah:
+	ld a,007h		                
+	out (SG_ADD),a		            
+	ld a,07eh		                
+	out (SG_DATA),a		            
+	ld a,008h		                
+	out (SG_ADD),a		            
+	ld a,006h		                
+	out (SG_DATA),a		            
+	ld a,001h		                
+	out (SG_ADD),a		            
+	dec a			                
+	out (SG_DATA),a		            
+	ret			                    
+;
+;
+;
+;
+sub_06a2h:
+	push af			                
+	push hl			                
+	push bc			                
+	push de			                
+	call sub_068ah		            
+	xor a			                
+	out (SG_ADD),a		            
+	ld a,c			                
+	out (SG_DATA),a		            
+	ld hl,l0000h+1		            
+	ld b,004h		                
+	ex de,hl			            
+l06b5h:
+	add hl,de			            
+	jr nc,l06b5h		            
+	pop hl			                
+	push hl			                
+	djnz l06b5h		                
+	ld a,007h		                
+	out (SG_ADD),a		            
+	ld a,07fh		                
+	out (SG_DATA),a		            
+	pop de			                
+	pop bc			                
+	pop hl			                
+	pop af			                
+	ret			                    
+;
+;
+;
+;
+ti9918_init_start:
+	defb 0f5h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 002h		                
+	defb 0d0h		                
+	defb 000h		                
+
+;PLEASE TYPE IN CHANNEL CODE      
+text_1_start:
+	defb 021h		                
+	defb 0abh		                
+	defb 002h	
+
+	defb 050h		                
+	defb 04ch		                
+	defb 045h		                
+	defb 041h		                
+	defb 053h		                
+	defb 045h		                
+	defb 020h		                
+	defb 054h		                
+	defb 059h		                
+	defb 050h		                
+	defb 045h		                
+	defb 020h		                
+	defb 049h		                
+	defb 04eh		                
+	defb 020h		                
+	defb 043h		                
+	defb 048h		                
+	defb 041h		                
+	defb 04eh		                
+	defb 04eh		                
+	defb 045h		                
+	defb 04ch		                
+	defb 020h		                
+	defb 043h		                
+	defb 04fh		                
+	defb 044h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+
+
+;SEE "IF SOMETHING GOES WRONG" IN        OWNERS GUIDE
+text_2_start:
+	defb 034h		                
+	defb 021h		                
+	defb 003h		                
+	defb 053h		                
+	defb 045h		                
+	defb 045h		                
+	defb 020h		                
+	defb 022h		                
+	defb 049h		                
+	defb 046h		                
+	defb 020h		                
+	defb 053h		                
+	defb 04fh		                
+	defb 04dh		                
+	defb 045h		                
+	defb 054h		                
+	defb 048h		                
+	defb 049h		                
+	defb 04eh		                
+	defb 047h		                
+	defb 020h		                
+	defb 047h		                
+	defb 04fh		                
+	defb 045h		                
+	defb 053h		                
+	defb 020h		                
+	defb 057h		                
+	defb 052h		                
+	defb 04fh		                
+	defb 04eh		                
+	defb 047h		                
+	defb 022h		                
+	defb 020h		                
+	defb 049h		                
+	defb 04eh		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 04fh		                
+	defb 057h		                
+	defb 04eh		                
+	defb 045h		                
+	defb 052h		                
+	defb 053h		                
+	defb 020h		                
+	defb 047h		                
+	defb 055h		                
+	defb 049h		                
+	defb 044h		                
+	defb 045h		                
+
+
+;PLEASE WAIT
+text_3_start:
+	defb 00bh		                
+	defb 021h		                
+	defb 003h		                
+	defb 050h		                
+	defb 04ch		                
+	defb 045h		                
+	defb 041h		                
+	defb 053h		                
+	defb 045h		                
+	defb 020h		                
+	defb 057h		                
+	defb 041h		                
+	defb 049h		                
+	defb 054h		                
+
+
+;ROM FAILURE     
+;VIDEO FAILURE   
+;RAM FAILURE     
+;SOUND FAILURE   
+;KEYBOARD FAILURE 
+;ADAPTOR FAILURE 
+;RE-TYPE CHANNEL CODE
+text_4_start:
+
+;ROM FAILURE
+	defb 010h		                
+	defb 049h		                
+	defb 001h		                
+;
+	defb 052h		                
+	defb 04fh		                
+	defb 04dh		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h	
+
+;VIDEO FAILURE		                
+	defb 010h		                
+	defb 071h		                
+	defb 001h
+;			                
+	defb 056h		                
+	defb 049h		                
+	defb 044h		                
+	defb 045h		                
+	defb 04fh		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h
+
+;RAM FAILURE			                
+	defb 010h		                
+	defb 099h		                
+	defb 001h		                
+;	
+	defb 052h		                
+	defb 041h		                
+	defb 04dh		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h	
+
+;SOUND FAILURE		                
+	defb 010h		                
+	defb 0c1h		                
+	defb 001h
+;			                
+	defb 053h		                
+	defb 04fh		                
+	defb 055h		                
+	defb 04eh		                
+	defb 044h		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h	
+
+;KEYBOARD FAILURE		                
+	defb 010h		                
+	defb 0e9h		                
+	defb 001h		                
+;
+	defb 04bh		                
+	defb 045h		                
+	defb 059h		                
+	defb 042h		                
+	defb 04fh		                
+	defb 041h		                
+	defb 052h		                
+	defb 044h		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+
+;ADAPTOR FAILURE
+	defb 010h		                
+	defb 011h		                
+	defb 002h	
+;		                
+	defb 041h		                
+	defb 044h		                
+	defb 041h		                
+	defb 050h		                
+	defb 054h		                
+	defb 04fh		                
+	defb 052h		                
+	defb 020h		                
+	defb 046h		                
+	defb 041h		                
+	defb 049h		                
+	defb 04ch		                
+	defb 055h		                
+	defb 052h		                
+	defb 045h		                
+	defb 020h		                
+
+
+text_5_start:
+;RE-TYPE CHANNEL CODE
+	defb 021h		                
+	defb 0abh		                
+	defb 002h	
+;
+	defb 052h		                
+	defb 045h		                
+	defb 02dh		                
+	defb 054h		                
+	defb 059h		                
+	defb 050h		                
+	defb 045h		                
+	defb 020h		                
+	defb 043h		                
+	defb 048h		                
+	defb 041h		                
+	defb 04eh		                
+	defb 04eh		                
+	defb 045h		                
+	defb 04ch		                
+	defb 020h		                
+	defb 043h		                
+	defb 04fh		                
+	defb 044h		                
+	defb 045h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+	defb 020h		                
+
+
+word_1_start:
+	defw 05a02h		                
+byte_1_start:
+	defb 003h		                
+logo_start:
+	defb 00ch		                
+	defb 00dh		                
+	defb 000h		                
+	defb 05bh		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05ch		                
+	defb 05dh		                
+	defb 00ch		                
+	defb 035h		                
+	defb 000h		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 05eh		                
+	defb 00ch		                
+	defb 05dh		                
+	defb 000h		                
+	defb 05fh		                
+	defb 060h		                
+	defb 061h		                
+	defb 062h		                
+	defb 063h		                
+	defb 064h		                
+	defb 065h		                
+	defb 066h		                
+	defb 067h		                
+	defb 068h		                
+	defb 069h		                
+	defb 06ah		                
+	defb 00ch		                
+	defb 085h		                
+	defb 000h		                
+	defb 06bh		                
+	defb 06ch		                
+	defb 06dh		                
+	defb 06eh		                
+	defb 06fh		                
+	defb 070h		                
+	defb 071h		                
+	defb 072h		                
+	defb 073h		                
+	defb 074h		                
+	defb 075h		                
+	defb 076h		                
+	defb 00ch		                
+	defb 0adh		                
+	defb 000h		                
+	defb 077h		                
+	defb 078h		                
+	defb 079h		                
+	defb 07ah		                
+	defb 07bh		                
+	defb 07ch		                
+	defb 07dh		                
+	defb 07eh		                
+	defb 07fh		                
+	defb 080h		                
+	defb 081h		                
+	defb 082h		                
+	defb 00ch		                
+	defb 0d5h		                
+	defb 000h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 083h		                
+	defb 00ch		                
+	defb 0fdh		                
+	defb 000h		                
+	defb 084h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 085h		                
+	defb 086h	
+
+l083ch:
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 000h		                
+	defb 010h		                
+	defb 000h		                
+	defb 028h		                
+	defb 028h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 028h		                
+	defb 028h		                
+	defb 07ch		                
+	defb 028h		                
+	defb 07ch		                
+	defb 028h		                
+	defb 028h		                
+	defb 000h		                
+	defb 038h		                
+	defb 054h		                
+	defb 050h		                
+	defb 038h		                
+	defb 014h		                
+	defb 054h		                
+	defb 038h		                
+	defb 000h		                
+	defb 060h		                
+	defb 064h		                
+	defb 008h		                
+	defb 010h		                
+	defb 020h		                
+	defb 06ch		                
+	defb 00ch		                
+	defb 000h		                
+	defb 010h		                
+	defb 028h		                
+	defb 028h		                
+	defb 030h		                
+	defb 050h		                
+	defb 04ch		                
+	defb 07ch		                
+	defb 000h		                
+	defb 030h		                
+	defb 030h		                
+	defb 010h		                
+	defb 060h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 010h		                
+	defb 020h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 020h		                
+	defb 010h		                
+	defb 000h		                
+	defb 040h		                
+	defb 020h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 020h		                
+	defb 040h		                
+	defb 000h		                
+	defb 000h		                
+	defb 054h		                
+	defb 038h		                
+	defb 07ch		                
+	defb 038h		                
+	defb 054h		                
+	defb 010h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 010h		                
+	defb 010h		                
+	defb 07ch		                
+	defb 010h		                
+	defb 010h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 030h		                
+	defb 030h		                
+	defb 010h		                
+	defb 060h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 038h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 018h		                
+	defb 018h		                
+	defb 000h		                
+	defb 004h		                
+	defb 004h		                
+	defb 008h		                
+	defb 018h		                
+	defb 030h		                
+	defb 020h		                
+	defb 040h		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 04ch		                
+	defb 054h		                
+	defb 064h		                
+	defb 044h		                
+	defb 038h		                
+	defb 000h		                
+	defb 010h		                
+	defb 030h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 038h		                
+	defb 000h		                
+	defb 030h		                
+	defb 048h		                
+	defb 048h		                
+	defb 018h		                
+	defb 030h		                
+	defb 020h		                
+	defb 078h		                
+	defb 000h		                
+	defb 030h		                
+	defb 048h		                
+	defb 008h		                
+	defb 010h		                
+	defb 008h		                
+	defb 048h		                
+	defb 030h		                
+	defb 000h		                
+	defb 010h		                
+	defb 030h		                
+	defb 030h		                
+	defb 050h		                
+	defb 050h		                
+	defb 078h		                
+	defb 010h		                
+	defb 000h		                
+	defb 078h		                
+	defb 040h		                
+	defb 050h		                
+	defb 068h		                
+	defb 008h		                
+	defb 048h		                
+	defb 030h		                
+	defb 000h		                
+	defb 030h		                
+	defb 028h		                
+	defb 040h		                
+	defb 070h		                
+	defb 068h		                
+	defb 048h		                
+	defb 030h		                
+	defb 000h		                
+	defb 078h		                
+	defb 048h		                
+	defb 008h		                
+	defb 010h		                
+	defb 030h		                
+	defb 020h		                
+	defb 020h		                
+	defb 000h		                
+	defb 030h		                
+	defb 048h		                
+	defb 048h		                
+	defb 030h		                
+	defb 048h		                
+	defb 048h		                
+	defb 030h		                
+	defb 000h		                
+	defb 030h		                
+	defb 048h		                
+	defb 048h		                
+	defb 038h		                
+	defb 008h		                
+	defb 050h		                
+	defb 030h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 030h		                
+	defb 030h		                
+	defb 000h		                
+	defb 030h		                
+	defb 030h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 030h		                
+	defb 030h		                
+	defb 000h		                
+	defb 030h		                
+	defb 010h		                
+	defb 040h		                
+	defb 008h		                
+	defb 010h		                
+	defb 020h		                
+	defb 040h		                
+	defb 020h		                
+	defb 010h		                
+	defb 008h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 078h		                
+	defb 000h		                
+	defb 078h		                
+	defb 000h		                
+	defb 000h		                
+	defb 040h		                
+	defb 020h		                
+	defb 010h		                
+	defb 008h		                
+	defb 010h		                
+	defb 020h		                
+	defb 040h		                
+	defb 000h		                
+	defb 030h		                
+	defb 048h		                
+	defb 048h		                
+	defb 010h		                
+	defb 020h		                
+	defb 020h		                
+	defb 000h		                
+	defb 020h		                
+	defb 040h		                
+	defb 038h		                
+	defb 004h		                
+	defb 038h		                
+	defb 008h		                
+	defb 038h		                
+	defb 048h		                
+	defb 034h		                
+	defb 010h		                
+	defb 028h		                
+	defb 044h		                
+	defb 044h		                
+	defb 07ch		                
+	defb 044h		                
+	defb 044h		                
+	defb 000h		                
+	defb 078h		                
+	defb 044h		                
+	defb 044h		                
+	defb 078h		                
+	defb 044h		                
+	defb 044h		                
+	defb 078h		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 044h		                
+	defb 038h		                
+	defb 000h		                
+	defb 070h		                
+	defb 048h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 048h		                
+	defb 070h		                
+	defb 000h		                
+	defb 07ch		                
+	defb 040h		                
+	defb 040h		                
+	defb 070h		                
+	defb 040h		                
+	defb 040h		                
+	defb 07ch		                
+	defb 000h		                
+	defb 07ch		                
+	defb 040h		                
+	defb 040h		                
+	defb 070h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 044h		                
+	defb 040h		                
+	defb 05ch		                
+	defb 044h		                
+	defb 03ch		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 07ch		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 000h		                
+	defb 038h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 038h		                
+	defb 000h		                
+	defb 01ch		                
+	defb 008h		                
+	defb 008h		                
+	defb 008h		                
+	defb 048h		                
+	defb 048h		                
+	defb 030h		                
+	defb 000h		                
+	defb 048h		                
+	defb 048h		                
+	defb 050h		                
+	defb 070h		                
+	defb 050h		                
+	defb 048h		                
+	defb 04ch		                
+	defb 000h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 07ch		                
+	defb 000h		                
+	defb 06ch		                
+	defb 054h		                
+	defb 054h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 000h		                
+	defb 044h		                
+	defb 064h		                
+	defb 064h		                
+	defb 054h		                
+	defb 054h		                
+	defb 04ch		                
+	defb 04ch		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 038h		                
+	defb 000h		                
+	defb 078h		                
+	defb 044h		                
+	defb 044h		                
+	defb 078h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 054h		                
+	defb 048h		                
+	defb 034h		                
+	defb 000h		                
+	defb 078h		                
+	defb 048h		                
+	defb 048h		                
+	defb 078h		                
+	defb 050h		                
+	defb 048h		                
+	defb 04ch		                
+	defb 000h		                
+	defb 038h		                
+	defb 044h		                
+	defb 040h		                
+	defb 038h		                
+	defb 004h		                
+	defb 044h		                
+	defb 038h		                
+	defb 000h		                
+	defb 07ch		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 038h		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 028h		                
+	defb 028h		                
+	defb 028h		                
+	defb 010h		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 054h		                
+	defb 054h		                
+	defb 028h		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 028h		                
+	defb 010h		                
+	defb 028h		                
+	defb 044h		                
+	defb 044h		                
+	defb 000h		                
+	defb 044h		                
+	defb 044h		                
+	defb 044h		                
+	defb 038h		                
+	defb 010h		                
+	defb 010h		                
+	defb 010h		                
+	defb 000h		                
+	defb 07ch		                
+	defb 00ch		                
+	defb 018h		                
+	defb 010h		                
+	defb 020h		                
+	defb 060h		                
+	defb 07ch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 03ch		                
+	defb 07ch		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0f0h		                
+	defb 0f8h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 00ch		                
+	defb 00ch		                
+	defb 00ch		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 018h		                
+	defb 018h		                
+	defb 018h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 07ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 060h		                
+	defb 070h		                
+	defb 070h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 078h		                
+	defb 038h		                
+	defb 018h		                
+	defb 008h		                
+	defb 008h		                
+	defb 008h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 000h		                
+	defb 000h		                
+	defb 020h		                
+	defb 030h		                
+	defb 030h		                
+	defb 038h		                
+	defb 038h		                
+	defb 03ch		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 0e0h		                
+	defb 060h		                
+	defb 060h		                
+	defb 060h		                
+	defb 020h		                
+	defb 020h		                
+	defb 078h		                
+	defb 078h		                
+	defb 078h		                
+	defb 070h		                
+	defb 070h		                
+	defb 070h		                
+	defb 060h		                
+	defb 060h		                
+	defb 018h		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 01ch		                
+	defb 01ch		                
+	defb 01ch		                
+	defb 00ch		                
+	defb 00ch		                
+	defb 00ch		                
+	defb 004h		                
+	defb 004h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 060h		                
+	defb 060h		                
+	defb 000h		                
+	defb 004h		                
+	defb 000h		                
+	defb 060h		                
+	defb 060h		                
+	defb 070h		                
+	defb 018h		                
+	defb 038h		                
+	defb 078h		                
+	defb 0f8h		                
+	defb 078h		                
+	defb 038h		                
+	defb 018h		                
+	defb 008h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 004h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 0c0h		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0f0h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 060h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 040h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 018h		                
+	defb 018h		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 004h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 080h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 070h		                
+	defb 060h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 008h		                
+	defb 008h		                
+	defb 01ch		                
+	defb 03ch		                
+	defb 07ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 004h		                
+	defb 000h		                
+	defb 000h		                
+	defb 080h		                
+	defb 0c0h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 0c0h		                
+	defb 080h		                
+	defb 000h		                
+	defb 000h		                
+	defb 004h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 03ch		                
+	defb 03ch		                
+	defb 07ch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 07ch		                
+	defb 03ch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 0fch		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 0f8h		                
+	defb 0f0h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+	defb 000h		                
+
+
+
+table_start:
+	defb 000h		                
+	defb 000h		                
+	defb 021h		                
+	defb 010h		                
+	defb 042h		                
+	defb 020h		                
+	defb 063h		                
+	defb 030h		                
+	defb 084h		                
+	defb 040h		                
+	defb 0a5h		                
+	defb 050h		                
+	defb 0c6h		                
+	defb 060h		                
+	defb 0e7h		                
+	defb 070h		                
+	defb 008h		                
+	defb 081h		                
+	defb 029h		                
+	defb 091h		                
+	defb 04ah		                
+	defb 0a1h		                
+	defb 06bh		                
+	defb 0b1h		                
+	defb 08ch		                
+	defb 0c1h		                
+	defb 0adh		                
+	defb 0d1h		                
+	defb 0ceh		                
+	defb 0e1h		                
+	defb 0efh		                
+	defb 0f1h		                
+	defb 031h		                
+	defb 012h		                
+	defb 010h		                
+	defb 002h		                
+	defb 073h		                
+	defb 032h		                
+	defb 052h		                
+	defb 022h		                
+	defb 0b5h		                
+	defb 052h		                
+	defb 094h		                
+	defb 042h		                
+	defb 0f7h		                
+	defb 072h		                
+	defb 0d6h		                
+	defb 062h		                
+	defb 039h		                
+	defb 093h		                
+	defb 018h		                
+	defb 083h		                
+	defb 07bh		                
+	defb 0b3h		                
+	defb 05ah		                
+	defb 0a3h		                
+	defb 0bdh		                
+	defb 0d3h		                
+	defb 09ch		                
+	defb 0c3h		                
+	defb 0ffh		                
+	defb 0f3h		                
+	defb 0deh		                
+	defb 0e3h		                
+	defb 062h		                
+	defb 024h		                
+	defb 043h		                
+	defb 034h		                
+	defb 020h		                
+	defb 004h		                
+	defb 001h		                
+	defb 014h		                
+	defb 0e6h		                
+	defb 064h		                
+	defb 0c7h		                
+	defb 074h		                
+	defb 0a4h		                
+	defb 044h		                
+	defb 085h		                
+	defb 054h		                
+	defb 06ah		                
+	defb 0a5h		                
+	defb 04bh		                
+	defb 0b5h		                
+	defb 028h		                
+	defb 085h		                
+	defb 009h		                
+	defb 095h		                
+	defb 0eeh		                
+	defb 0e5h		                
+	defb 0cfh		                
+	defb 0f5h		                
+	defb 0ach		                
+	defb 0c5h		                
+	defb 08dh		                
+	defb 0d5h		                
+	defb 053h		                
+	defb 036h		                
+	defb 072h		                
+	defb 026h		                
+	defb 011h		                
+	defb 016h		                
+	defb 030h		                
+	defb 006h		                
+	defb 0d7h		                
+	defb 076h		                
+	defb 0f6h		                
+	defb 066h		                
+	defb 095h		                
+	defb 056h		                
+	defb 0b4h		                
+	defb 046h		                
+	defb 05bh		                
+	defb 0b7h		                
+	defb 07ah		                
+	defb 0a7h		                
+	defb 019h		                
+	defb 097h		                
+	defb 038h		                
+	defb 087h		                
+	defb 0dfh		                
+	defb 0f7h		                
+	defb 0feh		                
+	defb 0e7h		                
+	defb 09dh		                
+	defb 0d7h		                
+	defb 0bch		                
+	defb 0c7h		                
+	defb 0c4h		                
+	defb 048h		                
+	defb 0e5h		                
+	defb 058h		                
+	defb 086h		                
+	defb 068h		                
+	defb 0a7h		                
+	defb 078h		                
+	defb 040h		                
+	defb 008h		                
+	defb 061h		                
+	defb 018h		                
+	defb 002h		                
+	defb 028h		                
+	defb 023h		                
+	defb 038h		                
+	defb 0cch		                
+	defb 0c9h		                
+	defb 0edh		                
+	defb 0d9h		                
+	defb 08eh		                
+	defb 0e9h		                
+	defb 0afh		                
+	defb 0f9h		                
+	defb 048h		                
+	defb 089h		                
+	defb 069h		                
+	defb 099h		                
+	defb 00ah		                
+	defb 0a9h		                
+	defb 02bh		                
+	defb 0b9h		                
+	defb 0f5h		                
+	defb 05ah		                
+	defb 0d4h		                
+	defb 04ah		                
+	defb 0b7h		                
+	defb 07ah		                
+	defb 096h		                
+	defb 06ah		                
+	defb 071h		                
+	defb 01ah		                
+	defb 050h		                
+	defb 00ah		                
+	defb 033h		                
+	defb 03ah		                
+	defb 012h		                
+	defb 02ah		                
+	defb 0fdh		                
+	defb 0dbh		                
+	defb 0dch		                
+	defb 0cbh		                
+	defb 0bfh		                
+	defb 0fbh		                
+	defb 09eh		                
+	defb 0ebh		                
+	defb 079h		                
+	defb 09bh		                
+	defb 058h		                
+	defb 08bh		                
+	defb 03bh		                
+	defb 0bbh		                
+	defb 01ah		                
+	defb 0abh		                
+	defb 0a6h		                
+	defb 06ch		                
+	defb 087h		                
+	defb 07ch		                
+	defb 0e4h		                
+	defb 04ch		                
+	defb 0c5h		                
+	defb 05ch		                
+	defb 022h		                
+	defb 02ch		                
+	defb 003h		                
+	defb 03ch		                
+	defb 060h		                
+	defb 00ch		                
+	defb 041h		                
+	defb 01ch		                
+	defb 0aeh		                
+	defb 0edh		                
+	defb 08fh		                
+	defb 0fdh		                
+	defb 0ech		                
+	defb 0cdh		                
+	defb 0cdh		                
+	defb 0ddh		                
+	defb 02ah		                
+	defb 0adh		                
+	defb 00bh		                
+	defb 0bdh		                
+	defb 068h		                
+	defb 08dh		                
+	defb 049h		                
+	defb 09dh		                
+	defb 097h		                
+	defb 07eh		                
+	defb 0b6h		                
+	defb 06eh		                
+	defb 0d5h		                
+	defb 05eh		                
+	defb 0f4h		                
+	defb 04eh		                
+	defb 013h		                
+	defb 03eh		                
+	defb 032h		                
+	defb 02eh		                
+	defb 051h		                
+	defb 01eh		                
+	defb 070h		                
+	defb 00eh		                
+	defb 09fh		                
+	defb 0ffh		                
+	defb 0beh		                
+	defb 0efh		                
+	defb 0ddh		                
+	defb 0dfh		                
+	defb 0fch		                
+	defb 0cfh		                
+	defb 01bh		                
+	defb 0bfh		                
+	defb 03ah		                
+	defb 0afh		                
+	defb 059h		                
+	defb 09fh		                
+	defb 078h		                
+	defb 08fh		                
+	defb 088h		                
+	defb 091h		                
+	defb 0a9h		                
+	defb 081h		                
+	defb 0cah		                
+	defb 0b1h		                
+	defb 0ebh		                
+	defb 0a1h		                
+	defb 00ch		                
+	defb 0d1h		                
+	defb 02dh		                
+	defb 0c1h		                
+	defb 04eh		                
+	defb 0f1h		                
+	defb 06fh		                
+	defb 0e1h		                
+	defb 080h		                
+	defb 010h		                
+	defb 0a1h		                
+	defb 000h		                
+	defb 0c2h		                
+	defb 030h		                
+	defb 0e3h		                
+	defb 020h		                
+	defb 004h		                
+	defb 050h		                
+	defb 025h		                
+	defb 040h		                
+	defb 046h		                
+	defb 070h		                
+	defb 067h		                
+	defb 060h		                
+	defb 0b9h		                
+	defb 083h		                
+	defb 098h		                
+	defb 093h		                
+	defb 0fbh		                
+	defb 0a3h		                
+	defb 0dah		                
+	defb 0b3h		                
+	defb 03dh		                
+	defb 0c3h		                
+	defb 01ch		                
+	defb 0d3h		                
+	defb 07fh		                
+	defb 0e3h		                
+	defb 05eh		                
+	defb 0f3h		                
+	defb 0b1h		                
+	defb 002h		                
+	defb 090h		                
+	defb 012h		                
+	defb 0f3h		                
+	defb 022h		                
+	defb 0d2h		                
+	defb 032h		                
+	defb 035h		                
+	defb 042h		                
+	defb 014h		                
+	defb 052h		                
+	defb 077h		                
+	defb 062h		                
+	defb 056h		                
+	defb 072h		                
+	defb 0eah		                
+	defb 0b5h		                
+	defb 0cbh		                
+	defb 0a5h		                
+	defb 0a8h		                
+	defb 095h		                
+	defb 089h		                
+	defb 085h		                
+	defb 06eh		                
+	defb 0f5h		                
+	defb 04fh		                
+	defb 0e5h		                
+	defb 02ch		                
+	defb 0d5h		                
+	defb 00dh		                
+	defb 0c5h		                
+	defb 0e2h		                
+	defb 034h		                
+	defb 0c3h		                
+	defb 024h		                
+	defb 0a0h		                
+	defb 014h		                
+	defb 081h		                
+	defb 004h		                
+	defb 066h		                
+	defb 074h		                
+	defb 047h		                
+	defb 064h		                
+	defb 024h		                
+	defb 054h		                
+	defb 005h		                
+	defb 044h		                
+	defb 0dbh		                
+	defb 0a7h		                
+	defb 0fah		                
+	defb 0b7h		                
+	defb 099h		                
+	defb 087h		                
+	defb 0b8h		                
+	defb 097h		                
+	defb 05fh		                
+	defb 0e7h		                
+	defb 07eh		                
+	defb 0f7h		                
+	defb 01dh		                
+	defb 0c7h		                
+	defb 03ch		                
+	defb 0d7h		                
+	defb 0d3h		                
+	defb 026h		                
+	defb 0f2h		                
+	defb 036h		                
+	defb 091h		                
+	defb 006h		                
+	defb 0b0h		                
+	defb 016h		                
+	defb 057h		                
+	defb 066h		                
+	defb 076h		                
+	defb 076h		                
+	defb 015h		                
+	defb 046h		                
+	defb 034h		                
+	defb 056h		                
+	defb 04ch		                
+	defb 0d9h		                
+	defb 06dh		                
+	defb 0c9h		                
+	defb 00eh		                
+	defb 0f9h		                
+	defb 02fh		                
+	defb 0e9h		                
+	defb 0c8h		                
+	defb 099h		                
+	defb 0e9h		                
+	defb 089h		                
+	defb 08ah		                
+	defb 0b9h		                
+	defb 0abh		                
+	defb 0a9h		                
+	defb 044h		                
+	defb 058h		                
+	defb 065h		                
+	defb 048h		                
+	defb 006h		                
+	defb 078h		                
+	defb 027h		                
+	defb 068h		                
+	defb 0c0h		                
+	defb 018h		                
+	defb 0e1h		                
+	defb 008h		                
+	defb 082h		                
+	defb 038h		                
+	defb 0a3h		                
+	defb 028h		                
+	defb 07dh		                
+	defb 0cbh		                
+	defb 05ch		                
+	defb 0dbh		                
+	defb 03fh		                
+	defb 0ebh		                
+	defb 01eh		                
+	defb 0fbh		                
+	defb 0f9h		                
+	defb 08bh		                
+	defb 0d8h		                
+	defb 09bh		                
+	defb 0bbh		                
+	defb 0abh		                
+	defb 09ah		                
+	defb 0bbh		                
+	defb 075h		                
+	defb 04ah		                
+	defb 054h		                
+	defb 05ah		                
+	defb 037h		                
+	defb 06ah		                
+	defb 016h		                
+	defb 07ah		                
+	defb 0f1h		                
+	defb 00ah		                
+	defb 0d0h		                
+	defb 01ah		                
+	defb 0b3h		                
+	defb 02ah		                
+	defb 092h		                
+	defb 03ah		                
+	defb 02eh		                
+	defb 0fdh		                
+	defb 00fh		                
+	defb 0edh		                
+	defb 06ch		                
+	defb 0ddh		                
+	defb 04dh		                
+	defb 0cdh		                
+	defb 0aah		                
+	defb 0bdh		                
+	defb 08bh		                
+	defb 0adh		                
+	defb 0e8h		                
+	defb 09dh		                
+	defb 0c9h		                
+	defb 08dh		                
+	defb 026h		                
+	defb 07ch		                
+	defb 007h		                
+	defb 06ch		                
+	defb 064h		                
+	defb 05ch		                
+	defb 045h		                
+	defb 04ch		                
+	defb 0a2h		                
+	defb 03ch		                
+	defb 083h		                
+	defb 02ch		                
+	defb 0e0h		                
+	defb 01ch		                
+	defb 0c1h		                
+	defb 00ch		                
+	defb 01fh		                
+	defb 0efh		                
+	defb 03eh		                
+	defb 0ffh		                
+	defb 05dh		                
+	defb 0cfh		                
+	defb 07ch		                
+	defb 0dfh		                
+	defb 09bh		                
+	defb 0afh		                
+	defb 0bah		                
+	defb 0bfh		                
+	defb 0d9h		                
+	defb 08fh		                
+	defb 0f8h		                
+	defb 09fh		                
+	defb 017h		                
+	defb 06eh		                
+	defb 036h		                
+	defb 07eh		                
+	defb 055h		                
+	defb 04eh		                
+	defb 074h		                
+	defb 05eh		                
+	defb 093h		                
+	defb 02eh		                
+	defb 0b2h		                
+	defb 03eh		                
+	defb 0d1h		                
+	defb 00eh		                
+	defb 0f0h		                
+	defb 01eh		                
+
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	nop			                    
+	dec bc			                
+	inc d			                
+l0ffch:
+	jr nc,$+56		                
+l0ffeh:
+	rst 8			                
+l0fffh:
+	dec sp			                

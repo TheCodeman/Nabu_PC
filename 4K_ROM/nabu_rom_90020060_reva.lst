@@ -1,0 +1,3505 @@
+# File nabu_rom_90020060_reva.z80
+0000			; z80dasm 1.1.5 
+0000			; command line: z80dasm -a -t -g0x00 --labels -b nabu_rom_text.txt -o nabu_rom_90020060_reva.z80 NABU_ROM_90020060_revA.BIN 
+0000			HCCA:		equ	080h 
+0000			CTRL_REG:	equ	000h 
+0000			VDP_DATA:	equ 0a0h 
+0000			VDP_ADD:	equ	0a1h 
+0000			SG_DATA:	equ	040h 
+0000			SG_ADD:		equ	041h 
+0000			KB_DATA:	equ	090h 
+0000			KB_STATUS:	equ	091h 
+0000			 
+0000				org	00000h 
+0000			 
+0000			l0000h: 
+0000 3e 02			ld a,002h		 
+0002 32 ee ff			ld (0ffeeh),a	 
+0005 d3 00			out (CTRL_REG),a	;video switch	 
+0007 31 ee ff			ld sp,0ffeeh		 
+000a 21 c9 06			ld hl,ti9918_init_start		 
+000d 06 08			ld b,008h	 
+000f			l000fh: 
+000f 0e a1			ld c,0a1h	 
+0011			l0011h: 
+0011 ed a3			outi		 
+0013			l0013h: 
+0013 78				ld a,b			                 
+0014 f6 80			or 080h		                     
+0016 d3 a1			out (VDP_ADD),a		             
+0018 e6 7f			and 07fh		                 
+001a 20 f5			jr nz,l0011h		             
+001c 21 ef ff			ld hl,0ffefh		             
+001f 11 f0 ff			ld de,0fff0h		             
+0022 01 09 00			ld bc,00009h		             
+0025 af				xor a			                 
+0026 77				ld (hl),a			             
+0027 ed b0			ldir		     
+0029			 
+0029 cd 21 05			call sub_0521h		             
+002c af				xor a			                 
+002d cd 2a 05			call sub_052ah		;send 0 to kb	             
+0030 cd 2a 05			call sub_052ah		;send 0 to kb 
+0033 cd 2a 05			call sub_052ah		;send 0 to kb             
+0036 cd 2a 05			call sub_052ah		;send 0 to kb             
+0039 cd 2a 05			call sub_052ah		;send 0 to kb             
+003c 3e 40			ld a,040h		                 
+003e cd 2a 05			call sub_052ah		;send 0x40 to kb             
+0041 3e 4e			ld a,04eh		                 
+0043 cd 2a 05			call sub_052ah		;send 0x4b to kb             
+0046 3e 04			ld a,004h		                 
+0048 cd 2a 05			call sub_052ah		;send 0x04 to kb             
+004b cd e3 04			call sub_04e3h		                
+004e cd 32 05			call sub_0532h		             
+0051 ca ca 01			jp z,l01cah		            
+0054			; 
+0054			;	      
+0054 3e 3a			ld a,03ah		                 
+0056 d3 00			out (CTRL_REG),a		         
+0058 26 0a			ld h,00ah		                 
+005a 0e 20			ld c,020h		                 
+005c 11 00 e0			ld de,0e000h		             
+005f 06 01			ld b,001h		                 
+0061			l0061h: 
+0061 cd 63 03			call sub_0363h		             
+0064 28 04			jr z,l006ah		                 
+0066 10 02			djnz l006ah		                 
+0068 18 22			jr l008ch		                 
+006a			l006ah: 
+006a cd 4d 06			call sub_064dh		             
+006d 28 f2			jr z,l0061h		                 
+006f db 90			in a,(KB_DATA)		                 
+0071 fe 31			cp 031h		                     
+0073 28 0d			jr z,l0082h		                 
+0075 fe 3d			cp 03dh		                     
+0077 20 e8			jr nz,l0061h		             
+0079 cb 44			bit 0,h		                     
+007b 28 e4			jr z,l0061h		                 
+007d			l007dh: 
+007d 25				dec h			                 
+007e 28 08			jr z,l0088h		                 
+0080 18 df			jr l0061h		                 
+0082			l0082h: 
+0082 cb 44			bit 0,h		                     
+0084 20 db			jr nz,l0061h		             
+0086 18 f5			jr l007dh		                 
+0088			l0088h: 
+0088 21 ef ff			ld hl,0ffefh		             
+008b 34				inc (hl)			             
+008c			l008ch: 
+008c 3a f6 ff			ld a,(0fff6h)		             
+008f cb 47			bit 0,a		                     
+0091 20 05			jr nz,l0098h		             
+0093 cd d1 04			call sub_04d1h		             
+0096 d3 00			out (CTRL_REG),a		         
+0098			l0098h: 
+0098 af				xor a			                 
+0099 32 ff ff			ld (0ffffh),a		             
+009c dd 21 fd 0f		ld ix,l0ffch+1		             
+00a0 11 ff ff			ld de,0ffffh		             
+00a3 af				xor a			                 
+00a4 67				ld h,a			                 
+00a5 6f				ld l,a			                 
+00a6 47				ld b,a			                 
+00a7			l00a7h: 
+00a7 dd 4e 00			ld c,(ix+000h)		             
+00aa 09				add hl,bc			             
+00ab dd 19			add ix,de		                 
+00ad 38 f8			jr c,l00a7h		                 
+00af 3a fe 0f			ld a,(l0ffeh)		             
+00b2 bd				cp l			                 
+00b3 20 06			jr nz,l00bbh		             
+00b5 3a ff 0f			ld a,(l0fffh)		             
+00b8 94				sub h			                 
+00b9 28 03			jr z,l00beh		                 
+00bb			l00bbh: 
+00bb cd a6 04			call sub_04a6h		             
+00be			l00beh: 
+00be cd 6a 04			call sub_046ah		             
+00c1 af				xor a			                 
+00c2 d3 a1			out (VDP_ADD),a		             
+00c4 3e 40			ld a,040h		                 
+00c6 d3 a1			out (VDP_ADD),a		             
+00c8 af				xor a			                 
+00c9 11 01 00			ld de,l0000h+1		             
+00cc dd 21 00 c0		ld ix,0c000h		             
+00d0			l00d0h: 
+00d0 d3 a0			out (VDP_DATA),a		             
+00d2 3c				inc a			                 
+00d3 dd 19			add ix,de		                 
+00d5 30 f9			jr nc,l00d0h		             
+00d7 dd 21 00 c0		ld ix,0c000h		             
+00db af				xor a			                 
+00dc 4f				ld c,a			                 
+00dd 47				ld b,a			                 
+00de 67				ld h,a			                 
+00df 6f				ld l,a			                 
+00e0			l00e0h: 
+00e0 7d				ld a,l			                 
+00e1 d3 a1			out (VDP_ADD),a		             
+00e3 7c				ld a,h			                 
+00e4 d3 a1			out (VDP_ADD),a		             
+00e6 db a0			in a,(VDP_DATA)		                 
+00e8 b9				cp c			                 
+00e9 20 18			jr nz,l0103h		             
+00eb 7d				ld a,l			                 
+00ec d3 a1			out (VDP_ADD),a		             
+00ee 7c				ld a,h			                 
+00ef f6 40			or 040h		                     
+00f1 d3 a1			out (VDP_ADD),a		             
+00f3 79				ld a,c			                 
+00f4 2f				cpl			                     
+00f5 d3 a0			out (VDP_DATA),a		             
+00f7 7d				ld a,l			                 
+00f8 d3 a1			out (VDP_ADD),a		             
+00fa 7c				ld a,h			                 
+00fb d3 a1			out (VDP_ADD),a		             
+00fd db a0			in a,(VDP_DATA)		                 
+00ff 2f				cpl			                     
+0100 b9				cp c			                 
+0101 28 03			jr z,l0106h		                 
+0103			l0103h: 
+0103 cd a6 04			call sub_04a6h		             
+0106			l0106h: 
+0106 0c				inc c			                 
+0107 23				inc hl			                 
+0108 11 01 00			ld de,l0000h+1		             
+010b dd 19			add ix,de		                 
+010d 30 d1			jr nc,l00e0h		             
+010f cd e3 04			call sub_04e3h		                 
+0112 cd 3e 05			call sub_053eh		             
+0115 cd 6a 04			call sub_046ah		             
+0118 af				xor a			                 
+0119 dd 21 00 20		ld ix,02000h		             
+011d 21 00 21			ld hl,02100h		             
+0120 11 01 00			ld de,l0000h+1		             
+0123			l0123h: 
+0123 dd 77 00			ld (ix+000h),a		             
+0126 3c				inc a			                 
+0127 dd 23			inc ix		                     
+0129 19				add hl,de			             
+012a 30 f7			jr nc,l0123h		             
+012c af				xor a			                 
+012d 4f				ld c,a			                 
+012e 21 00 21			ld hl,02100h		             
+0131 dd 21 00 20		ld ix,02000h		             
+0135 47				ld b,a			                 
+0136			l0136h: 
+0136 dd 7e 00			ld a,(ix+000h)		             
+0139 b9				cp c			                 
+013a 20 0b			jr nz,l0147h		             
+013c 2f				cpl			                     
+013d dd 77 00			ld (ix+000h),a		             
+0140 dd 7e 00			ld a,(ix+000h)		             
+0143 2f				cpl			                     
+0144 b9				cp c			                 
+0145 28 03			jr z,l014ah		                 
+0147			l0147h: 
+0147 cd a6 04			call sub_04a6h		             
+014a			l014ah: 
+014a dd 23			inc ix		                     
+014c 0c				inc c			                 
+014d 19				add hl,de			             
+014e 30 e6			jr nc,l0136h		             
+0150 cd 6a 04			call sub_046ah		             
+0153 06 10			ld b,010h		                 
+0155 0e 00			ld c,000h		                 
+0157			l0157h: 
+0157 78				ld a,b			                 
+0158 3d				dec a			                 
+0159 d3 41			out (SG_ADD),a		             
+015b 79				ld a,c			                 
+015c d3 40			out (SG_DATA),a		             
+015e 10 f7			djnz l0157h		                 
+0160 0e 00			ld c,000h		                 
+0162			l0162h: 
+0162 06 ff			ld b,0ffh		                 
+0164			l0164h: 
+0164 79				ld a,c			                 
+0165 d3 41			out (SG_ADD),a		             
+0167 78				ld a,b			                 
+0168 d3 40			out (SG_DATA),a		             
+016a db 40			in a,(SG_DATA)		                 
+016c cd 7e 01			call sub_017eh		             
+016f c4 a6 04			call nz,sub_04a6h		         
+0172 cb 38			srl b		                     
+0174 38 ee			jr c,l0164h		                 
+0176 0c				inc c			                 
+0177 3e 0e			ld a,00eh		                 
+0179 b9				cp c			                 
+017a 20 e6			jr nz,l0162h		             
+017c 18 1b			jr l0199h		                 
+017e			sub_017eh: 
+017e 21 8b 01			ld hl,l018bh		             
+0181 59				ld e,c			                 
+0182 16 00			ld d,000h		                 
+0184 19				add hl,de			             
+0185 a6				and (hl)			             
+0186 5f				ld e,a			                 
+0187 78				ld a,b			                 
+0188 a6				and (hl)			             
+0189 bb				cp e			                 
+018a c9				ret			                     
+018b			l018bh: 
+018b ff				rst 38h			                 
+018c 0f				rrca			                 
+018d ff				rst 38h			                 
+018e 0f				rrca			                 
+018f ff				rst 38h			                 
+0190 0f				rrca			                 
+0191 1f				rra			                     
+0192 ff				rst 38h			                 
+0193 1f				rra			                     
+0194 1f				rra			                     
+0195 1f				rra			                     
+0196 ff				rst 38h			                 
+0197 ff				rst 38h			                 
+0198 0f				rrca			                 
+0199			l0199h: 
+0199 cd 6a 04			call sub_046ah		             
+019c cd 21 05			call sub_0521h		             
+019f 11 00 00			ld de,l0000h		             
+01a2 06 05			ld b,005h		                 
+01a4			l01a4h: 
+01a4 0e 20			ld c,020h		                 
+01a6 cd 4d 06			call sub_064dh		             
+01a9 28 16			jr z,l01c1h		                 
+01ab db 90			in a,(KB_DATA)		                 
+01ad fe 95			cp 095h		                     
+01af 30 10			jr nc,l01c1h		             
+01b1 fe 91			cp 091h		                     
+01b3 38 0c			jr c,l01c1h		                 
+01b5 fe 94			cp 094h		                     
+01b7 28 03			jr z,l01bch		                 
+01b9			l01b9h: 
+01b9 cd a6 04			call sub_04a6h		             
+01bc			l01bch: 
+01bc cd 6a 04			call sub_046ah		             
+01bf 18 09			jr l01cah		                 
+01c1			l01c1h: 
+01c1 1b				dec de			                 
+01c2 7a				ld a,d			                 
+01c3 b3				or e			                 
+01c4 20 de			jr nz,l01a4h		             
+01c6 10 dc			djnz l01a4h		                 
+01c8 18 ef			jr l01b9h		                 
+01ca			l01cah: 
+01ca db 80			in a,(HCCA)		                 
+01cc cd 86 03			call sub_0386h		             
+01cf 28 12			jr z,l01e3h		                 
+01d1 cd a6 04			call sub_04a6h		             
+01d4 18 30			jr l0206h		                 
+01d6			l01d6h: 
+01d6 3e 05			ld a,005h		                 
+01d8 32 f7 ff			ld (0fff7h),a		             
+01db 32 fe ff			ld (0fffeh),a		             
+01de cd a6 04			call sub_04a6h		             
+01e1 18 e7			jr l01cah		                 
+01e3			l01e3h: 
+01e3 0e 82			ld c,082h		                 
+01e5 cd 79 03			call sub_0379h		             
+01e8 20 ec			jr nz,l01d6h		             
+01ea 3e 01			ld a,001h		                 
+01ec d3 80			out (HCCA),a		             
+01ee cd 7a 06			call sub_067ah		             
+01f1 db 80			in a,(HCCA)		                 
+01f3 20 e1			jr nz,l01d6h		             
+01f5 32 f8 ff			ld (0fff8h),a		             
+01f8 0e 10			ld c,010h		                 
+01fa cd 6c 03			call sub_036ch		             
+01fd 20 d7			jr nz,l01d6h		             
+01ff 0e e1			ld c,0e1h		                 
+0201 cd 6c 03			call sub_036ch		             
+0204 20 d0			jr nz,l01d6h		             
+0206			l0206h: 
+0206 cd 32 05			call sub_0532h		             
+0209 c4 6a 04			call nz,sub_046ah		         
+020c 3a ef ff			ld a,(0ffefh)		             
+020f b7				or a			                 
+0210 c2 8c 00			jp nz,l008ch		             
+0213 3a f6 ff			ld a,(0fff6h)		             
+0216 cb 47			bit 0,a		                     
+0218 20 07			jr nz,l0221h		             
+021a 3e 02			ld a,002h		                 
+021c 32 ee ff			ld (0ffeeh),a		             
+021f d3 00			out (CTRL_REG),a		         
+0221			l0221h: 
+0221 21 f8 ff			ld hl,0fff8h		             
+0224 cb 7e			bit 7,(hl)		                 
+0226 28 77			jr z,l029fh		                 
+0228 21 d1 06			ld hl,text_1_start		     
+022b cd 6b 05			call print_string		             
+022e			l022eh: 
+022e 21 f9 ff			ld hl,0fff9h		             
+0231 11 c7 02			ld de,002c7h		             
+0234 cd 7c 05			call sub_057ch		             
+0237 21 f9 ff			ld hl,0fff9h		             
+023a af				xor a			                 
+023b 4f				ld c,a			                 
+023c 06 04			ld b,004h		                 
+023e			l023eh: 
+023e 7e				ld a,(hl)			             
+023f cb 40			bit 0,b		                     
+0241 28 09			jr z,l024ch		                 
+0243 cb 27			sla a		                     
+0245 cb 67			bit 4,a		                     
+0247 28 03			jr z,l024ch		                 
+0249 cb a7			res 4,a		                     
+024b 3c				inc a			                 
+024c			l024ch: 
+024c 81				add a,c			                 
+024d 4f				ld c,a			                 
+024e 23				inc hl			                 
+024f 10 ed			djnz l023eh		                 
+0251 e6 0f			and 00fh		                 
+0253 be				cp (hl)			                 
+0254 28 10			jr z,l0266h		                 
+0256 21 ac 07			ld hl,text_5_start		         
+0259 cd 6b 05			call print_string		             
+025c 0e 90			ld c,090h		                 
+025e 11 00 e0			ld de,0e000h		             
+0261 cd a2 06			call sub_06a2h		             
+0264 18 c8			jr l022eh		                 
+0266			l0266h: 
+0266 21 f9 ff			ld hl,0fff9h		             
+0269 06 04			ld b,004h		                 
+026b 11 00 00			ld de,l0000h		             
+026e			l026eh: 
+026e 7e				ld a,(hl)			             
+026f cb 23			sla e		                     
+0271 cb 12			rl d		                     
+0273 cb 23			sla e		                     
+0275 cb 12			rl d		                     
+0277 cb 23			sla e		                     
+0279 cb 12			rl d		                     
+027b cb 23			sla e		                     
+027d cb 12			rl d		                     
+027f 83				add a,e			                 
+0280 5f				ld e,a			                 
+0281 23				inc hl			                 
+0282 10 ea			djnz l026eh		                 
+0284 d5				push de			                 
+0285 0e 85			ld c,085h		                 
+0287 cd 79 03			call sub_0379h		             
+028a c2 d6 01			jp nz,l01d6h		             
+028d d1				pop de			                 
+028e 7a				ld a,d			                 
+028f d3 80			out (HCCA),a		             
+0291 0e 40			ld c,040h		                 
+0293 cd 4d 06			call sub_064dh		             
+0296 7b				ld a,e			                 
+0297 d3 80			out (HCCA),a		             
+0299 cd ee 05			call sub_05eeh		             
+029c c2 d6 01			jp nz,l01d6h		             
+029f			l029fh: 
+029f 0e 81			ld c,081h		                 
+02a1 cd 79 03			call sub_0379h		             
+02a4 c2 d6 01			jp nz,l01d6h		             
+02a7 3e 8f			ld a,08fh		                 
+02a9 d3 80			out (HCCA),a		             
+02ab 0e 40			ld c,040h		                 
+02ad cd 4d 06			call sub_064dh		             
+02b0 3e 05			ld a,005h		                 
+02b2 d3 80			out (HCCA),a		             
+02b4 cd ee 05			call sub_05eeh		             
+02b7 c2 d6 01			jp nz,l01d6h		             
+02ba 3e 05			ld a,005h		                 
+02bc 32 f8 ff			ld (0fff8h),a		             
+02bf 21 00 00			ld hl,l0000h		             
+02c2 11 00 00			ld de,l0000h		             
+02c5 01 00 10			ld bc,01000h		             
+02c8 ed b0			ldir		                     
+02ca 3a ee ff			ld a,(0ffeeh)		             
+02cd cb c7			set 0,a		                     
+02cf d3 00			out (CTRL_REG),a		         
+02d1 21 2c 07			ld hl,text_3_start		         
+02d4 cd 6b 05			call print_string		             
+02d7			l02d7h: 
+02d7 af				xor a			                 
+02d8 32 00 10			ld (01000h),a		             
+02db 32 01 10			ld (01001h),a		             
+02de 32 03 10			ld (01003h),a		             
+02e1 3c				inc a			                 
+02e2 32 02 10			ld (01002h),a		             
+02e5 01 0b 10			ld bc,0100bh		             
+02e8 ed 43 04 10		ld (01004h),bc		             
+02ec 01 0d 14			ld bc,0140dh		             
+02ef ed 43 08 10		ld (01008h),bc		             
+02f3 af				xor a			                 
+02f4 32 0b 14			ld (0140bh),a		             
+02f7 32 0c 14			ld (0140ch),a		             
+02fa af				xor a			                 
+02fb d3 41			out (SG_ADD),a		             
+02fd d3 40			out (SG_DATA),a		             
+02ff cd 8a 06			call sub_068ah		             
+0302			l0302h: 
+0302 cd b0 03			call sub_03b0h		             
+0305 c2 d6 01			jp nz,l01d6h		             
+0308 af				xor a			                 
+0309 d3 41			out (SG_ADD),a		             
+030b 3a 03 10			ld a,(01003h)		             
+030e cb 27			sla a		                     
+0310 cb 27			sla a		                     
+0312 2f				cpl			                     
+0313 d3 40			out (SG_DATA),a		             
+0315 2a 04 10			ld hl,(01004h)		             
+0318 01 0b 00			ld bc,0000bh		             
+031b 09				add hl,bc			             
+031c 7e				ld a,(hl)			             
+031d 32 0a 10			ld (0100ah),a		             
+0320 2a 06 10			ld hl,(01006h)		             
+0323 01 ee ff			ld bc,0ffeeh		             
+0326 09				add hl,bc			             
+0327 e5				push hl			                 
+0328 c1				pop bc			                 
+0329 2a 0b 14			ld hl,(0140bh)		             
+032c 09				add hl,bc			             
+032d 22 0b 14			ld (0140bh),hl		             
+0330 2a 04 10			ld hl,(01004h)		             
+0333 11 10 00			ld de,l000fh+1		             
+0336 19				add hl,de			             
+0337 ed 5b 08 10		ld de,(01008h)		             
+033b ed b0			ldir		                     
+033d ed 53 08 10		ld (01008h),de		             
+0341 3a 0a 10			ld a,(0100ah)		             
+0344 cb 67			bit 4,a		                     
+0346 20 06			jr nz,l034eh		             
+0348 21 03 10			ld hl,01003h		             
+034b 34				inc (hl)			             
+034c 18 b4			jr l0302h		                 
+034e			l034eh: 
+034e 3e a5			ld a,0a5h		                 
+0350 32 fe ff			ld (0fffeh),a		             
+0353 3e 5a			ld a,05ah		                 
+0355 32 ff ff			ld (0ffffh),a		             
+0358 3e 07			ld a,007h		                 
+035a d3 41			out (SG_ADD),a		             
+035c 3e 7f			ld a,07fh		                 
+035e d3 40			out (SG_DATA),a		             
+0360 c3 0f 14			jp 0140fh		                 
+0363			sub_0363h: 
+0363 1b				dec de			                 
+0364 7a				ld a,d			                 
+0365 b3				or e			                 
+0366 28 02			jr z,l036ah		                 
+0368 af				xor a			                 
+0369 3d				dec a			                 
+036a			l036ah: 
+036a 3c				inc a			                 
+036b c9				ret			                     
+036c			sub_036ch: 
+036c c5				push bc			                 
+036d cd 7a 06			call sub_067ah		             
+0370 c1				pop bc			                 
+0371 c0				ret nz			                 
+0372 db 80			in a,(HCCA)		                 
+0374 91				sub c			                 
+0375 c8				ret z			                 
+0376 3e 02			ld a,002h		                 
+0378 c9				ret			                     
+0379			sub_0379h: 
+0379 79				ld a,c			                 
+037a d3 80			out (HCCA),a		             
+037c 0e 10			ld c,010h		                 
+037e cd 6c 03			call sub_036ch		             
+0381 c0				ret nz			                 
+0382 0e 06			ld c,006h		                 
+0384 18 e6			jr sub_036ch		             
+0386			sub_0386h: 
+0386 06 04			ld b,004h		                 
+0388			l0388h: 
+0388 3e 83			ld a,083h		                 
+038a f5				push af			                 
+038b d3 80			out (HCCA),a		             
+038d			l038dh: 
+038d f1				pop af			                 
+038e 0e 10			ld c,010h		                 
+0390 21 a4 03			ld hl,l03a4h		             
+0393			l0393h: 
+0393 e5				push hl			                 
+0394 cd 6c 03			call sub_036ch		             
+0397 fe 02			cp 002h		                     
+0399 28 f2			jr z,l038dh		                 
+039b fe 00			cp 000h		                     
+039d c8				ret z			                 
+039e f1				pop af			                 
+039f 10 e7			djnz l0388h		                 
+03a1 af				xor a			                 
+03a2 3c				inc a			                 
+03a3 c9				ret			                     
+03a4			l03a4h: 
+03a4 0e 06			ld c,006h		                 
+03a6 21 ab 03			ld hl,l03abh		             
+03a9 18 e8			jr l0393h		                 
+03ab			l03abh: 
+03ab 0e e4			ld c,0e4h		                 
+03ad e1				pop hl			                 
+03ae 18 e3			jr l0393h		                 
+03b0			sub_03b0h: 
+03b0 d9				exx			                     
+03b1 af				xor a			                 
+03b2 3d				dec a			                 
+03b3 57				ld d,a			                 
+03b4 5f				ld e,a			                 
+03b5 d9				exx			                     
+03b6 0e 84			ld c,084h		                 
+03b8 cd 79 03			call sub_0379h		             
+03bb c0				ret nz			                 
+03bc 06 04			ld b,004h		                 
+03be 21 03 10			ld hl,01003h		             
+03c1			l03c1h: 
+03c1 0e 40			ld c,040h		                 
+03c3 cd 4d 06			call sub_064dh		             
+03c6 28 f9			jr z,l03c1h		                 
+03c8 7e				ld a,(hl)			             
+03c9 d3 80			out (HCCA),a		             
+03cb 2d				dec l			                 
+03cc 10 f3			djnz l03c1h		                 
+03ce 0e e4			ld c,0e4h		                 
+03d0 cd 6c 03			call sub_036ch		             
+03d3 c0				ret nz			                 
+03d4 06 18			ld b,018h		                 
+03d6 11 01 00			ld de,l0000h+1		             
+03d9 21 00 00			ld hl,l0000h		             
+03dc			l03dch: 
+03dc 19				add hl,de			             
+03dd 30 0c			jr nc,l03ebh		             
+03df 10 0a			djnz l03ebh		                 
+03e1 21 f5 06			ld hl,text_2_start		         
+03e4 cd 6b 05			call print_string		             
+03e7 c1				pop bc			                 
+03e8 c3 d7 02			jp l02d7h		                 
+03eb			l03ebh: 
+03eb 0e 80			ld c,080h		                 
+03ed cd 4d 06			call sub_064dh		             
+03f0 28 ea			jr z,l03dch		                 
+03f2 db 80			in a,(HCCA)		                 
+03f4 d6 91			sub 091h		                 
+03f6 c0				ret nz			                 
+03f7 3e 10			ld a,010h		                 
+03f9 d3 80			out (HCCA),a		             
+03fb			l03fbh: 
+03fb 0e 40			ld c,040h		                 
+03fd cd 4d 06			call sub_064dh		             
+0400 28 f9			jr z,l03fbh		                 
+0402 0e 80			ld c,080h		                 
+0404 cd 4d 06			call sub_064dh		             
+0407 2a 04 10			ld hl,(01004h)		             
+040a 01 00 00			ld bc,l0000h		             
+040d cb 83			res 0,e		                     
+040f 3e 06			ld a,006h		                 
+0411 d3 80			out (HCCA),a		             
+0413			l0413h: 
+0413 d5				push de			                 
+0414 11 ff ff			ld de,0ffffh		             
+0417			l0417h: 
+0417 3e 0f			ld a,00fh		                 
+0419 d3 41			out (SG_ADD),a		             
+041b db 40			in a,(SG_DATA)		                 
+041d cb 47			bit 0,a		                     
+041f 20 07			jr nz,l0428h		             
+0421 cd 63 03			call sub_0363h		             
+0424 20 3f			jr nz,l0465h		             
+0426 18 ef			jr l0417h		                 
+0428			l0428h: 
+0428 d1				pop de			                 
+0429 db 80			in a,(HCCA)		                 
+042b fe 10			cp 010h		                     
+042d 20 12			jr nz,l0441h		             
+042f cb 43			bit 0,e		                     
+0431 28 0a			jr z,l043dh		                 
+0433 cb 83			res 0,e		                     
+0435 77				ld (hl),a			             
+0436 cd 5d 06			call sub_065dh		             
+0439 23				inc hl			                 
+043a 03				inc bc			                 
+043b 18 d6			jr l0413h		                 
+043d			l043dh: 
+043d cb c3			set 0,e		                     
+043f 18 d2			jr l0413h		                 
+0441			l0441h: 
+0441 cb 43			bit 0,e		                     
+0443 20 08			jr nz,l044dh		             
+0445 77				ld (hl),a			             
+0446 cd 5d 06			call sub_065dh		             
+0449 23				inc hl			                 
+044a 03				inc bc			                 
+044b 18 c6			jr l0413h		                 
+044d			l044dh: 
+044d ed 43 06 10		ld (01006h),bc		             
+0451 fe e1			cp 0e1h		                     
+0453 c2 b0 03			jp nz,sub_03b0h		             
+0456 d9				exx			                     
+0457 7b				ld a,e			                 
+0458 fe 0f			cp 00fh		                     
+045a c2 b0 03			jp nz,sub_03b0h		             
+045d 7a				ld a,d			                 
+045e fe 1d			cp 01dh		                     
+0460 c2 b0 03			jp nz,sub_03b0h		             
+0463 af				xor a			                 
+0464 c9				ret			 
+0465			; 
+0465			; 
+0465			; 
+0465			;	                     
+0465			l0465h: 
+0465 d1				pop de			                 
+0466 d1				pop de			                 
+0467 c3 d6 01			jp l01d6h		                 
+046a			sub_046ah: 
+046a 0e 50			ld c,050h		                 
+046c 21 f6 ff			ld hl,0fff6h		             
+046f cb 4e			bit 1,(hl)		                 
+0471 28 02			jr z,l0475h		                 
+0473 0e 90			ld c,090h		                 
+0475			l0475h: 
+0475 11 00 cc			ld de,0cc00h		             
+0478 cd a2 06			call sub_06a2h		             
+047b cb 8e			res 1,(hl)		                 
+047d 21 00 80			ld hl,08000h		             
+0480 11 01 00			ld de,l0000h+1		             
+0483			l0483h: 
+0483 19				add hl,de			             
+0484 30 fd			jr nc,l0483h		             
+0486 3a f7 ff			ld a,(0fff7h)		             
+0489 4f				ld c,a			                 
+048a d6 05			sub 005h		                 
+048c 28 02			jr z,l0490h		                 
+048e c6 06			add a,006h		                 
+0490			l0490h: 
+0490 32 f7 ff			ld (0fff7h),a		             
+0493 3a f6 ff			ld a,(0fff6h)		             
+0496 cb 47			bit 0,a		                     
+0498 c2 f3 05			jp nz,l05f3h		             
+049b cd d1 04			call sub_04d1h		             
+049e d3 00			out (CTRL_REG),a		         
+04a0 32 ee ff			ld (0ffeeh),a		             
+04a3 c3 f3 05			jp l05f3h		                 
+04a6			sub_04a6h: 
+04a6 f5				push af			                 
+04a7 d5				push de			                 
+04a8 e5				push hl			                 
+04a9 3a f6 ff			ld a,(0fff6h)		             
+04ac cb 47			bit 0,a		                     
+04ae 20 0a			jr nz,l04bah		             
+04b0 cd d1 04			call sub_04d1h		             
+04b3 f6 10			or 010h		                     
+04b5 d3 00			out (CTRL_REG),a		         
+04b7 32 ee ff			ld (0ffeeh),a		             
+04ba			l04bah: 
+04ba 3e 03			ld a,003h		                 
+04bc 32 f6 ff			ld (0fff6h),a		             
+04bf 21 f0 ff			ld hl,0fff0h		             
+04c2 16 00			ld d,000h		                 
+04c4 3a f7 ff			ld a,(0fff7h)		             
+04c7 5f				ld e,a			                 
+04c8 19				add hl,de			             
+04c9 34				inc (hl)			             
+04ca 20 01			jr nz,l04cdh		             
+04cc 35				dec (hl)			             
+04cd			l04cdh: 
+04cd e1				pop hl			                 
+04ce d1				pop de			                 
+04cf f1				pop af			                 
+04d0 c9				ret	 
+04d1			;	 
+04d1			; 
+04d1			; 
+04d1			; 
+04d1			sub_04d1h: 
+04d1 21 dd 04			ld hl,l04ddh		             
+04d4 3a f7 ff			ld a,(0fff7h)		             
+04d7 5f				ld e,a			                 
+04d8 16 00			ld d,000h		                 
+04da 19				add hl,de			             
+04db 7e				ld a,(hl)			             
+04dc c9				ret			                     
+04dd			; 
+04dd			; 
+04dd			; 
+04dd			; 
+04dd			l04ddh: 
+04dd 2a				defb 02ah		;04dd 
+04de 0a				defb 00ah		;04de 
+04df 2a				defb 02ah		;04df 
+04e0 0a				defb 00ah		;04e0 
+04e1 22				defb 022h		;04e1 
+04e2 02				defb 002h		;04e2 
+04e3			sub_04e3h: 
+04e3 af				xor a			;04e3 
+04e4 d3 a1			out (VDP_ADD),a		             
+04e6 3e 41			ld a,041h		                 
+04e8 d3 a1			out (VDP_ADD),a		             
+04ea 0e a0			ld c,VDP_DATA	;0a0h		                 
+04ec 16 04			ld d,004h		                 
+04ee 21 3c 08			ld hl,l083ch		             
+04f1			l04f1h: 
+04f1 06 ff			ld b,0ffh		                 
+04f3 ed b3			otir		                     
+04f5 15				dec d			;copy 1k                 
+04f6 20 f9			jr nz,l04f1h		             
+04f8 af				xor a			                 
+04f9 d3 a1			out (VDP_ADD),a		             
+04fb 3e 48			ld a,048h		                 
+04fd d3 a1			out (VDP_ADD),a		             
+04ff 3e 20			ld a,020h		                 
+0501 21 40 fc			ld hl,0fc40h		             
+0504 11 01 00			ld de,l0000h+1		             
+0507			l0507h: 
+0507 d3 a0			out (VDP_DATA),a		             
+0509 19				add hl,de			             
+050a 30 fb			jr nc,l0507h		             
+050c 06 07			ld b,007h		                 
+050e 21 d3 07			ld hl,logo_start		         
+0511 11 0f 00			ld de,l000fh		             
+0514			l0514h: 
+0514 c5				push bc			                 
+0515 e5				push hl			                 
+0516 d5				push de			                 
+0517 cd 6b 05			call print_string		             
+051a d1				pop de			                 
+051b e1				pop hl			                 
+051c c1				pop bc			                 
+051d 19				add hl,de			             
+051e 10 f4			djnz l0514h		                 
+0520 c9				ret		 
+0521			; 
+0521			; 
+0521			; 
+0521			;		                     
+0521			sub_0521h: 
+0521 3e 07			ld a,007h		                 
+0523 d3 41			out (SG_ADD),a	;add	             
+0525 3e 7f			ld a,07fh		                 
+0527 d3 40			out (SG_DATA),a	;data	             
+0529 c9				ret		 
+052a			;	 
+052a			; 
+052a			; 
+052a			;		                     
+052a			sub_052ah: 
+052a d3 91			out (KB_STATUS),a		             
+052c 00				nop			                     
+052d 00				nop			                     
+052e 00				nop			                     
+052f 00				nop			                     
+0530 00				nop			                     
+0531 c9				ret	 
+0532			; 
+0532			; 
+0532			; 
+0532			;			                     
+0532			sub_0532h: 
+0532 21 fe ff			ld hl,0fffeh		             
+0535 7e				ld a,(hl)			             
+0536 d6 a5			sub 0a5h		                 
+0538 c0				ret nz			                 
+0539 23				inc hl			                 
+053a 7e				ld a,(hl)			             
+053b d6 5a			sub 05ah		                 
+053d c9				ret	 
+053e			; 
+053e			; 
+053e			; 
+053e			;			                     
+053e			sub_053eh: 
+053e 0e 05			ld c,005h		                 
+0540 c5				push bc			                 
+0541			l0541h: 
+0541 cd f3 05			call l05f3h		                 
+0544 c1				pop bc			                 
+0545 0d				dec c			                 
+0546 fa 4c 05			jp m,l054ch		                 
+0549 c5				push bc			                 
+054a 18 f5			jr l0541h		                 
+054c			l054ch: 
+054c 3a ef ff			ld a,(0ffefh)		             
+054f b7				or a			                 
+0550 c8				ret z			                 
+0551 2a d0 07			ld hl,(word_1_start)		         
+0554 22 f9 ff			ld (0fff9h),hl		             
+0557 3a d2 07			ld a,(byte_1_start)		         
+055a 32 fb ff			ld (0fffbh),a		             
+055d ed 5b fc 0f		ld de,(l0ffch)		             
+0561 ed 53 fc ff		ld (0fffch),de		             
+0565 21 f9 ff			ld hl,0fff9h		             
+0568 c3 6b 05			jp print_string	 
+056b			; 
+056b			; 
+056b			; 
+056b			; Print string 		             
+056b			print_string: 
+056b 46				ld b,(hl)		;string len	             
+056c 23				inc hl			                 
+056d 7e				ld a,(hl)		;ab		             
+056e d3 a1			out (VDP_ADD),a		             
+0570 23				inc hl			                 
+0571 7e				ld a,(hl)		;02	             
+0572 c6 48			add a,048h		                 
+0574 d3 a1			out (VDP_ADD),a		             
+0576 23				inc hl			                 
+0577 0e a0			ld c,VDP_DATA	;0a0h		                 
+0579 ed b3			otir		                     
+057b c9				ret			                     
+057c			; 
+057c			; 
+057c			; 
+057c			;read keyboard ? 
+057c			sub_057ch: 
+057c 06 05			ld b,005h		                 
+057e			l057eh: 
+057e db 91			in a,(KB_STATUS)		                 
+0580 cb 4f			bit 1,a		                     
+0582 28 fa			jr z,l057eh		                 
+0584 db 90			in a,(KB_DATA)		                 
+0586 f5				push af			                 
+0587 d6 30			sub 030h		                 
+0589 38 37			jr c,l05c2h		                 
+058b fe 0a			cp 00ah		                     
+058d 38 14			jr c,l05a3h		                 
+058f d6 07			sub 007h		                 
+0591 fe 0a			cp 00ah		                     
+0593 38 2d			jr c,l05c2h		                 
+0595 fe 10			cp 010h		                     
+0597 38 0a			jr c,l05a3h		                 
+0599 d6 20			sub 020h		                 
+059b fe 0a			cp 00ah		                     
+059d 38 23			jr c,l05c2h		                 
+059f fe 10			cp 010h		                     
+05a1 30 1f			jr nc,l05c2h		             
+05a3			l05a3h: 
+05a3 4f				ld c,a			                 
+05a4 78				ld a,b			                 
+05a5 b7				or a			                 
+05a6 20 03			jr nz,l05abh		             
+05a8 f1				pop af			                 
+05a9 18 d3			jr l057eh		                 
+05ab			l05abh: 
+05ab 7b				ld a,e			                 
+05ac d3 a1			out (VDP_ADD),a		             
+05ae 7a				ld a,d			                 
+05af f6 48			or 048h		                     
+05b1 d3 a1			out (VDP_ADD),a		             
+05b3 f1				pop af			                 
+05b4 fe 5b			cp 05bh		                     
+05b6 38 02			jr c,l05bah		                 
+05b8 d6 20			sub 020h		                 
+05ba			l05bah: 
+05ba d3 a0			out (VDP_DATA),a		             
+05bc 71				ld (hl),c			             
+05bd 23				inc hl			                 
+05be 13				inc de			                 
+05bf 05				dec b			                 
+05c0 18 bc			jr l057eh		                 
+05c2			l05c2h: 
+05c2 f1				pop af			                 
+05c3 fe 0d			cp 00dh		                     
+05c5 28 04			jr z,l05cbh		                 
+05c7 fe e7			cp 0e7h		                     
+05c9 20 05			jr nz,l05d0h		             
+05cb			l05cbh: 
+05cb 78				ld a,b			                 
+05cc b7				or a			                 
+05cd 20 af			jr nz,l057eh		             
+05cf c9				ret			                     
+05d0			; 
+05d0			; 
+05d0			; 
+05d0			; 
+05d0			l05d0h: 
+05d0 fe 7f			cp 07fh		                     
+05d2 28 04			jr z,l05d8h		                 
+05d4 fe e1			cp 0e1h		                     
+05d6 20 a6			jr nz,l057eh		             
+05d8			l05d8h: 
+05d8 78				ld a,b			                 
+05d9 fe 05			cp 005h		                     
+05db 28 a1			jr z,l057eh		                 
+05dd 1b				dec de			                 
+05de 2b				dec hl			                 
+05df 04				inc b			                 
+05e0 7b				ld a,e			                 
+05e1 d3 a1			out (VDP_ADD),a		             
+05e3 7a				ld a,d			                 
+05e4 f6 48			or 048h		                     
+05e6 d3 a1			out (VDP_ADD),a		             
+05e8 3e 20			ld a,020h		                 
+05ea d3 a0			out (VDP_DATA),a		             
+05ec 18 90			jr l057eh		                 
+05ee			sub_05eeh: 
+05ee 0e e4			ld c,0e4h		                 
+05f0 c3 6c 03			jp sub_036ch		             
+05f3			l05f3h: 
+05f3 3a ef ff			ld a,(0ffefh)		             
+05f6 b7				or a			                 
+05f7 28 23			jr z,l061ch		                 
+05f9 3e 02			ld a,002h		                 
+05fb 32 f9 ff			ld (0fff9h),a		             
+05fe 11 28 00			ld de,00028h		             
+0601 41				ld b,c			                 
+0602 04				inc b			                 
+0603 21 2b 01			ld hl,0012bh		             
+0606			l0606h: 
+0606 19				add hl,de			             
+0607 10 fd			djnz l0606h		                 
+0609 22 fa ff			ld (0fffah),hl		             
+060c 21 f0 ff			ld hl,0fff0h		             
+060f 09				add hl,bc			             
+0610 11 fc ff			ld de,0fffch		             
+0613 cd 33 06			call sub_0633h		             
+0616 21 f9 ff			ld hl,0fff9h		             
+0619 c3 6b 05			jp print_string		             
+061c			l061ch: 
+061c 21 f0 ff			ld hl,0fff0h		             
+061f 06 00			ld b,000h		                 
+0621 09				add hl,bc			             
+0622 7e				ld a,(hl)			             
+0623 b7				or a			                 
+0624 c8				ret z			                 
+0625 21 3a 07			ld hl,text_4_start		         
+0628 11 13 00			ld de,l0013h		             
+062b 0c				inc c			                 
+062c			l062ch: 
+062c 0d				dec c			                 
+062d ca 6b 05			jp z,print_string		             
+0630 19				add hl,de			             
+0631 18 f9			jr l062ch		                 
+0633			sub_0633h: 
+0633 7e				ld a,(hl)			             
+0634 cb 3f			srl a		                     
+0636 cb 3f			srl a		                     
+0638 cb 3f			srl a		                     
+063a cb 3f			srl a		                     
+063c cd 43 06			call sub_0643h		             
+063f 13				inc de			                 
+0640 7e				ld a,(hl)			             
+0641 e6 0f			and 00fh		                 
+0643			sub_0643h: 
+0643 c6 30			add a,030h		                 
+0645 fe 3a			cp 03ah		                     
+0647 38 02			jr c,l064bh		                 
+0649 c6 07			add a,007h		                 
+064b			l064bh: 
+064b 12				ld (de),a			             
+064c c9				ret			                     
+064d			sub_064dh: 
+064d 3e 0e			ld a,00eh		                 
+064f d3 41			out (SG_ADD),a		             
+0651 79				ld a,c			                 
+0652 d3 40			out (SG_DATA),a		             
+0654 3e 0f			ld a,00fh		                 
+0656 d3 41			out (SG_ADD),a		             
+0658 db 40			in a,(SG_DATA)		                 
+065a cb 47			bit 0,a		                     
+065c c9				ret		 
+065d			; 
+065d			; 
+065d			; 
+065d			;	                     
+065d			sub_065dh: 
+065d f5				push af			                 
+065e d9				exx			                     
+065f aa				xor d			                 
+0660 4f				ld c,a			                 
+0661 06 00			ld b,000h		                 
+0663 cb 21			sla c		                     
+0665 cb 10			rl b		                     
+0667 53				ld d,e			                 
+0668 fd 21 74 0b		ld iy,table_start		             
+066c fd 09			add iy,bc		                 
+066e fd 7e 00			ld a,(iy+000h)		             
+0671 5f				ld e,a			                 
+0672 fd 7e 01			ld a,(iy+001h)		             
+0675 aa				xor d			                 
+0676 57				ld d,a			                 
+0677 d9				exx			                     
+0678 f1				pop af			                 
+0679 c9				ret		 
+067a			; 
+067a			; 
+067a			; 
+067a			;		                     
+067a			sub_067ah: 
+067a 11 ff ff			ld de,0ffffh		             
+067d			l067dh: 
+067d cd 63 03			call sub_0363h		             
+0680 c0				ret nz			                 
+0681 0e 80			ld c,080h		                 
+0683 cd 4d 06			call sub_064dh		             
+0686 28 f5			jr z,l067dh		                 
+0688 af				xor a			                 
+0689 c9				ret			                     
+068a			; 
+068a			; 
+068a			; 
+068a			; 
+068a			sub_068ah: 
+068a 3e 07			ld a,007h		                 
+068c d3 41			out (SG_ADD),a		             
+068e 3e 7e			ld a,07eh		                 
+0690 d3 40			out (SG_DATA),a		             
+0692 3e 08			ld a,008h		                 
+0694 d3 41			out (SG_ADD),a		             
+0696 3e 06			ld a,006h		                 
+0698 d3 40			out (SG_DATA),a		             
+069a 3e 01			ld a,001h		                 
+069c d3 41			out (SG_ADD),a		             
+069e 3d				dec a			                 
+069f d3 40			out (SG_DATA),a		             
+06a1 c9				ret			                     
+06a2			; 
+06a2			; 
+06a2			; 
+06a2			; 
+06a2			sub_06a2h: 
+06a2 f5				push af			                 
+06a3 e5				push hl			                 
+06a4 c5				push bc			                 
+06a5 d5				push de			                 
+06a6 cd 8a 06			call sub_068ah		             
+06a9 af				xor a			                 
+06aa d3 41			out (SG_ADD),a		             
+06ac 79				ld a,c			                 
+06ad d3 40			out (SG_DATA),a		             
+06af 21 01 00			ld hl,l0000h+1		             
+06b2 06 04			ld b,004h		                 
+06b4 eb				ex de,hl			             
+06b5			l06b5h: 
+06b5 19				add hl,de			             
+06b6 30 fd			jr nc,l06b5h		             
+06b8 e1				pop hl			                 
+06b9 e5				push hl			                 
+06ba 10 f9			djnz l06b5h		                 
+06bc 3e 07			ld a,007h		                 
+06be d3 41			out (SG_ADD),a		             
+06c0 3e 7f			ld a,07fh		                 
+06c2 d3 40			out (SG_DATA),a		             
+06c4 d1				pop de			                 
+06c5 c1				pop bc			                 
+06c6 e1				pop hl			                 
+06c7 f1				pop af			                 
+06c8 c9				ret			                     
+06c9			; 
+06c9			; 
+06c9			; 
+06c9			; 
+06c9			ti9918_init_start: 
+06c9 f5				defb 0f5h		                 
+06ca 00				defb 000h		                 
+06cb 00				defb 000h		                 
+06cc 00				defb 000h		                 
+06cd 00				defb 000h		                 
+06ce 02				defb 002h		                 
+06cf d0				defb 0d0h		                 
+06d0 00				defb 000h		                 
+06d1			 
+06d1			;PLEASE TYPE IN CHANNEL CODE       
+06d1			text_1_start: 
+06d1 21				defb 021h		                 
+06d2 ab				defb 0abh		                 
+06d3 02				defb 002h	 
+06d4			 
+06d4 50				defb 050h		                 
+06d5 4c				defb 04ch		                 
+06d6 45				defb 045h		                 
+06d7 41				defb 041h		                 
+06d8 53				defb 053h		                 
+06d9 45				defb 045h		                 
+06da 20				defb 020h		                 
+06db 54				defb 054h		                 
+06dc 59				defb 059h		                 
+06dd 50				defb 050h		                 
+06de 45				defb 045h		                 
+06df 20				defb 020h		                 
+06e0 49				defb 049h		                 
+06e1 4e				defb 04eh		                 
+06e2 20				defb 020h		                 
+06e3 43				defb 043h		                 
+06e4 48				defb 048h		                 
+06e5 41				defb 041h		                 
+06e6 4e				defb 04eh		                 
+06e7 4e				defb 04eh		                 
+06e8 45				defb 045h		                 
+06e9 4c				defb 04ch		                 
+06ea 20				defb 020h		                 
+06eb 43				defb 043h		                 
+06ec 4f				defb 04fh		                 
+06ed 44				defb 044h		                 
+06ee 45				defb 045h		                 
+06ef 20				defb 020h		                 
+06f0 20				defb 020h		                 
+06f1 20				defb 020h		                 
+06f2 20				defb 020h		                 
+06f3 20				defb 020h		                 
+06f4 20				defb 020h		                 
+06f5			 
+06f5			 
+06f5			;SEE "IF SOMETHING GOES WRONG" IN        OWNERS GUIDE 
+06f5			text_2_start: 
+06f5 34				defb 034h		                 
+06f6 21				defb 021h		                 
+06f7 03				defb 003h		                 
+06f8 53				defb 053h		                 
+06f9 45				defb 045h		                 
+06fa 45				defb 045h		                 
+06fb 20				defb 020h		                 
+06fc 22				defb 022h		                 
+06fd 49				defb 049h		                 
+06fe 46				defb 046h		                 
+06ff 20				defb 020h		                 
+0700 53				defb 053h		                 
+0701 4f				defb 04fh		                 
+0702 4d				defb 04dh		                 
+0703 45				defb 045h		                 
+0704 54				defb 054h		                 
+0705 48				defb 048h		                 
+0706 49				defb 049h		                 
+0707 4e				defb 04eh		                 
+0708 47				defb 047h		                 
+0709 20				defb 020h		                 
+070a 47				defb 047h		                 
+070b 4f				defb 04fh		                 
+070c 45				defb 045h		                 
+070d 53				defb 053h		                 
+070e 20				defb 020h		                 
+070f 57				defb 057h		                 
+0710 52				defb 052h		                 
+0711 4f				defb 04fh		                 
+0712 4e				defb 04eh		                 
+0713 47				defb 047h		                 
+0714 22				defb 022h		                 
+0715 20				defb 020h		                 
+0716 49				defb 049h		                 
+0717 4e				defb 04eh		                 
+0718 20				defb 020h		                 
+0719 20				defb 020h		                 
+071a 20				defb 020h		                 
+071b 20				defb 020h		                 
+071c 20				defb 020h		                 
+071d 20				defb 020h		                 
+071e 20				defb 020h		                 
+071f 20				defb 020h		                 
+0720 4f				defb 04fh		                 
+0721 57				defb 057h		                 
+0722 4e				defb 04eh		                 
+0723 45				defb 045h		                 
+0724 52				defb 052h		                 
+0725 53				defb 053h		                 
+0726 20				defb 020h		                 
+0727 47				defb 047h		                 
+0728 55				defb 055h		                 
+0729 49				defb 049h		                 
+072a 44				defb 044h		                 
+072b 45				defb 045h		                 
+072c			 
+072c			 
+072c			;PLEASE WAIT 
+072c			text_3_start: 
+072c 0b				defb 00bh		                 
+072d 21				defb 021h		                 
+072e 03				defb 003h		                 
+072f 50				defb 050h		                 
+0730 4c				defb 04ch		                 
+0731 45				defb 045h		                 
+0732 41				defb 041h		                 
+0733 53				defb 053h		                 
+0734 45				defb 045h		                 
+0735 20				defb 020h		                 
+0736 57				defb 057h		                 
+0737 41				defb 041h		                 
+0738 49				defb 049h		                 
+0739 54				defb 054h		                 
+073a			 
+073a			 
+073a			;ROM FAILURE      
+073a			;VIDEO FAILURE    
+073a			;RAM FAILURE      
+073a			;SOUND FAILURE    
+073a			;KEYBOARD FAILURE  
+073a			;ADAPTOR FAILURE  
+073a			;RE-TYPE CHANNEL CODE 
+073a			text_4_start: 
+073a			 
+073a			;ROM FAILURE 
+073a 10				defb 010h		                 
+073b 49				defb 049h		                 
+073c 01				defb 001h		                 
+073d			; 
+073d 52				defb 052h		                 
+073e 4f				defb 04fh		                 
+073f 4d				defb 04dh		                 
+0740 20				defb 020h		                 
+0741 46				defb 046h		                 
+0742 41				defb 041h		                 
+0743 49				defb 049h		                 
+0744 4c				defb 04ch		                 
+0745 55				defb 055h		                 
+0746 52				defb 052h		                 
+0747 45				defb 045h		                 
+0748 20				defb 020h		                 
+0749 20				defb 020h		                 
+074a 20				defb 020h		                 
+074b 20				defb 020h		                 
+074c 20				defb 020h	 
+074d			 
+074d			;VIDEO FAILURE		                 
+074d 10				defb 010h		                 
+074e 71				defb 071h		                 
+074f 01				defb 001h 
+0750			;			                 
+0750 56				defb 056h		                 
+0751 49				defb 049h		                 
+0752 44				defb 044h		                 
+0753 45				defb 045h		                 
+0754 4f				defb 04fh		                 
+0755 20				defb 020h		                 
+0756 46				defb 046h		                 
+0757 41				defb 041h		                 
+0758 49				defb 049h		                 
+0759 4c				defb 04ch		                 
+075a 55				defb 055h		                 
+075b 52				defb 052h		                 
+075c 45				defb 045h		                 
+075d 20				defb 020h		                 
+075e 20				defb 020h		                 
+075f 20				defb 020h 
+0760			 
+0760			;RAM FAILURE			                 
+0760 10				defb 010h		                 
+0761 99				defb 099h		                 
+0762 01				defb 001h		                 
+0763			;	 
+0763 52				defb 052h		                 
+0764 41				defb 041h		                 
+0765 4d				defb 04dh		                 
+0766 20				defb 020h		                 
+0767 46				defb 046h		                 
+0768 41				defb 041h		                 
+0769 49				defb 049h		                 
+076a 4c				defb 04ch		                 
+076b 55				defb 055h		                 
+076c 52				defb 052h		                 
+076d 45				defb 045h		                 
+076e 20				defb 020h		                 
+076f 20				defb 020h		                 
+0770 20				defb 020h		                 
+0771 20				defb 020h		                 
+0772 20				defb 020h	 
+0773			 
+0773			;SOUND FAILURE		                 
+0773 10				defb 010h		                 
+0774 c1				defb 0c1h		                 
+0775 01				defb 001h 
+0776			;			                 
+0776 53				defb 053h		                 
+0777 4f				defb 04fh		                 
+0778 55				defb 055h		                 
+0779 4e				defb 04eh		                 
+077a 44				defb 044h		                 
+077b 20				defb 020h		                 
+077c 46				defb 046h		                 
+077d 41				defb 041h		                 
+077e 49				defb 049h		                 
+077f 4c				defb 04ch		                 
+0780 55				defb 055h		                 
+0781 52				defb 052h		                 
+0782 45				defb 045h		                 
+0783 20				defb 020h		                 
+0784 20				defb 020h		                 
+0785 20				defb 020h	 
+0786			 
+0786			;KEYBOARD FAILURE		                 
+0786 10				defb 010h		                 
+0787 e9				defb 0e9h		                 
+0788 01				defb 001h		                 
+0789			; 
+0789 4b				defb 04bh		                 
+078a 45				defb 045h		                 
+078b 59				defb 059h		                 
+078c 42				defb 042h		                 
+078d 4f				defb 04fh		                 
+078e 41				defb 041h		                 
+078f 52				defb 052h		                 
+0790 44				defb 044h		                 
+0791 20				defb 020h		                 
+0792 46				defb 046h		                 
+0793 41				defb 041h		                 
+0794 49				defb 049h		                 
+0795 4c				defb 04ch		                 
+0796 55				defb 055h		                 
+0797 52				defb 052h		                 
+0798 45				defb 045h		                 
+0799			 
+0799			;ADAPTOR FAILURE 
+0799 10				defb 010h		                 
+079a 11				defb 011h		                 
+079b 02				defb 002h	 
+079c			;		                 
+079c 41				defb 041h		                 
+079d 44				defb 044h		                 
+079e 41				defb 041h		                 
+079f 50				defb 050h		                 
+07a0 54				defb 054h		                 
+07a1 4f				defb 04fh		                 
+07a2 52				defb 052h		                 
+07a3 20				defb 020h		                 
+07a4 46				defb 046h		                 
+07a5 41				defb 041h		                 
+07a6 49				defb 049h		                 
+07a7 4c				defb 04ch		                 
+07a8 55				defb 055h		                 
+07a9 52				defb 052h		                 
+07aa 45				defb 045h		                 
+07ab 20				defb 020h		                 
+07ac			 
+07ac			 
+07ac			text_5_start: 
+07ac			;RE-TYPE CHANNEL CODE 
+07ac 21				defb 021h		                 
+07ad ab				defb 0abh		                 
+07ae 02				defb 002h	 
+07af			; 
+07af 52				defb 052h		                 
+07b0 45				defb 045h		                 
+07b1 2d				defb 02dh		                 
+07b2 54				defb 054h		                 
+07b3 59				defb 059h		                 
+07b4 50				defb 050h		                 
+07b5 45				defb 045h		                 
+07b6 20				defb 020h		                 
+07b7 43				defb 043h		                 
+07b8 48				defb 048h		                 
+07b9 41				defb 041h		                 
+07ba 4e				defb 04eh		                 
+07bb 4e				defb 04eh		                 
+07bc 45				defb 045h		                 
+07bd 4c				defb 04ch		                 
+07be 20				defb 020h		                 
+07bf 43				defb 043h		                 
+07c0 4f				defb 04fh		                 
+07c1 44				defb 044h		                 
+07c2 45				defb 045h		                 
+07c3 20				defb 020h		                 
+07c4 20				defb 020h		                 
+07c5 20				defb 020h		                 
+07c6 20				defb 020h		                 
+07c7 20				defb 020h		                 
+07c8 20				defb 020h		                 
+07c9 20				defb 020h		                 
+07ca 20				defb 020h		                 
+07cb 20				defb 020h		                 
+07cc 20				defb 020h		                 
+07cd 20				defb 020h		                 
+07ce 20				defb 020h		                 
+07cf 20				defb 020h		                 
+07d0			 
+07d0			 
+07d0			word_1_start: 
+07d0 02 5a			defw 05a02h		                 
+07d2			byte_1_start: 
+07d2 03				defb 003h		                 
+07d3			logo_start: 
+07d3 0c				defb 00ch		                 
+07d4 0d				defb 00dh		                 
+07d5 00				defb 000h		                 
+07d6 5b				defb 05bh		                 
+07d7 5c				defb 05ch		                 
+07d8 5c				defb 05ch		                 
+07d9 5c				defb 05ch		                 
+07da 5c				defb 05ch		                 
+07db 5c				defb 05ch		                 
+07dc 5c				defb 05ch		                 
+07dd 5c				defb 05ch		                 
+07de 5c				defb 05ch		                 
+07df 5c				defb 05ch		                 
+07e0 5c				defb 05ch		                 
+07e1 5d				defb 05dh		                 
+07e2 0c				defb 00ch		                 
+07e3 35				defb 035h		                 
+07e4 00				defb 000h		                 
+07e5 5e				defb 05eh		                 
+07e6 5e				defb 05eh		                 
+07e7 5e				defb 05eh		                 
+07e8 5e				defb 05eh		                 
+07e9 5e				defb 05eh		                 
+07ea 5e				defb 05eh		                 
+07eb 5e				defb 05eh		                 
+07ec 5e				defb 05eh		                 
+07ed 5e				defb 05eh		                 
+07ee 5e				defb 05eh		                 
+07ef 5e				defb 05eh		                 
+07f0 5e				defb 05eh		                 
+07f1 0c				defb 00ch		                 
+07f2 5d				defb 05dh		                 
+07f3 00				defb 000h		                 
+07f4 5f				defb 05fh		                 
+07f5 60				defb 060h		                 
+07f6 61				defb 061h		                 
+07f7 62				defb 062h		                 
+07f8 63				defb 063h		                 
+07f9 64				defb 064h		                 
+07fa 65				defb 065h		                 
+07fb 66				defb 066h		                 
+07fc 67				defb 067h		                 
+07fd 68				defb 068h		                 
+07fe 69				defb 069h		                 
+07ff 6a				defb 06ah		                 
+0800 0c				defb 00ch		                 
+0801 85				defb 085h		                 
+0802 00				defb 000h		                 
+0803 6b				defb 06bh		                 
+0804 6c				defb 06ch		                 
+0805 6d				defb 06dh		                 
+0806 6e				defb 06eh		                 
+0807 6f				defb 06fh		                 
+0808 70				defb 070h		                 
+0809 71				defb 071h		                 
+080a 72				defb 072h		                 
+080b 73				defb 073h		                 
+080c 74				defb 074h		                 
+080d 75				defb 075h		                 
+080e 76				defb 076h		                 
+080f 0c				defb 00ch		                 
+0810 ad				defb 0adh		                 
+0811 00				defb 000h		                 
+0812 77				defb 077h		                 
+0813 78				defb 078h		                 
+0814 79				defb 079h		                 
+0815 7a				defb 07ah		                 
+0816 7b				defb 07bh		                 
+0817 7c				defb 07ch		                 
+0818 7d				defb 07dh		                 
+0819 7e				defb 07eh		                 
+081a 7f				defb 07fh		                 
+081b 80				defb 080h		                 
+081c 81				defb 081h		                 
+081d 82				defb 082h		                 
+081e 0c				defb 00ch		                 
+081f d5				defb 0d5h		                 
+0820 00				defb 000h		                 
+0821 83				defb 083h		                 
+0822 83				defb 083h		                 
+0823 83				defb 083h		                 
+0824 83				defb 083h		                 
+0825 83				defb 083h		                 
+0826 83				defb 083h		                 
+0827 83				defb 083h		                 
+0828 83				defb 083h		                 
+0829 83				defb 083h		                 
+082a 83				defb 083h		                 
+082b 83				defb 083h		                 
+082c 83				defb 083h		                 
+082d 0c				defb 00ch		                 
+082e fd				defb 0fdh		                 
+082f 00				defb 000h		                 
+0830 84				defb 084h		                 
+0831 85				defb 085h		                 
+0832 85				defb 085h		                 
+0833 85				defb 085h		                 
+0834 85				defb 085h		                 
+0835 85				defb 085h		                 
+0836 85				defb 085h		                 
+0837 85				defb 085h		                 
+0838 85				defb 085h		                 
+0839 85				defb 085h		                 
+083a 85				defb 085h		                 
+083b 86				defb 086h	 
+083c			 
+083c			l083ch: 
+083c 00				defb 000h		                 
+083d 00				defb 000h		                 
+083e 00				defb 000h		                 
+083f 00				defb 000h		                 
+0840 00				defb 000h		                 
+0841 00				defb 000h		                 
+0842 00				defb 000h		                 
+0843 00				defb 000h		                 
+0844 10				defb 010h		                 
+0845 10				defb 010h		                 
+0846 10				defb 010h		                 
+0847 10				defb 010h		                 
+0848 10				defb 010h		                 
+0849 00				defb 000h		                 
+084a 10				defb 010h		                 
+084b 00				defb 000h		                 
+084c 28				defb 028h		                 
+084d 28				defb 028h		                 
+084e 00				defb 000h		                 
+084f 00				defb 000h		                 
+0850 00				defb 000h		                 
+0851 00				defb 000h		                 
+0852 00				defb 000h		                 
+0853 00				defb 000h		                 
+0854 28				defb 028h		                 
+0855 28				defb 028h		                 
+0856 7c				defb 07ch		                 
+0857 28				defb 028h		                 
+0858 7c				defb 07ch		                 
+0859 28				defb 028h		                 
+085a 28				defb 028h		                 
+085b 00				defb 000h		                 
+085c 38				defb 038h		                 
+085d 54				defb 054h		                 
+085e 50				defb 050h		                 
+085f 38				defb 038h		                 
+0860 14				defb 014h		                 
+0861 54				defb 054h		                 
+0862 38				defb 038h		                 
+0863 00				defb 000h		                 
+0864 60				defb 060h		                 
+0865 64				defb 064h		                 
+0866 08				defb 008h		                 
+0867 10				defb 010h		                 
+0868 20				defb 020h		                 
+0869 6c				defb 06ch		                 
+086a 0c				defb 00ch		                 
+086b 00				defb 000h		                 
+086c 10				defb 010h		                 
+086d 28				defb 028h		                 
+086e 28				defb 028h		                 
+086f 30				defb 030h		                 
+0870 50				defb 050h		                 
+0871 4c				defb 04ch		                 
+0872 7c				defb 07ch		                 
+0873 00				defb 000h		                 
+0874 30				defb 030h		                 
+0875 30				defb 030h		                 
+0876 10				defb 010h		                 
+0877 60				defb 060h		                 
+0878 00				defb 000h		                 
+0879 00				defb 000h		                 
+087a 00				defb 000h		                 
+087b 00				defb 000h		                 
+087c 10				defb 010h		                 
+087d 20				defb 020h		                 
+087e 40				defb 040h		                 
+087f 40				defb 040h		                 
+0880 40				defb 040h		                 
+0881 20				defb 020h		                 
+0882 10				defb 010h		                 
+0883 00				defb 000h		                 
+0884 40				defb 040h		                 
+0885 20				defb 020h		                 
+0886 10				defb 010h		                 
+0887 10				defb 010h		                 
+0888 10				defb 010h		                 
+0889 20				defb 020h		                 
+088a 40				defb 040h		                 
+088b 00				defb 000h		                 
+088c 00				defb 000h		                 
+088d 54				defb 054h		                 
+088e 38				defb 038h		                 
+088f 7c				defb 07ch		                 
+0890 38				defb 038h		                 
+0891 54				defb 054h		                 
+0892 10				defb 010h		                 
+0893 00				defb 000h		                 
+0894 00				defb 000h		                 
+0895 00				defb 000h		                 
+0896 10				defb 010h		                 
+0897 10				defb 010h		                 
+0898 7c				defb 07ch		                 
+0899 10				defb 010h		                 
+089a 10				defb 010h		                 
+089b 00				defb 000h		                 
+089c 00				defb 000h		                 
+089d 00				defb 000h		                 
+089e 00				defb 000h		                 
+089f 00				defb 000h		                 
+08a0 30				defb 030h		                 
+08a1 30				defb 030h		                 
+08a2 10				defb 010h		                 
+08a3 60				defb 060h		                 
+08a4 00				defb 000h		                 
+08a5 00				defb 000h		                 
+08a6 00				defb 000h		                 
+08a7 00				defb 000h		                 
+08a8 38				defb 038h		                 
+08a9 00				defb 000h		                 
+08aa 00				defb 000h		                 
+08ab 00				defb 000h		                 
+08ac 00				defb 000h		                 
+08ad 00				defb 000h		                 
+08ae 00				defb 000h		                 
+08af 00				defb 000h		                 
+08b0 00				defb 000h		                 
+08b1 18				defb 018h		                 
+08b2 18				defb 018h		                 
+08b3 00				defb 000h		                 
+08b4 04				defb 004h		                 
+08b5 04				defb 004h		                 
+08b6 08				defb 008h		                 
+08b7 18				defb 018h		                 
+08b8 30				defb 030h		                 
+08b9 20				defb 020h		                 
+08ba 40				defb 040h		                 
+08bb 00				defb 000h		                 
+08bc 38				defb 038h		                 
+08bd 44				defb 044h		                 
+08be 4c				defb 04ch		                 
+08bf 54				defb 054h		                 
+08c0 64				defb 064h		                 
+08c1 44				defb 044h		                 
+08c2 38				defb 038h		                 
+08c3 00				defb 000h		                 
+08c4 10				defb 010h		                 
+08c5 30				defb 030h		                 
+08c6 10				defb 010h		                 
+08c7 10				defb 010h		                 
+08c8 10				defb 010h		                 
+08c9 10				defb 010h		                 
+08ca 38				defb 038h		                 
+08cb 00				defb 000h		                 
+08cc 30				defb 030h		                 
+08cd 48				defb 048h		                 
+08ce 48				defb 048h		                 
+08cf 18				defb 018h		                 
+08d0 30				defb 030h		                 
+08d1 20				defb 020h		                 
+08d2 78				defb 078h		                 
+08d3 00				defb 000h		                 
+08d4 30				defb 030h		                 
+08d5 48				defb 048h		                 
+08d6 08				defb 008h		                 
+08d7 10				defb 010h		                 
+08d8 08				defb 008h		                 
+08d9 48				defb 048h		                 
+08da 30				defb 030h		                 
+08db 00				defb 000h		                 
+08dc 10				defb 010h		                 
+08dd 30				defb 030h		                 
+08de 30				defb 030h		                 
+08df 50				defb 050h		                 
+08e0 50				defb 050h		                 
+08e1 78				defb 078h		                 
+08e2 10				defb 010h		                 
+08e3 00				defb 000h		                 
+08e4 78				defb 078h		                 
+08e5 40				defb 040h		                 
+08e6 50				defb 050h		                 
+08e7 68				defb 068h		                 
+08e8 08				defb 008h		                 
+08e9 48				defb 048h		                 
+08ea 30				defb 030h		                 
+08eb 00				defb 000h		                 
+08ec 30				defb 030h		                 
+08ed 28				defb 028h		                 
+08ee 40				defb 040h		                 
+08ef 70				defb 070h		                 
+08f0 68				defb 068h		                 
+08f1 48				defb 048h		                 
+08f2 30				defb 030h		                 
+08f3 00				defb 000h		                 
+08f4 78				defb 078h		                 
+08f5 48				defb 048h		                 
+08f6 08				defb 008h		                 
+08f7 10				defb 010h		                 
+08f8 30				defb 030h		                 
+08f9 20				defb 020h		                 
+08fa 20				defb 020h		                 
+08fb 00				defb 000h		                 
+08fc 30				defb 030h		                 
+08fd 48				defb 048h		                 
+08fe 48				defb 048h		                 
+08ff 30				defb 030h		                 
+0900 48				defb 048h		                 
+0901 48				defb 048h		                 
+0902 30				defb 030h		                 
+0903 00				defb 000h		                 
+0904 30				defb 030h		                 
+0905 48				defb 048h		                 
+0906 48				defb 048h		                 
+0907 38				defb 038h		                 
+0908 08				defb 008h		                 
+0909 50				defb 050h		                 
+090a 30				defb 030h		                 
+090b 00				defb 000h		                 
+090c 00				defb 000h		                 
+090d 00				defb 000h		                 
+090e 30				defb 030h		                 
+090f 30				defb 030h		                 
+0910 00				defb 000h		                 
+0911 30				defb 030h		                 
+0912 30				defb 030h		                 
+0913 00				defb 000h		                 
+0914 00				defb 000h		                 
+0915 00				defb 000h		                 
+0916 30				defb 030h		                 
+0917 30				defb 030h		                 
+0918 00				defb 000h		                 
+0919 30				defb 030h		                 
+091a 10				defb 010h		                 
+091b 40				defb 040h		                 
+091c 08				defb 008h		                 
+091d 10				defb 010h		                 
+091e 20				defb 020h		                 
+091f 40				defb 040h		                 
+0920 20				defb 020h		                 
+0921 10				defb 010h		                 
+0922 08				defb 008h		                 
+0923 00				defb 000h		                 
+0924 00				defb 000h		                 
+0925 00				defb 000h		                 
+0926 00				defb 000h		                 
+0927 78				defb 078h		                 
+0928 00				defb 000h		                 
+0929 78				defb 078h		                 
+092a 00				defb 000h		                 
+092b 00				defb 000h		                 
+092c 40				defb 040h		                 
+092d 20				defb 020h		                 
+092e 10				defb 010h		                 
+092f 08				defb 008h		                 
+0930 10				defb 010h		                 
+0931 20				defb 020h		                 
+0932 40				defb 040h		                 
+0933 00				defb 000h		                 
+0934 30				defb 030h		                 
+0935 48				defb 048h		                 
+0936 48				defb 048h		                 
+0937 10				defb 010h		                 
+0938 20				defb 020h		                 
+0939 20				defb 020h		                 
+093a 00				defb 000h		                 
+093b 20				defb 020h		                 
+093c 40				defb 040h		                 
+093d 38				defb 038h		                 
+093e 04				defb 004h		                 
+093f 38				defb 038h		                 
+0940 08				defb 008h		                 
+0941 38				defb 038h		                 
+0942 48				defb 048h		                 
+0943 34				defb 034h		                 
+0944 10				defb 010h		                 
+0945 28				defb 028h		                 
+0946 44				defb 044h		                 
+0947 44				defb 044h		                 
+0948 7c				defb 07ch		                 
+0949 44				defb 044h		                 
+094a 44				defb 044h		                 
+094b 00				defb 000h		                 
+094c 78				defb 078h		                 
+094d 44				defb 044h		                 
+094e 44				defb 044h		                 
+094f 78				defb 078h		                 
+0950 44				defb 044h		                 
+0951 44				defb 044h		                 
+0952 78				defb 078h		                 
+0953 00				defb 000h		                 
+0954 38				defb 038h		                 
+0955 44				defb 044h		                 
+0956 40				defb 040h		                 
+0957 40				defb 040h		                 
+0958 40				defb 040h		                 
+0959 44				defb 044h		                 
+095a 38				defb 038h		                 
+095b 00				defb 000h		                 
+095c 70				defb 070h		                 
+095d 48				defb 048h		                 
+095e 44				defb 044h		                 
+095f 44				defb 044h		                 
+0960 44				defb 044h		                 
+0961 48				defb 048h		                 
+0962 70				defb 070h		                 
+0963 00				defb 000h		                 
+0964 7c				defb 07ch		                 
+0965 40				defb 040h		                 
+0966 40				defb 040h		                 
+0967 70				defb 070h		                 
+0968 40				defb 040h		                 
+0969 40				defb 040h		                 
+096a 7c				defb 07ch		                 
+096b 00				defb 000h		                 
+096c 7c				defb 07ch		                 
+096d 40				defb 040h		                 
+096e 40				defb 040h		                 
+096f 70				defb 070h		                 
+0970 40				defb 040h		                 
+0971 40				defb 040h		                 
+0972 40				defb 040h		                 
+0973 00				defb 000h		                 
+0974 38				defb 038h		                 
+0975 44				defb 044h		                 
+0976 44				defb 044h		                 
+0977 40				defb 040h		                 
+0978 5c				defb 05ch		                 
+0979 44				defb 044h		                 
+097a 3c				defb 03ch		                 
+097b 00				defb 000h		                 
+097c 44				defb 044h		                 
+097d 44				defb 044h		                 
+097e 44				defb 044h		                 
+097f 7c				defb 07ch		                 
+0980 44				defb 044h		                 
+0981 44				defb 044h		                 
+0982 44				defb 044h		                 
+0983 00				defb 000h		                 
+0984 38				defb 038h		                 
+0985 10				defb 010h		                 
+0986 10				defb 010h		                 
+0987 10				defb 010h		                 
+0988 10				defb 010h		                 
+0989 10				defb 010h		                 
+098a 38				defb 038h		                 
+098b 00				defb 000h		                 
+098c 1c				defb 01ch		                 
+098d 08				defb 008h		                 
+098e 08				defb 008h		                 
+098f 08				defb 008h		                 
+0990 48				defb 048h		                 
+0991 48				defb 048h		                 
+0992 30				defb 030h		                 
+0993 00				defb 000h		                 
+0994 48				defb 048h		                 
+0995 48				defb 048h		                 
+0996 50				defb 050h		                 
+0997 70				defb 070h		                 
+0998 50				defb 050h		                 
+0999 48				defb 048h		                 
+099a 4c				defb 04ch		                 
+099b 00				defb 000h		                 
+099c 40				defb 040h		                 
+099d 40				defb 040h		                 
+099e 40				defb 040h		                 
+099f 40				defb 040h		                 
+09a0 40				defb 040h		                 
+09a1 40				defb 040h		                 
+09a2 7c				defb 07ch		                 
+09a3 00				defb 000h		                 
+09a4 6c				defb 06ch		                 
+09a5 54				defb 054h		                 
+09a6 54				defb 054h		                 
+09a7 44				defb 044h		                 
+09a8 44				defb 044h		                 
+09a9 44				defb 044h		                 
+09aa 44				defb 044h		                 
+09ab 00				defb 000h		                 
+09ac 44				defb 044h		                 
+09ad 64				defb 064h		                 
+09ae 64				defb 064h		                 
+09af 54				defb 054h		                 
+09b0 54				defb 054h		                 
+09b1 4c				defb 04ch		                 
+09b2 4c				defb 04ch		                 
+09b3 00				defb 000h		                 
+09b4 38				defb 038h		                 
+09b5 44				defb 044h		                 
+09b6 44				defb 044h		                 
+09b7 44				defb 044h		                 
+09b8 44				defb 044h		                 
+09b9 44				defb 044h		                 
+09ba 38				defb 038h		                 
+09bb 00				defb 000h		                 
+09bc 78				defb 078h		                 
+09bd 44				defb 044h		                 
+09be 44				defb 044h		                 
+09bf 78				defb 078h		                 
+09c0 40				defb 040h		                 
+09c1 40				defb 040h		                 
+09c2 40				defb 040h		                 
+09c3 00				defb 000h		                 
+09c4 38				defb 038h		                 
+09c5 44				defb 044h		                 
+09c6 44				defb 044h		                 
+09c7 44				defb 044h		                 
+09c8 54				defb 054h		                 
+09c9 48				defb 048h		                 
+09ca 34				defb 034h		                 
+09cb 00				defb 000h		                 
+09cc 78				defb 078h		                 
+09cd 48				defb 048h		                 
+09ce 48				defb 048h		                 
+09cf 78				defb 078h		                 
+09d0 50				defb 050h		                 
+09d1 48				defb 048h		                 
+09d2 4c				defb 04ch		                 
+09d3 00				defb 000h		                 
+09d4 38				defb 038h		                 
+09d5 44				defb 044h		                 
+09d6 40				defb 040h		                 
+09d7 38				defb 038h		                 
+09d8 04				defb 004h		                 
+09d9 44				defb 044h		                 
+09da 38				defb 038h		                 
+09db 00				defb 000h		                 
+09dc 7c				defb 07ch		                 
+09dd 10				defb 010h		                 
+09de 10				defb 010h		                 
+09df 10				defb 010h		                 
+09e0 10				defb 010h		                 
+09e1 10				defb 010h		                 
+09e2 10				defb 010h		                 
+09e3 00				defb 000h		                 
+09e4 44				defb 044h		                 
+09e5 44				defb 044h		                 
+09e6 44				defb 044h		                 
+09e7 44				defb 044h		                 
+09e8 44				defb 044h		                 
+09e9 44				defb 044h		                 
+09ea 38				defb 038h		                 
+09eb 00				defb 000h		                 
+09ec 44				defb 044h		                 
+09ed 44				defb 044h		                 
+09ee 44				defb 044h		                 
+09ef 28				defb 028h		                 
+09f0 28				defb 028h		                 
+09f1 28				defb 028h		                 
+09f2 10				defb 010h		                 
+09f3 00				defb 000h		                 
+09f4 44				defb 044h		                 
+09f5 44				defb 044h		                 
+09f6 44				defb 044h		                 
+09f7 44				defb 044h		                 
+09f8 54				defb 054h		                 
+09f9 54				defb 054h		                 
+09fa 28				defb 028h		                 
+09fb 00				defb 000h		                 
+09fc 44				defb 044h		                 
+09fd 44				defb 044h		                 
+09fe 28				defb 028h		                 
+09ff 10				defb 010h		                 
+0a00 28				defb 028h		                 
+0a01 44				defb 044h		                 
+0a02 44				defb 044h		                 
+0a03 00				defb 000h		                 
+0a04 44				defb 044h		                 
+0a05 44				defb 044h		                 
+0a06 44				defb 044h		                 
+0a07 38				defb 038h		                 
+0a08 10				defb 010h		                 
+0a09 10				defb 010h		                 
+0a0a 10				defb 010h		                 
+0a0b 00				defb 000h		                 
+0a0c 7c				defb 07ch		                 
+0a0d 0c				defb 00ch		                 
+0a0e 18				defb 018h		                 
+0a0f 10				defb 010h		                 
+0a10 20				defb 020h		                 
+0a11 60				defb 060h		                 
+0a12 7c				defb 07ch		                 
+0a13 00				defb 000h		                 
+0a14 00				defb 000h		                 
+0a15 00				defb 000h		                 
+0a16 00				defb 000h		                 
+0a17 3c				defb 03ch		                 
+0a18 7c				defb 07ch		                 
+0a19 00				defb 000h		                 
+0a1a 00				defb 000h		                 
+0a1b fc				defb 0fch		                 
+0a1c fc				defb 0fch		                 
+0a1d 00				defb 000h		                 
+0a1e 00				defb 000h		                 
+0a1f fc				defb 0fch		                 
+0a20 fc				defb 0fch		                 
+0a21 00				defb 000h		                 
+0a22 00				defb 000h		                 
+0a23 fc				defb 0fch		                 
+0a24 00				defb 000h		                 
+0a25 00				defb 000h		                 
+0a26 00				defb 000h		                 
+0a27 f0				defb 0f0h		                 
+0a28 f8				defb 0f8h		                 
+0a29 00				defb 000h		                 
+0a2a 00				defb 000h		                 
+0a2b fc				defb 0fch		                 
+0a2c fc				defb 0fch		                 
+0a2d fc				defb 0fch		                 
+0a2e 00				defb 000h		                 
+0a2f fc				defb 0fch		                 
+0a30 fc				defb 0fch		                 
+0a31 fc				defb 0fch		                 
+0a32 fc				defb 0fch		                 
+0a33 00				defb 000h		                 
+0a34 fc				defb 0fch		                 
+0a35 fc				defb 0fch		                 
+0a36 f0				defb 0f0h		                 
+0a37 f0				defb 0f0h		                 
+0a38 f0				defb 0f0h		                 
+0a39 f0				defb 0f0h		                 
+0a3a f0				defb 0f0h		                 
+0a3b f0				defb 0f0h		                 
+0a3c fc				defb 0fch		                 
+0a3d fc				defb 0fch		                 
+0a3e 0c				defb 00ch		                 
+0a3f 0c				defb 00ch		                 
+0a40 0c				defb 00ch		                 
+0a41 04				defb 004h		                 
+0a42 04				defb 004h		                 
+0a43 04				defb 004h		                 
+0a44 fc				defb 0fch		                 
+0a45 fc				defb 0fch		                 
+0a46 e0				defb 0e0h		                 
+0a47 e0				defb 0e0h		                 
+0a48 e0				defb 0e0h		                 
+0a49 e0				defb 0e0h		                 
+0a4a e0				defb 0e0h		                 
+0a4b e0				defb 0e0h		                 
+0a4c fc				defb 0fch		                 
+0a4d fc				defb 0fch		                 
+0a4e 7c				defb 07ch		                 
+0a4f 7c				defb 07ch		                 
+0a50 7c				defb 07ch		                 
+0a51 7c				defb 07ch		                 
+0a52 7c				defb 07ch		                 
+0a53 7c				defb 07ch		                 
+0a54 fc				defb 0fch		                 
+0a55 fc				defb 0fch		                 
+0a56 80				defb 080h		                 
+0a57 80				defb 080h		                 
+0a58 80				defb 080h		                 
+0a59 18				defb 018h		                 
+0a5a 18				defb 018h		                 
+0a5b 18				defb 018h		                 
+0a5c fc				defb 0fch		                 
+0a5d fc				defb 0fch		                 
+0a5e 7c				defb 07ch		                 
+0a5f 7c				defb 07ch		                 
+0a60 7c				defb 07ch		                 
+0a61 3c				defb 03ch		                 
+0a62 3c				defb 03ch		                 
+0a63 3c				defb 03ch		                 
+0a64 fc				defb 0fch		                 
+0a65 fc				defb 0fch		                 
+0a66 80				defb 080h		                 
+0a67 80				defb 080h		                 
+0a68 80				defb 080h		                 
+0a69 80				defb 080h		                 
+0a6a 80				defb 080h		                 
+0a6b 80				defb 080h		                 
+0a6c fc				defb 0fch		                 
+0a6d fc				defb 0fch		                 
+0a6e 00				defb 000h		                 
+0a6f 00				defb 000h		                 
+0a70 00				defb 000h		                 
+0a71 60				defb 060h		                 
+0a72 70				defb 070h		                 
+0a73 70				defb 070h		                 
+0a74 fc				defb 0fch		                 
+0a75 fc				defb 0fch		                 
+0a76 78				defb 078h		                 
+0a77 38				defb 038h		                 
+0a78 18				defb 018h		                 
+0a79 08				defb 008h		                 
+0a7a 08				defb 008h		                 
+0a7b 08				defb 008h		                 
+0a7c fc				defb 0fch		                 
+0a7d fc				defb 0fch		                 
+0a7e 04				defb 004h		                 
+0a7f 04				defb 004h		                 
+0a80 04				defb 004h		                 
+0a81 04				defb 004h		                 
+0a82 04				defb 004h		                 
+0a83 04				defb 004h		                 
+0a84 fc				defb 0fch		                 
+0a85 fc				defb 0fch		                 
+0a86 c0				defb 0c0h		                 
+0a87 c0				defb 0c0h		                 
+0a88 c0				defb 0c0h		                 
+0a89 c0				defb 0c0h		                 
+0a8a c0				defb 0c0h		                 
+0a8b c0				defb 0c0h		                 
+0a8c fc				defb 0fch		                 
+0a8d fc				defb 0fch		                 
+0a8e 3c				defb 03ch		                 
+0a8f 3c				defb 03ch		                 
+0a90 3c				defb 03ch		                 
+0a91 3c				defb 03ch		                 
+0a92 3c				defb 03ch		                 
+0a93 3c				defb 03ch		                 
+0a94 f0				defb 0f0h		                 
+0a95 f0				defb 0f0h		                 
+0a96 f0				defb 0f0h		                 
+0a97 f0				defb 0f0h		                 
+0a98 f0				defb 0f0h		                 
+0a99 f0				defb 0f0h		                 
+0a9a f0				defb 0f0h		                 
+0a9b f0				defb 0f0h		                 
+0a9c 00				defb 000h		                 
+0a9d 00				defb 000h		                 
+0a9e 20				defb 020h		                 
+0a9f 30				defb 030h		                 
+0aa0 30				defb 030h		                 
+0aa1 38				defb 038h		                 
+0aa2 38				defb 038h		                 
+0aa3 3c				defb 03ch		                 
+0aa4 e0				defb 0e0h		                 
+0aa5 e0				defb 0e0h		                 
+0aa6 e0				defb 0e0h		                 
+0aa7 60				defb 060h		                 
+0aa8 60				defb 060h		                 
+0aa9 60				defb 060h		                 
+0aaa 20				defb 020h		                 
+0aab 20				defb 020h		                 
+0aac 78				defb 078h		                 
+0aad 78				defb 078h		                 
+0aae 78				defb 078h		                 
+0aaf 70				defb 070h		                 
+0ab0 70				defb 070h		                 
+0ab1 70				defb 070h		                 
+0ab2 60				defb 060h		                 
+0ab3 60				defb 060h		                 
+0ab4 18				defb 018h		                 
+0ab5 3c				defb 03ch		                 
+0ab6 3c				defb 03ch		                 
+0ab7 3c				defb 03ch		                 
+0ab8 3c				defb 03ch		                 
+0ab9 00				defb 000h		                 
+0aba 00				defb 000h		                 
+0abb 00				defb 000h		                 
+0abc 1c				defb 01ch		                 
+0abd 1c				defb 01ch		                 
+0abe 1c				defb 01ch		                 
+0abf 0c				defb 00ch		                 
+0ac0 0c				defb 00ch		                 
+0ac1 0c				defb 00ch		                 
+0ac2 04				defb 004h		                 
+0ac3 04				defb 004h		                 
+0ac4 80				defb 080h		                 
+0ac5 80				defb 080h		                 
+0ac6 80				defb 080h		                 
+0ac7 80				defb 080h		                 
+0ac8 80				defb 080h		                 
+0ac9 80				defb 080h		                 
+0aca 80				defb 080h		                 
+0acb 80				defb 080h		                 
+0acc 60				defb 060h		                 
+0acd 60				defb 060h		                 
+0ace 00				defb 000h		                 
+0acf 04				defb 004h		                 
+0ad0 00				defb 000h		                 
+0ad1 60				defb 060h		                 
+0ad2 60				defb 060h		                 
+0ad3 70				defb 070h		                 
+0ad4 18				defb 018h		                 
+0ad5 38				defb 038h		                 
+0ad6 78				defb 078h		                 
+0ad7 f8				defb 0f8h		                 
+0ad8 78				defb 078h		                 
+0ad9 38				defb 038h		                 
+0ada 18				defb 018h		                 
+0adb 08				defb 008h		                 
+0adc 04				defb 004h		                 
+0add 04				defb 004h		                 
+0ade 04				defb 004h		                 
+0adf 04				defb 004h		                 
+0ae0 04				defb 004h		                 
+0ae1 04				defb 004h		                 
+0ae2 04				defb 004h		                 
+0ae3 04				defb 004h		                 
+0ae4 c0				defb 0c0h		                 
+0ae5 c0				defb 0c0h		                 
+0ae6 c0				defb 0c0h		                 
+0ae7 c0				defb 0c0h		                 
+0ae8 c0				defb 0c0h		                 
+0ae9 c0				defb 0c0h		                 
+0aea c0				defb 0c0h		                 
+0aeb c0				defb 0c0h		                 
+0aec 3c				defb 03ch		                 
+0aed 3c				defb 03ch		                 
+0aee 3c				defb 03ch		                 
+0aef 3c				defb 03ch		                 
+0af0 3c				defb 03ch		                 
+0af1 3c				defb 03ch		                 
+0af2 3c				defb 03ch		                 
+0af3 3c				defb 03ch		                 
+0af4 f0				defb 0f0h		                 
+0af5 f0				defb 0f0h		                 
+0af6 f0				defb 0f0h		                 
+0af7 f0				defb 0f0h		                 
+0af8 f0				defb 0f0h		                 
+0af9 fc				defb 0fch		                 
+0afa fc				defb 0fch		                 
+0afb 00				defb 000h		                 
+0afc 3c				defb 03ch		                 
+0afd 3c				defb 03ch		                 
+0afe 3c				defb 03ch		                 
+0aff 3c				defb 03ch		                 
+0b00 3c				defb 03ch		                 
+0b01 fc				defb 0fch		                 
+0b02 fc				defb 0fch		                 
+0b03 00				defb 000h		                 
+0b04 00				defb 000h		                 
+0b05 00				defb 000h		                 
+0b06 80				defb 080h		                 
+0b07 80				defb 080h		                 
+0b08 80				defb 080h		                 
+0b09 fc				defb 0fch		                 
+0b0a fc				defb 0fch		                 
+0b0b 00				defb 000h		                 
+0b0c 60				defb 060h		                 
+0b0d 40				defb 040h		                 
+0b0e 40				defb 040h		                 
+0b0f 40				defb 040h		                 
+0b10 40				defb 040h		                 
+0b11 fc				defb 0fch		                 
+0b12 fc				defb 0fch		                 
+0b13 00				defb 000h		                 
+0b14 00				defb 000h		                 
+0b15 18				defb 018h		                 
+0b16 18				defb 018h		                 
+0b17 3c				defb 03ch		                 
+0b18 3c				defb 03ch		                 
+0b19 fc				defb 0fch		                 
+0b1a fc				defb 0fch		                 
+0b1b 00				defb 000h		                 
+0b1c 04				defb 004h		                 
+0b1d 00				defb 000h		                 
+0b1e 00				defb 000h		                 
+0b1f 00				defb 000h		                 
+0b20 00				defb 000h		                 
+0b21 fc				defb 0fch		                 
+0b22 fc				defb 0fch		                 
+0b23 00				defb 000h		                 
+0b24 80				defb 080h		                 
+0b25 80				defb 080h		                 
+0b26 80				defb 080h		                 
+0b27 80				defb 080h		                 
+0b28 80				defb 080h		                 
+0b29 fc				defb 0fch		                 
+0b2a fc				defb 0fch		                 
+0b2b 00				defb 000h		                 
+0b2c 70				defb 070h		                 
+0b2d 60				defb 060h		                 
+0b2e 00				defb 000h		                 
+0b2f 00				defb 000h		                 
+0b30 00				defb 000h		                 
+0b31 fc				defb 0fch		                 
+0b32 fc				defb 0fch		                 
+0b33 00				defb 000h		                 
+0b34 08				defb 008h		                 
+0b35 08				defb 008h		                 
+0b36 1c				defb 01ch		                 
+0b37 3c				defb 03ch		                 
+0b38 7c				defb 07ch		                 
+0b39 fc				defb 0fch		                 
+0b3a fc				defb 0fch		                 
+0b3b 00				defb 000h		                 
+0b3c 04				defb 004h		                 
+0b3d 00				defb 000h		                 
+0b3e 00				defb 000h		                 
+0b3f 80				defb 080h		                 
+0b40 c0				defb 0c0h		                 
+0b41 fc				defb 0fch		                 
+0b42 fc				defb 0fch		                 
+0b43 00				defb 000h		                 
+0b44 c0				defb 0c0h		                 
+0b45 80				defb 080h		                 
+0b46 00				defb 000h		                 
+0b47 00				defb 000h		                 
+0b48 04				defb 004h		                 
+0b49 fc				defb 0fch		                 
+0b4a fc				defb 0fch		                 
+0b4b 00				defb 000h		                 
+0b4c 3c				defb 03ch		                 
+0b4d 3c				defb 03ch		                 
+0b4e 7c				defb 07ch		                 
+0b4f fc				defb 0fch		                 
+0b50 fc				defb 0fch		                 
+0b51 fc				defb 0fch		                 
+0b52 fc				defb 0fch		                 
+0b53 00				defb 000h		                 
+0b54 fc				defb 0fch		                 
+0b55 fc				defb 0fch		                 
+0b56 fc				defb 0fch		                 
+0b57 fc				defb 0fch		                 
+0b58 00				defb 000h		                 
+0b59 fc				defb 0fch		                 
+0b5a fc				defb 0fch		                 
+0b5b fc				defb 0fch		                 
+0b5c 00				defb 000h		                 
+0b5d 00				defb 000h		                 
+0b5e 7c				defb 07ch		                 
+0b5f 3c				defb 03ch		                 
+0b60 00				defb 000h		                 
+0b61 00				defb 000h		                 
+0b62 00				defb 000h		                 
+0b63 00				defb 000h		                 
+0b64 00				defb 000h		                 
+0b65 00				defb 000h		                 
+0b66 fc				defb 0fch		                 
+0b67 fc				defb 0fch		                 
+0b68 00				defb 000h		                 
+0b69 00				defb 000h		                 
+0b6a fc				defb 0fch		                 
+0b6b 00				defb 000h		                 
+0b6c 00				defb 000h		                 
+0b6d 00				defb 000h		                 
+0b6e f8				defb 0f8h		                 
+0b6f f0				defb 0f0h		                 
+0b70 00				defb 000h		                 
+0b71 00				defb 000h		                 
+0b72 00				defb 000h		                 
+0b73 00				defb 000h		                 
+0b74			 
+0b74			 
+0b74			 
+0b74			table_start: 
+0b74 00				defb 000h		                 
+0b75 00				defb 000h		                 
+0b76 21				defb 021h		                 
+0b77 10				defb 010h		                 
+0b78 42				defb 042h		                 
+0b79 20				defb 020h		                 
+0b7a 63				defb 063h		                 
+0b7b 30				defb 030h		                 
+0b7c 84				defb 084h		                 
+0b7d 40				defb 040h		                 
+0b7e a5				defb 0a5h		                 
+0b7f 50				defb 050h		                 
+0b80 c6				defb 0c6h		                 
+0b81 60				defb 060h		                 
+0b82 e7				defb 0e7h		                 
+0b83 70				defb 070h		                 
+0b84 08				defb 008h		                 
+0b85 81				defb 081h		                 
+0b86 29				defb 029h		                 
+0b87 91				defb 091h		                 
+0b88 4a				defb 04ah		                 
+0b89 a1				defb 0a1h		                 
+0b8a 6b				defb 06bh		                 
+0b8b b1				defb 0b1h		                 
+0b8c 8c				defb 08ch		                 
+0b8d c1				defb 0c1h		                 
+0b8e ad				defb 0adh		                 
+0b8f d1				defb 0d1h		                 
+0b90 ce				defb 0ceh		                 
+0b91 e1				defb 0e1h		                 
+0b92 ef				defb 0efh		                 
+0b93 f1				defb 0f1h		                 
+0b94 31				defb 031h		                 
+0b95 12				defb 012h		                 
+0b96 10				defb 010h		                 
+0b97 02				defb 002h		                 
+0b98 73				defb 073h		                 
+0b99 32				defb 032h		                 
+0b9a 52				defb 052h		                 
+0b9b 22				defb 022h		                 
+0b9c b5				defb 0b5h		                 
+0b9d 52				defb 052h		                 
+0b9e 94				defb 094h		                 
+0b9f 42				defb 042h		                 
+0ba0 f7				defb 0f7h		                 
+0ba1 72				defb 072h		                 
+0ba2 d6				defb 0d6h		                 
+0ba3 62				defb 062h		                 
+0ba4 39				defb 039h		                 
+0ba5 93				defb 093h		                 
+0ba6 18				defb 018h		                 
+0ba7 83				defb 083h		                 
+0ba8 7b				defb 07bh		                 
+0ba9 b3				defb 0b3h		                 
+0baa 5a				defb 05ah		                 
+0bab a3				defb 0a3h		                 
+0bac bd				defb 0bdh		                 
+0bad d3				defb 0d3h		                 
+0bae 9c				defb 09ch		                 
+0baf c3				defb 0c3h		                 
+0bb0 ff				defb 0ffh		                 
+0bb1 f3				defb 0f3h		                 
+0bb2 de				defb 0deh		                 
+0bb3 e3				defb 0e3h		                 
+0bb4 62				defb 062h		                 
+0bb5 24				defb 024h		                 
+0bb6 43				defb 043h		                 
+0bb7 34				defb 034h		                 
+0bb8 20				defb 020h		                 
+0bb9 04				defb 004h		                 
+0bba 01				defb 001h		                 
+0bbb 14				defb 014h		                 
+0bbc e6				defb 0e6h		                 
+0bbd 64				defb 064h		                 
+0bbe c7				defb 0c7h		                 
+0bbf 74				defb 074h		                 
+0bc0 a4				defb 0a4h		                 
+0bc1 44				defb 044h		                 
+0bc2 85				defb 085h		                 
+0bc3 54				defb 054h		                 
+0bc4 6a				defb 06ah		                 
+0bc5 a5				defb 0a5h		                 
+0bc6 4b				defb 04bh		                 
+0bc7 b5				defb 0b5h		                 
+0bc8 28				defb 028h		                 
+0bc9 85				defb 085h		                 
+0bca 09				defb 009h		                 
+0bcb 95				defb 095h		                 
+0bcc ee				defb 0eeh		                 
+0bcd e5				defb 0e5h		                 
+0bce cf				defb 0cfh		                 
+0bcf f5				defb 0f5h		                 
+0bd0 ac				defb 0ach		                 
+0bd1 c5				defb 0c5h		                 
+0bd2 8d				defb 08dh		                 
+0bd3 d5				defb 0d5h		                 
+0bd4 53				defb 053h		                 
+0bd5 36				defb 036h		                 
+0bd6 72				defb 072h		                 
+0bd7 26				defb 026h		                 
+0bd8 11				defb 011h		                 
+0bd9 16				defb 016h		                 
+0bda 30				defb 030h		                 
+0bdb 06				defb 006h		                 
+0bdc d7				defb 0d7h		                 
+0bdd 76				defb 076h		                 
+0bde f6				defb 0f6h		                 
+0bdf 66				defb 066h		                 
+0be0 95				defb 095h		                 
+0be1 56				defb 056h		                 
+0be2 b4				defb 0b4h		                 
+0be3 46				defb 046h		                 
+0be4 5b				defb 05bh		                 
+0be5 b7				defb 0b7h		                 
+0be6 7a				defb 07ah		                 
+0be7 a7				defb 0a7h		                 
+0be8 19				defb 019h		                 
+0be9 97				defb 097h		                 
+0bea 38				defb 038h		                 
+0beb 87				defb 087h		                 
+0bec df				defb 0dfh		                 
+0bed f7				defb 0f7h		                 
+0bee fe				defb 0feh		                 
+0bef e7				defb 0e7h		                 
+0bf0 9d				defb 09dh		                 
+0bf1 d7				defb 0d7h		                 
+0bf2 bc				defb 0bch		                 
+0bf3 c7				defb 0c7h		                 
+0bf4 c4				defb 0c4h		                 
+0bf5 48				defb 048h		                 
+0bf6 e5				defb 0e5h		                 
+0bf7 58				defb 058h		                 
+0bf8 86				defb 086h		                 
+0bf9 68				defb 068h		                 
+0bfa a7				defb 0a7h		                 
+0bfb 78				defb 078h		                 
+0bfc 40				defb 040h		                 
+0bfd 08				defb 008h		                 
+0bfe 61				defb 061h		                 
+0bff 18				defb 018h		                 
+0c00 02				defb 002h		                 
+0c01 28				defb 028h		                 
+0c02 23				defb 023h		                 
+0c03 38				defb 038h		                 
+0c04 cc				defb 0cch		                 
+0c05 c9				defb 0c9h		                 
+0c06 ed				defb 0edh		                 
+0c07 d9				defb 0d9h		                 
+0c08 8e				defb 08eh		                 
+0c09 e9				defb 0e9h		                 
+0c0a af				defb 0afh		                 
+0c0b f9				defb 0f9h		                 
+0c0c 48				defb 048h		                 
+0c0d 89				defb 089h		                 
+0c0e 69				defb 069h		                 
+0c0f 99				defb 099h		                 
+0c10 0a				defb 00ah		                 
+0c11 a9				defb 0a9h		                 
+0c12 2b				defb 02bh		                 
+0c13 b9				defb 0b9h		                 
+0c14 f5				defb 0f5h		                 
+0c15 5a				defb 05ah		                 
+0c16 d4				defb 0d4h		                 
+0c17 4a				defb 04ah		                 
+0c18 b7				defb 0b7h		                 
+0c19 7a				defb 07ah		                 
+0c1a 96				defb 096h		                 
+0c1b 6a				defb 06ah		                 
+0c1c 71				defb 071h		                 
+0c1d 1a				defb 01ah		                 
+0c1e 50				defb 050h		                 
+0c1f 0a				defb 00ah		                 
+0c20 33				defb 033h		                 
+0c21 3a				defb 03ah		                 
+0c22 12				defb 012h		                 
+0c23 2a				defb 02ah		                 
+0c24 fd				defb 0fdh		                 
+0c25 db				defb 0dbh		                 
+0c26 dc				defb 0dch		                 
+0c27 cb				defb 0cbh		                 
+0c28 bf				defb 0bfh		                 
+0c29 fb				defb 0fbh		                 
+0c2a 9e				defb 09eh		                 
+0c2b eb				defb 0ebh		                 
+0c2c 79				defb 079h		                 
+0c2d 9b				defb 09bh		                 
+0c2e 58				defb 058h		                 
+0c2f 8b				defb 08bh		                 
+0c30 3b				defb 03bh		                 
+0c31 bb				defb 0bbh		                 
+0c32 1a				defb 01ah		                 
+0c33 ab				defb 0abh		                 
+0c34 a6				defb 0a6h		                 
+0c35 6c				defb 06ch		                 
+0c36 87				defb 087h		                 
+0c37 7c				defb 07ch		                 
+0c38 e4				defb 0e4h		                 
+0c39 4c				defb 04ch		                 
+0c3a c5				defb 0c5h		                 
+0c3b 5c				defb 05ch		                 
+0c3c 22				defb 022h		                 
+0c3d 2c				defb 02ch		                 
+0c3e 03				defb 003h		                 
+0c3f 3c				defb 03ch		                 
+0c40 60				defb 060h		                 
+0c41 0c				defb 00ch		                 
+0c42 41				defb 041h		                 
+0c43 1c				defb 01ch		                 
+0c44 ae				defb 0aeh		                 
+0c45 ed				defb 0edh		                 
+0c46 8f				defb 08fh		                 
+0c47 fd				defb 0fdh		                 
+0c48 ec				defb 0ech		                 
+0c49 cd				defb 0cdh		                 
+0c4a cd				defb 0cdh		                 
+0c4b dd				defb 0ddh		                 
+0c4c 2a				defb 02ah		                 
+0c4d ad				defb 0adh		                 
+0c4e 0b				defb 00bh		                 
+0c4f bd				defb 0bdh		                 
+0c50 68				defb 068h		                 
+0c51 8d				defb 08dh		                 
+0c52 49				defb 049h		                 
+0c53 9d				defb 09dh		                 
+0c54 97				defb 097h		                 
+0c55 7e				defb 07eh		                 
+0c56 b6				defb 0b6h		                 
+0c57 6e				defb 06eh		                 
+0c58 d5				defb 0d5h		                 
+0c59 5e				defb 05eh		                 
+0c5a f4				defb 0f4h		                 
+0c5b 4e				defb 04eh		                 
+0c5c 13				defb 013h		                 
+0c5d 3e				defb 03eh		                 
+0c5e 32				defb 032h		                 
+0c5f 2e				defb 02eh		                 
+0c60 51				defb 051h		                 
+0c61 1e				defb 01eh		                 
+0c62 70				defb 070h		                 
+0c63 0e				defb 00eh		                 
+0c64 9f				defb 09fh		                 
+0c65 ff				defb 0ffh		                 
+0c66 be				defb 0beh		                 
+0c67 ef				defb 0efh		                 
+0c68 dd				defb 0ddh		                 
+0c69 df				defb 0dfh		                 
+0c6a fc				defb 0fch		                 
+0c6b cf				defb 0cfh		                 
+0c6c 1b				defb 01bh		                 
+0c6d bf				defb 0bfh		                 
+0c6e 3a				defb 03ah		                 
+0c6f af				defb 0afh		                 
+0c70 59				defb 059h		                 
+0c71 9f				defb 09fh		                 
+0c72 78				defb 078h		                 
+0c73 8f				defb 08fh		                 
+0c74 88				defb 088h		                 
+0c75 91				defb 091h		                 
+0c76 a9				defb 0a9h		                 
+0c77 81				defb 081h		                 
+0c78 ca				defb 0cah		                 
+0c79 b1				defb 0b1h		                 
+0c7a eb				defb 0ebh		                 
+0c7b a1				defb 0a1h		                 
+0c7c 0c				defb 00ch		                 
+0c7d d1				defb 0d1h		                 
+0c7e 2d				defb 02dh		                 
+0c7f c1				defb 0c1h		                 
+0c80 4e				defb 04eh		                 
+0c81 f1				defb 0f1h		                 
+0c82 6f				defb 06fh		                 
+0c83 e1				defb 0e1h		                 
+0c84 80				defb 080h		                 
+0c85 10				defb 010h		                 
+0c86 a1				defb 0a1h		                 
+0c87 00				defb 000h		                 
+0c88 c2				defb 0c2h		                 
+0c89 30				defb 030h		                 
+0c8a e3				defb 0e3h		                 
+0c8b 20				defb 020h		                 
+0c8c 04				defb 004h		                 
+0c8d 50				defb 050h		                 
+0c8e 25				defb 025h		                 
+0c8f 40				defb 040h		                 
+0c90 46				defb 046h		                 
+0c91 70				defb 070h		                 
+0c92 67				defb 067h		                 
+0c93 60				defb 060h		                 
+0c94 b9				defb 0b9h		                 
+0c95 83				defb 083h		                 
+0c96 98				defb 098h		                 
+0c97 93				defb 093h		                 
+0c98 fb				defb 0fbh		                 
+0c99 a3				defb 0a3h		                 
+0c9a da				defb 0dah		                 
+0c9b b3				defb 0b3h		                 
+0c9c 3d				defb 03dh		                 
+0c9d c3				defb 0c3h		                 
+0c9e 1c				defb 01ch		                 
+0c9f d3				defb 0d3h		                 
+0ca0 7f				defb 07fh		                 
+0ca1 e3				defb 0e3h		                 
+0ca2 5e				defb 05eh		                 
+0ca3 f3				defb 0f3h		                 
+0ca4 b1				defb 0b1h		                 
+0ca5 02				defb 002h		                 
+0ca6 90				defb 090h		                 
+0ca7 12				defb 012h		                 
+0ca8 f3				defb 0f3h		                 
+0ca9 22				defb 022h		                 
+0caa d2				defb 0d2h		                 
+0cab 32				defb 032h		                 
+0cac 35				defb 035h		                 
+0cad 42				defb 042h		                 
+0cae 14				defb 014h		                 
+0caf 52				defb 052h		                 
+0cb0 77				defb 077h		                 
+0cb1 62				defb 062h		                 
+0cb2 56				defb 056h		                 
+0cb3 72				defb 072h		                 
+0cb4 ea				defb 0eah		                 
+0cb5 b5				defb 0b5h		                 
+0cb6 cb				defb 0cbh		                 
+0cb7 a5				defb 0a5h		                 
+0cb8 a8				defb 0a8h		                 
+0cb9 95				defb 095h		                 
+0cba 89				defb 089h		                 
+0cbb 85				defb 085h		                 
+0cbc 6e				defb 06eh		                 
+0cbd f5				defb 0f5h		                 
+0cbe 4f				defb 04fh		                 
+0cbf e5				defb 0e5h		                 
+0cc0 2c				defb 02ch		                 
+0cc1 d5				defb 0d5h		                 
+0cc2 0d				defb 00dh		                 
+0cc3 c5				defb 0c5h		                 
+0cc4 e2				defb 0e2h		                 
+0cc5 34				defb 034h		                 
+0cc6 c3				defb 0c3h		                 
+0cc7 24				defb 024h		                 
+0cc8 a0				defb 0a0h		                 
+0cc9 14				defb 014h		                 
+0cca 81				defb 081h		                 
+0ccb 04				defb 004h		                 
+0ccc 66				defb 066h		                 
+0ccd 74				defb 074h		                 
+0cce 47				defb 047h		                 
+0ccf 64				defb 064h		                 
+0cd0 24				defb 024h		                 
+0cd1 54				defb 054h		                 
+0cd2 05				defb 005h		                 
+0cd3 44				defb 044h		                 
+0cd4 db				defb 0dbh		                 
+0cd5 a7				defb 0a7h		                 
+0cd6 fa				defb 0fah		                 
+0cd7 b7				defb 0b7h		                 
+0cd8 99				defb 099h		                 
+0cd9 87				defb 087h		                 
+0cda b8				defb 0b8h		                 
+0cdb 97				defb 097h		                 
+0cdc 5f				defb 05fh		                 
+0cdd e7				defb 0e7h		                 
+0cde 7e				defb 07eh		                 
+0cdf f7				defb 0f7h		                 
+0ce0 1d				defb 01dh		                 
+0ce1 c7				defb 0c7h		                 
+0ce2 3c				defb 03ch		                 
+0ce3 d7				defb 0d7h		                 
+0ce4 d3				defb 0d3h		                 
+0ce5 26				defb 026h		                 
+0ce6 f2				defb 0f2h		                 
+0ce7 36				defb 036h		                 
+0ce8 91				defb 091h		                 
+0ce9 06				defb 006h		                 
+0cea b0				defb 0b0h		                 
+0ceb 16				defb 016h		                 
+0cec 57				defb 057h		                 
+0ced 66				defb 066h		                 
+0cee 76				defb 076h		                 
+0cef 76				defb 076h		                 
+0cf0 15				defb 015h		                 
+0cf1 46				defb 046h		                 
+0cf2 34				defb 034h		                 
+0cf3 56				defb 056h		                 
+0cf4 4c				defb 04ch		                 
+0cf5 d9				defb 0d9h		                 
+0cf6 6d				defb 06dh		                 
+0cf7 c9				defb 0c9h		                 
+0cf8 0e				defb 00eh		                 
+0cf9 f9				defb 0f9h		                 
+0cfa 2f				defb 02fh		                 
+0cfb e9				defb 0e9h		                 
+0cfc c8				defb 0c8h		                 
+0cfd 99				defb 099h		                 
+0cfe e9				defb 0e9h		                 
+0cff 89				defb 089h		                 
+0d00 8a				defb 08ah		                 
+0d01 b9				defb 0b9h		                 
+0d02 ab				defb 0abh		                 
+0d03 a9				defb 0a9h		                 
+0d04 44				defb 044h		                 
+0d05 58				defb 058h		                 
+0d06 65				defb 065h		                 
+0d07 48				defb 048h		                 
+0d08 06				defb 006h		                 
+0d09 78				defb 078h		                 
+0d0a 27				defb 027h		                 
+0d0b 68				defb 068h		                 
+0d0c c0				defb 0c0h		                 
+0d0d 18				defb 018h		                 
+0d0e e1				defb 0e1h		                 
+0d0f 08				defb 008h		                 
+0d10 82				defb 082h		                 
+0d11 38				defb 038h		                 
+0d12 a3				defb 0a3h		                 
+0d13 28				defb 028h		                 
+0d14 7d				defb 07dh		                 
+0d15 cb				defb 0cbh		                 
+0d16 5c				defb 05ch		                 
+0d17 db				defb 0dbh		                 
+0d18 3f				defb 03fh		                 
+0d19 eb				defb 0ebh		                 
+0d1a 1e				defb 01eh		                 
+0d1b fb				defb 0fbh		                 
+0d1c f9				defb 0f9h		                 
+0d1d 8b				defb 08bh		                 
+0d1e d8				defb 0d8h		                 
+0d1f 9b				defb 09bh		                 
+0d20 bb				defb 0bbh		                 
+0d21 ab				defb 0abh		                 
+0d22 9a				defb 09ah		                 
+0d23 bb				defb 0bbh		                 
+0d24 75				defb 075h		                 
+0d25 4a				defb 04ah		                 
+0d26 54				defb 054h		                 
+0d27 5a				defb 05ah		                 
+0d28 37				defb 037h		                 
+0d29 6a				defb 06ah		                 
+0d2a 16				defb 016h		                 
+0d2b 7a				defb 07ah		                 
+0d2c f1				defb 0f1h		                 
+0d2d 0a				defb 00ah		                 
+0d2e d0				defb 0d0h		                 
+0d2f 1a				defb 01ah		                 
+0d30 b3				defb 0b3h		                 
+0d31 2a				defb 02ah		                 
+0d32 92				defb 092h		                 
+0d33 3a				defb 03ah		                 
+0d34 2e				defb 02eh		                 
+0d35 fd				defb 0fdh		                 
+0d36 0f				defb 00fh		                 
+0d37 ed				defb 0edh		                 
+0d38 6c				defb 06ch		                 
+0d39 dd				defb 0ddh		                 
+0d3a 4d				defb 04dh		                 
+0d3b cd				defb 0cdh		                 
+0d3c aa				defb 0aah		                 
+0d3d bd				defb 0bdh		                 
+0d3e 8b				defb 08bh		                 
+0d3f ad				defb 0adh		                 
+0d40 e8				defb 0e8h		                 
+0d41 9d				defb 09dh		                 
+0d42 c9				defb 0c9h		                 
+0d43 8d				defb 08dh		                 
+0d44 26				defb 026h		                 
+0d45 7c				defb 07ch		                 
+0d46 07				defb 007h		                 
+0d47 6c				defb 06ch		                 
+0d48 64				defb 064h		                 
+0d49 5c				defb 05ch		                 
+0d4a 45				defb 045h		                 
+0d4b 4c				defb 04ch		                 
+0d4c a2				defb 0a2h		                 
+0d4d 3c				defb 03ch		                 
+0d4e 83				defb 083h		                 
+0d4f 2c				defb 02ch		                 
+0d50 e0				defb 0e0h		                 
+0d51 1c				defb 01ch		                 
+0d52 c1				defb 0c1h		                 
+0d53 0c				defb 00ch		                 
+0d54 1f				defb 01fh		                 
+0d55 ef				defb 0efh		                 
+0d56 3e				defb 03eh		                 
+0d57 ff				defb 0ffh		                 
+0d58 5d				defb 05dh		                 
+0d59 cf				defb 0cfh		                 
+0d5a 7c				defb 07ch		                 
+0d5b df				defb 0dfh		                 
+0d5c 9b				defb 09bh		                 
+0d5d af				defb 0afh		                 
+0d5e ba				defb 0bah		                 
+0d5f bf				defb 0bfh		                 
+0d60 d9				defb 0d9h		                 
+0d61 8f				defb 08fh		                 
+0d62 f8				defb 0f8h		                 
+0d63 9f				defb 09fh		                 
+0d64 17				defb 017h		                 
+0d65 6e				defb 06eh		                 
+0d66 36				defb 036h		                 
+0d67 7e				defb 07eh		                 
+0d68 55				defb 055h		                 
+0d69 4e				defb 04eh		                 
+0d6a 74				defb 074h		                 
+0d6b 5e				defb 05eh		                 
+0d6c 93				defb 093h		                 
+0d6d 2e				defb 02eh		                 
+0d6e b2				defb 0b2h		                 
+0d6f 3e				defb 03eh		                 
+0d70 d1				defb 0d1h		                 
+0d71 0e				defb 00eh		                 
+0d72 f0				defb 0f0h		                 
+0d73 1e				defb 01eh		                 
+0d74			 
+0d74 00				nop			                     
+0d75 00				nop			                     
+0d76 00				nop			                     
+0d77 00				nop			                     
+0d78 00				nop			                     
+0d79 00				nop			                     
+0d7a 00				nop			                     
+0d7b 00				nop			                     
+0d7c 00				nop			                     
+0d7d 00				nop			                     
+0d7e 00				nop			                     
+0d7f 00				nop			                     
+0d80 00				nop			                     
+0d81 00				nop			                     
+0d82 00				nop			                     
+0d83 00				nop			                     
+0d84 00				nop			                     
+0d85 00				nop			                     
+0d86 00				nop			                     
+0d87 00				nop			                     
+0d88 00				nop			                     
+0d89 00				nop			                     
+0d8a 00				nop			                     
+0d8b 00				nop			                     
+0d8c 00				nop			                     
+0d8d 00				nop			                     
+0d8e 00				nop			                     
+0d8f 00				nop			                     
+0d90 00				nop			                     
+0d91 00				nop			                     
+0d92 00				nop			                     
+0d93 00				nop			                     
+0d94 00				nop			                     
+0d95 00				nop			                     
+0d96 00				nop			                     
+0d97 00				nop			                     
+0d98 00				nop			                     
+0d99 00				nop			                     
+0d9a 00				nop			                     
+0d9b 00				nop			                     
+0d9c 00				nop			                     
+0d9d 00				nop			                     
+0d9e 00				nop			                     
+0d9f 00				nop			                     
+0da0 00				nop			                     
+0da1 00				nop			                     
+0da2 00				nop			                     
+0da3 00				nop			                     
+0da4 00				nop			                     
+0da5 00				nop			                     
+0da6 00				nop			                     
+0da7 00				nop			                     
+0da8 00				nop			                     
+0da9 00				nop			                     
+0daa 00				nop			                     
+0dab 00				nop			                     
+0dac 00				nop			                     
+0dad 00				nop			                     
+0dae 00				nop			                     
+0daf 00				nop			                     
+0db0 00				nop			                     
+0db1 00				nop			                     
+0db2 00				nop			                     
+0db3 00				nop			                     
+0db4 00				nop			                     
+0db5 00				nop			                     
+0db6 00				nop			                     
+0db7 00				nop			                     
+0db8 00				nop			                     
+0db9 00				nop			                     
+0dba 00				nop			                     
+0dbb 00				nop			                     
+0dbc 00				nop			                     
+0dbd 00				nop			                     
+0dbe 00				nop			                     
+0dbf 00				nop			                     
+0dc0 00				nop			                     
+0dc1 00				nop			                     
+0dc2 00				nop			                     
+0dc3 00				nop			                     
+0dc4 00				nop			                     
+0dc5 00				nop			                     
+0dc6 00				nop			                     
+0dc7 00				nop			                     
+0dc8 00				nop			                     
+0dc9 00				nop			                     
+0dca 00				nop			                     
+0dcb 00				nop			                     
+0dcc 00				nop			                     
+0dcd 00				nop			                     
+0dce 00				nop			                     
+0dcf 00				nop			                     
+0dd0 00				nop			                     
+0dd1 00				nop			                     
+0dd2 00				nop			                     
+0dd3 00				nop			                     
+0dd4 00				nop			                     
+0dd5 00				nop			                     
+0dd6 00				nop			                     
+0dd7 00				nop			                     
+0dd8 00				nop			                     
+0dd9 00				nop			                     
+0dda 00				nop			                     
+0ddb 00				nop			                     
+0ddc 00				nop			                     
+0ddd 00				nop			                     
+0dde 00				nop			                     
+0ddf 00				nop			                     
+0de0 00				nop			                     
+0de1 00				nop			                     
+0de2 00				nop			                     
+0de3 00				nop			                     
+0de4 00				nop			                     
+0de5 00				nop			                     
+0de6 00				nop			                     
+0de7 00				nop			                     
+0de8 00				nop			                     
+0de9 00				nop			                     
+0dea 00				nop			                     
+0deb 00				nop			                     
+0dec 00				nop			                     
+0ded 00				nop			                     
+0dee 00				nop			                     
+0def 00				nop			                     
+0df0 00				nop			                     
+0df1 00				nop			                     
+0df2 00				nop			                     
+0df3 00				nop			                     
+0df4 00				nop			                     
+0df5 00				nop			                     
+0df6 00				nop			                     
+0df7 00				nop			                     
+0df8 00				nop			                     
+0df9 00				nop			                     
+0dfa 00				nop			                     
+0dfb 00				nop			                     
+0dfc 00				nop			                     
+0dfd 00				nop			                     
+0dfe 00				nop			                     
+0dff 00				nop			                     
+0e00 00				nop			                     
+0e01 00				nop			                     
+0e02 00				nop			                     
+0e03 00				nop			                     
+0e04 00				nop			                     
+0e05 00				nop			                     
+0e06 00				nop			                     
+0e07 00				nop			                     
+0e08 00				nop			                     
+0e09 00				nop			                     
+0e0a 00				nop			                     
+0e0b 00				nop			                     
+0e0c 00				nop			                     
+0e0d 00				nop			                     
+0e0e 00				nop			                     
+0e0f 00				nop			                     
+0e10 00				nop			                     
+0e11 00				nop			                     
+0e12 00				nop			                     
+0e13 00				nop			                     
+0e14 00				nop			                     
+0e15 00				nop			                     
+0e16 00				nop			                     
+0e17 00				nop			                     
+0e18 00				nop			                     
+0e19 00				nop			                     
+0e1a 00				nop			                     
+0e1b 00				nop			                     
+0e1c 00				nop			                     
+0e1d 00				nop			                     
+0e1e 00				nop			                     
+0e1f 00				nop			                     
+0e20 00				nop			                     
+0e21 00				nop			                     
+0e22 00				nop			                     
+0e23 00				nop			                     
+0e24 00				nop			                     
+0e25 00				nop			                     
+0e26 00				nop			                     
+0e27 00				nop			                     
+0e28 00				nop			                     
+0e29 00				nop			                     
+0e2a 00				nop			                     
+0e2b 00				nop			                     
+0e2c 00				nop			                     
+0e2d 00				nop			                     
+0e2e 00				nop			                     
+0e2f 00				nop			                     
+0e30 00				nop			                     
+0e31 00				nop			                     
+0e32 00				nop			                     
+0e33 00				nop			                     
+0e34 00				nop			                     
+0e35 00				nop			                     
+0e36 00				nop			                     
+0e37 00				nop			                     
+0e38 00				nop			                     
+0e39 00				nop			                     
+0e3a 00				nop			                     
+0e3b 00				nop			                     
+0e3c 00				nop			                     
+0e3d 00				nop			                     
+0e3e 00				nop			                     
+0e3f 00				nop			                     
+0e40 00				nop			                     
+0e41 00				nop			                     
+0e42 00				nop			                     
+0e43 00				nop			                     
+0e44 00				nop			                     
+0e45 00				nop			                     
+0e46 00				nop			                     
+0e47 00				nop			                     
+0e48 00				nop			                     
+0e49 00				nop			                     
+0e4a 00				nop			                     
+0e4b 00				nop			                     
+0e4c 00				nop			                     
+0e4d 00				nop			                     
+0e4e 00				nop			                     
+0e4f 00				nop			                     
+0e50 00				nop			                     
+0e51 00				nop			                     
+0e52 00				nop			                     
+0e53 00				nop			                     
+0e54 00				nop			                     
+0e55 00				nop			                     
+0e56 00				nop			                     
+0e57 00				nop			                     
+0e58 00				nop			                     
+0e59 00				nop			                     
+0e5a 00				nop			                     
+0e5b 00				nop			                     
+0e5c 00				nop			                     
+0e5d 00				nop			                     
+0e5e 00				nop			                     
+0e5f 00				nop			                     
+0e60 00				nop			                     
+0e61 00				nop			                     
+0e62 00				nop			                     
+0e63 00				nop			                     
+0e64 00				nop			                     
+0e65 00				nop			                     
+0e66 00				nop			                     
+0e67 00				nop			                     
+0e68 00				nop			                     
+0e69 00				nop			                     
+0e6a 00				nop			                     
+0e6b 00				nop			                     
+0e6c 00				nop			                     
+0e6d 00				nop			                     
+0e6e 00				nop			                     
+0e6f 00				nop			                     
+0e70 00				nop			                     
+0e71 00				nop			                     
+0e72 00				nop			                     
+0e73 00				nop			                     
+0e74 00				nop			                     
+0e75 00				nop			                     
+0e76 00				nop			                     
+0e77 00				nop			                     
+0e78 00				nop			                     
+0e79 00				nop			                     
+0e7a 00				nop			                     
+0e7b 00				nop			                     
+0e7c 00				nop			                     
+0e7d 00				nop			                     
+0e7e 00				nop			                     
+0e7f 00				nop			                     
+0e80 00				nop			                     
+0e81 00				nop			                     
+0e82 00				nop			                     
+0e83 00				nop			                     
+0e84 00				nop			                     
+0e85 00				nop			                     
+0e86 00				nop			                     
+0e87 00				nop			                     
+0e88 00				nop			                     
+0e89 00				nop			                     
+0e8a 00				nop			                     
+0e8b 00				nop			                     
+0e8c 00				nop			                     
+0e8d 00				nop			                     
+0e8e 00				nop			                     
+0e8f 00				nop			                     
+0e90 00				nop			                     
+0e91 00				nop			                     
+0e92 00				nop			                     
+0e93 00				nop			                     
+0e94 00				nop			                     
+0e95 00				nop			                     
+0e96 00				nop			                     
+0e97 00				nop			                     
+0e98 00				nop			                     
+0e99 00				nop			                     
+0e9a 00				nop			                     
+0e9b 00				nop			                     
+0e9c 00				nop			                     
+0e9d 00				nop			                     
+0e9e 00				nop			                     
+0e9f 00				nop			                     
+0ea0 00				nop			                     
+0ea1 00				nop			                     
+0ea2 00				nop			                     
+0ea3 00				nop			                     
+0ea4 00				nop			                     
+0ea5 00				nop			                     
+0ea6 00				nop			                     
+0ea7 00				nop			                     
+0ea8 00				nop			                     
+0ea9 00				nop			                     
+0eaa 00				nop			                     
+0eab 00				nop			                     
+0eac 00				nop			                     
+0ead 00				nop			                     
+0eae 00				nop			                     
+0eaf 00				nop			                     
+0eb0 00				nop			                     
+0eb1 00				nop			                     
+0eb2 00				nop			                     
+0eb3 00				nop			                     
+0eb4 00				nop			                     
+0eb5 00				nop			                     
+0eb6 00				nop			                     
+0eb7 00				nop			                     
+0eb8 00				nop			                     
+0eb9 00				nop			                     
+0eba 00				nop			                     
+0ebb 00				nop			                     
+0ebc 00				nop			                     
+0ebd 00				nop			                     
+0ebe 00				nop			                     
+0ebf 00				nop			                     
+0ec0 00				nop			                     
+0ec1 00				nop			                     
+0ec2 00				nop			                     
+0ec3 00				nop			                     
+0ec4 00				nop			                     
+0ec5 00				nop			                     
+0ec6 00				nop			                     
+0ec7 00				nop			                     
+0ec8 00				nop			                     
+0ec9 00				nop			                     
+0eca 00				nop			                     
+0ecb 00				nop			                     
+0ecc 00				nop			                     
+0ecd 00				nop			                     
+0ece 00				nop			                     
+0ecf 00				nop			                     
+0ed0 00				nop			                     
+0ed1 00				nop			                     
+0ed2 00				nop			                     
+0ed3 00				nop			                     
+0ed4 00				nop			                     
+0ed5 00				nop			                     
+0ed6 00				nop			                     
+0ed7 00				nop			                     
+0ed8 00				nop			                     
+0ed9 00				nop			                     
+0eda 00				nop			                     
+0edb 00				nop			                     
+0edc 00				nop			                     
+0edd 00				nop			                     
+0ede 00				nop			                     
+0edf 00				nop			                     
+0ee0 00				nop			                     
+0ee1 00				nop			                     
+0ee2 00				nop			                     
+0ee3 00				nop			                     
+0ee4 00				nop			                     
+0ee5 00				nop			                     
+0ee6 00				nop			                     
+0ee7 00				nop			                     
+0ee8 00				nop			                     
+0ee9 00				nop			                     
+0eea 00				nop			                     
+0eeb 00				nop			                     
+0eec 00				nop			                     
+0eed 00				nop			                     
+0eee 00				nop			                     
+0eef 00				nop			                     
+0ef0 00				nop			                     
+0ef1 00				nop			                     
+0ef2 00				nop			                     
+0ef3 00				nop			                     
+0ef4 00				nop			                     
+0ef5 00				nop			                     
+0ef6 00				nop			                     
+0ef7 00				nop			                     
+0ef8 00				nop			                     
+0ef9 00				nop			                     
+0efa 00				nop			                     
+0efb 00				nop			                     
+0efc 00				nop			                     
+0efd 00				nop			                     
+0efe 00				nop			                     
+0eff 00				nop			                     
+0f00 00				nop			                     
+0f01 00				nop			                     
+0f02 00				nop			                     
+0f03 00				nop			                     
+0f04 00				nop			                     
+0f05 00				nop			                     
+0f06 00				nop			                     
+0f07 00				nop			                     
+0f08 00				nop			                     
+0f09 00				nop			                     
+0f0a 00				nop			                     
+0f0b 00				nop			                     
+0f0c 00				nop			                     
+0f0d 00				nop			                     
+0f0e 00				nop			                     
+0f0f 00				nop			                     
+0f10 00				nop			                     
+0f11 00				nop			                     
+0f12 00				nop			                     
+0f13 00				nop			                     
+0f14 00				nop			                     
+0f15 00				nop			                     
+0f16 00				nop			                     
+0f17 00				nop			                     
+0f18 00				nop			                     
+0f19 00				nop			                     
+0f1a 00				nop			                     
+0f1b 00				nop			                     
+0f1c 00				nop			                     
+0f1d 00				nop			                     
+0f1e 00				nop			                     
+0f1f 00				nop			                     
+0f20 00				nop			                     
+0f21 00				nop			                     
+0f22 00				nop			                     
+0f23 00				nop			                     
+0f24 00				nop			                     
+0f25 00				nop			                     
+0f26 00				nop			                     
+0f27 00				nop			                     
+0f28 00				nop			                     
+0f29 00				nop			                     
+0f2a 00				nop			                     
+0f2b 00				nop			                     
+0f2c 00				nop			                     
+0f2d 00				nop			                     
+0f2e 00				nop			                     
+0f2f 00				nop			                     
+0f30 00				nop			                     
+0f31 00				nop			                     
+0f32 00				nop			                     
+0f33 00				nop			                     
+0f34 00				nop			                     
+0f35 00				nop			                     
+0f36 00				nop			                     
+0f37 00				nop			                     
+0f38 00				nop			                     
+0f39 00				nop			                     
+0f3a 00				nop			                     
+0f3b 00				nop			                     
+0f3c 00				nop			                     
+0f3d 00				nop			                     
+0f3e 00				nop			                     
+0f3f 00				nop			                     
+0f40 00				nop			                     
+0f41 00				nop			                     
+0f42 00				nop			                     
+0f43 00				nop			                     
+0f44 00				nop			                     
+0f45 00				nop			                     
+0f46 00				nop			                     
+0f47 00				nop			                     
+0f48 00				nop			                     
+0f49 00				nop			                     
+0f4a 00				nop			                     
+0f4b 00				nop			                     
+0f4c 00				nop			                     
+0f4d 00				nop			                     
+0f4e 00				nop			                     
+0f4f 00				nop			                     
+0f50 00				nop			                     
+0f51 00				nop			                     
+0f52 00				nop			                     
+0f53 00				nop			                     
+0f54 00				nop			                     
+0f55 00				nop			                     
+0f56 00				nop			                     
+0f57 00				nop			                     
+0f58 00				nop			                     
+0f59 00				nop			                     
+0f5a 00				nop			                     
+0f5b 00				nop			                     
+0f5c 00				nop			                     
+0f5d 00				nop			                     
+0f5e 00				nop			                     
+0f5f 00				nop			                     
+0f60 00				nop			                     
+0f61 00				nop			                     
+0f62 00				nop			                     
+0f63 00				nop			                     
+0f64 00				nop			                     
+0f65 00				nop			                     
+0f66 00				nop			                     
+0f67 00				nop			                     
+0f68 00				nop			                     
+0f69 00				nop			                     
+0f6a 00				nop			                     
+0f6b 00				nop			                     
+0f6c 00				nop			                     
+0f6d 00				nop			                     
+0f6e 00				nop			                     
+0f6f 00				nop			                     
+0f70 00				nop			                     
+0f71 00				nop			                     
+0f72 00				nop			                     
+0f73 00				nop			                     
+0f74 00				nop			                     
+0f75 00				nop			                     
+0f76 00				nop			                     
+0f77 00				nop			                     
+0f78 00				nop			                     
+0f79 00				nop			                     
+0f7a 00				nop			                     
+0f7b 00				nop			                     
+0f7c 00				nop			                     
+0f7d 00				nop			                     
+0f7e 00				nop			                     
+0f7f 00				nop			                     
+0f80 00				nop			                     
+0f81 00				nop			                     
+0f82 00				nop			                     
+0f83 00				nop			                     
+0f84 00				nop			                     
+0f85 00				nop			                     
+0f86 00				nop			                     
+0f87 00				nop			                     
+0f88 00				nop			                     
+0f89 00				nop			                     
+0f8a 00				nop			                     
+0f8b 00				nop			                     
+0f8c 00				nop			                     
+0f8d 00				nop			                     
+0f8e 00				nop			                     
+0f8f 00				nop			                     
+0f90 00				nop			                     
+0f91 00				nop			                     
+0f92 00				nop			                     
+0f93 00				nop			                     
+0f94 00				nop			                     
+0f95 00				nop			                     
+0f96 00				nop			                     
+0f97 00				nop			                     
+0f98 00				nop			                     
+0f99 00				nop			                     
+0f9a 00				nop			                     
+0f9b 00				nop			                     
+0f9c 00				nop			                     
+0f9d 00				nop			                     
+0f9e 00				nop			                     
+0f9f 00				nop			                     
+0fa0 00				nop			                     
+0fa1 00				nop			                     
+0fa2 00				nop			                     
+0fa3 00				nop			                     
+0fa4 00				nop			                     
+0fa5 00				nop			                     
+0fa6 00				nop			                     
+0fa7 00				nop			                     
+0fa8 00				nop			                     
+0fa9 00				nop			                     
+0faa 00				nop			                     
+0fab 00				nop			                     
+0fac 00				nop			                     
+0fad 00				nop			                     
+0fae 00				nop			                     
+0faf 00				nop			                     
+0fb0 00				nop			                     
+0fb1 00				nop			                     
+0fb2 00				nop			                     
+0fb3 00				nop			                     
+0fb4 00				nop			                     
+0fb5 00				nop			                     
+0fb6 00				nop			                     
+0fb7 00				nop			                     
+0fb8 00				nop			                     
+0fb9 00				nop			                     
+0fba 00				nop			                     
+0fbb 00				nop			                     
+0fbc 00				nop			                     
+0fbd 00				nop			                     
+0fbe 00				nop			                     
+0fbf 00				nop			                     
+0fc0 00				nop			                     
+0fc1 00				nop			                     
+0fc2 00				nop			                     
+0fc3 00				nop			                     
+0fc4 00				nop			                     
+0fc5 00				nop			                     
+0fc6 00				nop			                     
+0fc7 00				nop			                     
+0fc8 00				nop			                     
+0fc9 00				nop			                     
+0fca 00				nop			                     
+0fcb 00				nop			                     
+0fcc 00				nop			                     
+0fcd 00				nop			                     
+0fce 00				nop			                     
+0fcf 00				nop			                     
+0fd0 00				nop			                     
+0fd1 00				nop			                     
+0fd2 00				nop			                     
+0fd3 00				nop			                     
+0fd4 00				nop			                     
+0fd5 00				nop			                     
+0fd6 00				nop			                     
+0fd7 00				nop			                     
+0fd8 00				nop			                     
+0fd9 00				nop			                     
+0fda 00				nop			                     
+0fdb 00				nop			                     
+0fdc 00				nop			                     
+0fdd 00				nop			                     
+0fde 00				nop			                     
+0fdf 00				nop			                     
+0fe0 00				nop			                     
+0fe1 00				nop			                     
+0fe2 00				nop			                     
+0fe3 00				nop			                     
+0fe4 00				nop			                     
+0fe5 00				nop			                     
+0fe6 00				nop			                     
+0fe7 00				nop			                     
+0fe8 00				nop			                     
+0fe9 00				nop			                     
+0fea 00				nop			                     
+0feb 00				nop			                     
+0fec 00				nop			                     
+0fed 00				nop			                     
+0fee 00				nop			                     
+0fef 00				nop			                     
+0ff0 00				nop			                     
+0ff1 00				nop			                     
+0ff2 00				nop			                     
+0ff3 00				nop			                     
+0ff4 00				nop			                     
+0ff5 00				nop			                     
+0ff6 00				nop			                     
+0ff7 00				nop			                     
+0ff8 00				nop			                     
+0ff9 00				nop			                     
+0ffa 0b				dec bc			                 
+0ffb 14				inc d			                 
+0ffc			l0ffch: 
+0ffc 30 36			jr nc,$+56		                 
+0ffe			l0ffeh: 
+0ffe cf				rst 8			                 
+0fff			l0fffh: 
+0fff 3b				dec sp			                 
+# End of file nabu_rom_90020060_reva.z80
+1000
