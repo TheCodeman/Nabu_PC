@@ -1,0 +1,1 @@
+text_1: start 0xc4d1 end 0xc4f9 type bytedata
