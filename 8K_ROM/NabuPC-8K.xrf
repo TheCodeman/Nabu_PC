@@ -1,0 +1,1159 @@
+; Symbol file
+
+
+l0000h:	equ 0x0000
+; Used at following locations:
+; 0x1273	(immediate value)
+; 0x1210	(immediate value)
+; 0x08c0	(immediate value)
+; 0x0704	(immediate value)
+; 0x06cf	(immediate value)
+; 0x0500	(jp destination)
+; 0x04da	(immediate value)
+; 0x0205	(immediate value)
+; 0x0202	(immediate value)
+
+l0004h:	equ 0x0004
+; Used at following locations:
+; 0x1438	(word load pointer)
+
+l0009h:	equ 0x0009
+; Used at following locations:
+; 0x112d	(immediate value)
+
+l000ah:	equ 0x000a
+; Used at following locations:
+; 0x0000	(jp destination)
+
+l000fh:	equ 0x000f
+; Used at following locations:
+; 0x0280	(immediate value)
+
+l0034h:	equ 0x0034
+; Used at following locations:
+; 0x002c	(jr destination)
+; 0x0027	(jr destination)
+
+l0050h:	equ 0x0050
+; Used at following locations:
+; 0x0047	(jr destination)
+; 0x0044	(jr destination)
+
+l005ah:	equ 0x005a
+; Used at following locations:
+; 0x004e	(jr destination)
+
+l006ah:	equ 0x006a
+; Used at following locations:
+; 0x00d6	(jp destination)
+; 0x0098	(jr destination)
+
+l0094h:	equ 0x0094
+; Used at following locations:
+; 0x008b	(jr destination)
+
+l009ah:	equ 0x009a
+; Used at following locations:
+; 0x007c	(jr destination)
+
+l00a6h:	equ 0x00a6
+; Used at following locations:
+; 0x007e	(jp destination)
+
+l00aeh:	equ 0x00ae
+; Used at following locations:
+; 0x00a9	(jr destination)
+
+l00b4h:	equ 0x00b4
+; Used at following locations:
+; 0x00af	(jr destination)
+
+l00b7h:	equ 0x00b7
+; Used at following locations:
+; 0x0031	(jp destination)
+
+bootErr:	equ 0x00c2
+; Used at following locations:
+; 0x099e	(jp destination)
+; 0x0129	(jp destination)
+; 0x00a4	(jr destination)
+
+l00c8h:	equ 0x00c8
+; Used at following locations:
+; 0x0531	(immediate value)
+
+l00cbh:	equ 0x00cb
+; Used at following locations:
+; 0x00d4	(jr destination)
+; 0x00cf	(djnz destination)
+
+loading:	equ 0x00d9
+; Used at following locations:
+; 0x011a	(immediate value)
+; 0x00fa	(immediate value)
+; 0x00ec	(jr destination)
+; 0x00bc	(jr destination)
+; 0x009f	(jr destination)
+
+l00f1h:	equ 0x00f1
+; Used at following locations:
+; 0x00c0	(jr destination)
+; 0x00a2	(jr destination)
+
+l0106h:	equ 0x0106
+; Used at following locations:
+; 0x0110	(jr destination)
+; 0x010a	(jr destination)
+
+loadingFloppy:	equ 0x0117
+; Used at following locations:
+; 0x00f5	(jr destination)
+
+adapOrFloppyFail$:	equ 0x012c
+; Used at following locations:
+; 0x03eb	(immediate value)
+; 0x0081	(immediate value)
+
+bootErr$:	equ 0x014d
+; Used at following locations:
+; 0x00c2	(immediate value)
+
+pleaseWait$:	equ 0x015b
+; Used at following locations:
+; 0x00e2	(immediate value)
+
+loadingCable$:	equ 0x0169
+; Used at following locations:
+; 0x0524	(immediate value)
+; 0x00d9	(immediate value)
+
+loadingFloppy$:	equ 0x017e
+; Used at following locations:
+; 0x0120	(immediate value)
+
+insertSystemDisk$:	equ 0x01c0
+; Used at following locations:
+; 0x0100	(immediate value)
+
+copyROM2RAM:	equ 0x0202
+; Used at following locations:
+; 0x0067	(call destination)
+; 0x002e	(call destination)
+
+sub_0215h:	equ 0x0215
+; Used at following locations:
+; 0x0095	(call destination)
+; 0x0037	(call destination)
+
+l0222h:	equ 0x0222
+; Used at following locations:
+; 0x1404	(word load pointer)
+
+l0229h:	equ 0x0229
+; Used at following locations:
+; 0x0224	(jr destination)
+
+vdp_init:	equ 0x0237
+; Used at following locations:
+; 0x0014	(call destination)
+
+vdp_023E:	equ 0x023e
+; Used at following locations:
+; 0x0247	(jr destination)
+
+vdp_idata:	equ 0x024a
+; Used at following locations:
+; 0x0237	(immediate value)
+
+vdp_setup:	equ 0x0252
+; Used at following locations:
+; 0x11f0	(call destination)
+; 0x001d	(call destination)
+
+vdp_0260:	equ 0x0260
+; Used at following locations:
+; 0x0265	(jr destination)
+
+vdp_0276:	equ 0x0276
+; Used at following locations:
+; 0x0279	(jr destination)
+
+vdp_0283:	equ 0x0283
+; Used at following locations:
+; 0x028d	(djnz destination)
+
+vdp_0290:	equ 0x0290
+; Used at following locations:
+; 0x027d	(immediate value)
+
+vdp_02A8:	equ 0x02a8
+; Used at following locations:
+; 0x051b	(immediate value)
+
+vdp_02C7:	equ 0x02c7
+; Used at following locations:
+; 0x04a0	(immediate value)
+
+vdp_02E6:	equ 0x02e6
+; Used at following locations:
+; 0x0117	(immediate value)
+; 0x00f7	(immediate value)
+
+kb_02F9:	equ 0x02f9
+; Used at following locations:
+; 0x0301	(immediate value)
+
+kb_init:	equ 0x0301
+; Used at following locations:
+; 0x001a	(call destination)
+
+kb_0306:	equ 0x0306
+; Used at following locations:
+; 0x030c	(djnz destination)
+
+snd_init:	equ 0x030f
+; Used at following locations:
+; 0x1270	(call destination)
+; 0x0017	(call destination)
+
+snd_0314:	equ 0x0314
+; Used at following locations:
+; 0x031c	(djnz destination)
+
+l031fh:	equ 0x031f
+; Used at following locations:
+; 0x0311	(immediate value)
+
+snd_0327:	equ 0x0327
+; Used at following locations:
+; 0x084e	(call destination)
+; 0x05c8	(call destination)
+
+vdp_out:	equ 0x033f
+; Used at following locations:
+; 0x1443	(jp destination)
+; 0x13ab	(jp destination)
+; 0x1397	(jp destination)
+; 0x1371	(call destination)
+; 0x099a	(call destination)
+; 0x0977	(call destination)
+; 0x06ef	(call destination)
+; 0x06da	(call destination)
+; 0x053a	(call destination)
+; 0x0527	(call destination)
+; 0x04c8	(call destination)
+; 0x049a	(call destination)
+; 0x0455	(call destination)
+; 0x0418	(call destination)
+; 0x0286	(call destination)
+; 0x0123	(call destination)
+; 0x0103	(call destination)
+; 0x00e5	(call destination)
+; 0x00dc	(call destination)
+; 0x00c5	(call destination)
+; 0x0090	(call destination)
+; 0x0084	(call destination)
+
+vdp_blank:	equ 0x0350
+; Used at following locations:
+; 0x0534	(call destination)
+; 0x0521	(call destination)
+; 0x0466	(call destination)
+; 0x03ee	(call destination)
+; 0x011d	(call destination)
+; 0x00fd	(call destination)
+
+vdp_0358:	equ 0x0358
+; Used at following locations:
+; 0x035f	(jr destination)
+
+selectLoadingDev$:	equ 0x0362
+; Used at following locations:
+
+selectCable$:	equ 0x0385
+; Used at following locations:
+
+selectFloppy$:	equ 0x0390
+; Used at following locations:
+
+press1or2$:	equ 0x03a1
+; Used at following locations:
+
+vdp_03B0:	equ 0x03b0
+; Used at following locations:
+; 0x040d	(immediate value)
+
+l03b8h:	equ 0x03b8
+; Used at following locations:
+; 0x03f9	(immediate value)
+
+l03beh:	equ 0x03be
+; Used at following locations:
+; 0x0405	(immediate value)
+
+invalidOption$:	equ 0x03ca
+; Used at following locations:
+; 0x0452	(immediate value)
+
+sub_03e7h:	equ 0x03e7
+; Used at following locations:
+; 0x00b4	(call destination)
+
+vdp_03FF:	equ 0x03ff
+; Used at following locations:
+; 0x03f5	(jr destination)
+
+vdp_040B:	equ 0x040b
+; Used at following locations:
+; 0x0401	(jr destination)
+
+vdp_0411:	equ 0x0411
+; Used at following locations:
+; 0x0420	(djnz destination)
+; 0x0409	(jr destination)
+; 0x03fd	(jr destination)
+
+vdp_0422:	equ 0x0422
+; Used at following locations:
+; 0x0458	(jr destination)
+; 0x0450	(jr destination)
+; 0x0428	(jr destination)
+
+vdp_043B:	equ 0x043b
+; Used at following locations:
+; 0x0432	(jr destination)
+; 0x042e	(jr destination)
+
+vdp_044A:	equ 0x044a
+; Used at following locations:
+; 0x0441	(jr destination)
+; 0x043d	(jr destination)
+
+invalidOption:	equ 0x0452
+; Used at following locations:
+; 0x044c	(jr destination)
+
+vdp_045A:	equ 0x045a
+; Used at following locations:
+; 0x0448	(jr destination)
+; 0x0439	(jr destination)
+
+snd_046A:	equ 0x046a
+; Used at following locations:
+
+sub_047ah:	equ 0x047a
+; Used at following locations:
+; 0x053d	(jp destination)
+; 0x00df	(call destination)
+
+l0482h:	equ 0x0482
+; Used at following locations:
+; 0x047d	(jr destination)
+
+l048dh:	equ 0x048d
+; Used at following locations:
+; 0x0488	(jr destination)
+
+typeChannelCode:	equ 0x0497
+; Used at following locations:
+; 0x0492	(jr destination)
+
+l049dh:	equ 0x049d
+; Used at following locations:
+; 0x04d3	(jr destination)
+
+l04adh:	equ 0x04ad
+; Used at following locations:
+; 0x04be	(djnz destination)
+
+l04bbh:	equ 0x04bb
+; Used at following locations:
+; 0x04b6	(jr destination)
+; 0x04b0	(jr destination)
+
+l04d5h:	equ 0x04d5
+; Used at following locations:
+; 0x04c3	(jr destination)
+
+l04ddh:	equ 0x04dd
+; Used at following locations:
+; 0x04f1	(djnz destination)
+
+l04fbh:	equ 0x04fb
+; Used at following locations:
+; 0x0519	(jr destination)
+; 0x0512	(jr destination)
+; 0x050c	(jr destination)
+
+l0503h:	equ 0x0503
+; Used at following locations:
+; 0x04f9	(jr destination)
+
+l050eh:	equ 0x050e
+; Used at following locations:
+; 0x050a	(jr destination)
+
+loadingCable:	equ 0x051b
+; Used at following locations:
+; 0x0494	(jp destination)
+
+adapFail:	equ 0x052e
+; Used at following locations:
+; 0x048a	(jp destination)
+; 0x047f	(jp destination)
+
+adapFail$:	equ 0x0540
+; Used at following locations:
+; 0x0537	(immediate value)
+
+typeChannelCode$:	equ 0x0552
+; Used at following locations:
+; 0x0497	(immediate value)
+
+reTypeChannelCode$:	equ 0x059f
+; Used at following locations:
+; 0x04c5	(immediate value)
+
+snd_05C4:	equ 0x05c4
+; Used at following locations:
+; 0x131e	(call destination)
+; 0x04d0	(call destination)
+
+snd_05D7:	equ 0x05d7
+; Used at following locations:
+; 0x05dc	(djnz destination)
+; 0x05d8	(jr destination)
+
+sub_05ebh:	equ 0x05eb
+; Used at following locations:
+; 0x08ae	(call destination)
+; 0x047a	(call destination)
+
+l05efh:	equ 0x05ef
+; Used at following locations:
+; 0x060b	(jr destination)
+
+l060ah:	equ 0x060a
+; Used at following locations:
+; 0x0602	(jr destination)
+; 0x05fb	(jr destination)
+; 0x05f4	(jr destination)
+
+sub_060fh:	equ 0x060f
+; Used at following locations:
+; 0x052a	(call destination)
+
+sub_0627h:	equ 0x0627
+; Used at following locations:
+; 0x08b3	(call destination)
+; 0x0482	(call destination)
+
+sub_0645h:	equ 0x0645
+; Used at following locations:
+; 0x06b0	(call destination)
+; 0x0629	(call destination)
+; 0x0611	(call destination)
+; 0x04f6	(call destination)
+
+sub_0655h:	equ 0x0655
+; Used at following locations:
+; 0x0645	(call destination)
+; 0x062f	(call destination)
+; 0x061d	(call destination)
+; 0x0617	(call destination)
+; 0x05f1	(call destination)
+; 0x050f	(call destination)
+; 0x0506	(call destination)
+
+l0659h:	equ 0x0659
+; Used at following locations:
+; 0x0660	(jr destination)
+
+sub_0667h:	equ 0x0667
+; Used at following locations:
+; 0x06c6	(call destination)
+; 0x0651	(call destination)
+; 0x064b	(call destination)
+; 0x0640	(call destination)
+; 0x063a	(call destination)
+; 0x0623	(call destination)
+; 0x0606	(call destination)
+; 0x05ff	(call destination)
+; 0x05f8	(call destination)
+; 0x0516	(call destination)
+
+l066bh:	equ 0x066b
+; Used at following locations:
+; 0x0672	(jr destination)
+
+sub_0675h:	equ 0x0675
+; Used at following locations:
+; 0x0633	(call destination)
+
+l0679h:	equ 0x0679
+; Used at following locations:
+; 0x0680	(jr destination)
+
+snd_0686:	equ 0x0686
+; Used at following locations:
+; 0x06fe	(call destination)
+; 0x06de	(call destination)
+; 0x067d	(call destination)
+
+snd_0697:	equ 0x0697
+; Used at following locations:
+; 0x06f9	(call destination)
+; 0x06b9	(call destination)
+; 0x065d	(call destination)
+
+l06a8h:	equ 0x06a8
+; Used at following locations:
+; 0x0851	(call destination)
+; 0x075a	(jp destination)
+; 0x0754	(jp destination)
+; 0x074d	(jp destination)
+; 0x06f2	(jp destination)
+
+snd_06B9:	equ 0x06b9
+; Used at following locations:
+; 0x06c2	(djnz destination)
+; 0x06bc	(jr destination)
+
+snd_06D2:	equ 0x06d2
+; Used at following locations:
+; 0x06e1	(jr destination)
+
+snd_06DE:	equ 0x06de
+; Used at following locations:
+; 0x06d5	(djnz destination)
+; 0x06d3	(jr destination)
+
+snd_06F5:	equ 0x06f5
+; Used at following locations:
+; 0x06e7	(jr destination)
+
+snd_06F9:	equ 0x06f9
+; Used at following locations:
+; 0x06fc	(jr destination)
+
+snd_070D:	equ 0x070d
+; Used at following locations:
+; 0x0745	(jr destination)
+; 0x0739	(jr destination)
+; 0x0735	(jr destination)
+
+snd_0711:	equ 0x0711
+; Used at following locations:
+; 0x0720	(jr destination)
+
+l0722h:	equ 0x0722
+; Used at following locations:
+; 0x0719	(jr destination)
+
+l0737h:	equ 0x0737
+; Used at following locations:
+; 0x072b	(jr destination)
+
+l073bh:	equ 0x073b
+; Used at following locations:
+; 0x0727	(jr destination)
+
+l0747h:	equ 0x0747
+; Used at following locations:
+; 0x073d	(jr destination)
+
+l075fh:	equ 0x075f
+; Used at following locations:
+; 0x071e	(jr destination)
+
+seeOwnersGuide$:	equ 0x0764
+; Used at following locations:
+; 0x06d7	(immediate value)
+; 0x008d	(immediate value)
+
+adaptorNotAuth$:	equ 0x079b
+; Used at following locations:
+; 0x06ec	(immediate value)
+
+sub_07b4h:	equ 0x07b4
+; Used at following locations:
+; 0x04a3	(call destination)
+
+l07b6h:	equ 0x07b6
+; Used at following locations:
+; 0x0824	(jr destination)
+; 0x0813	(jr destination)
+; 0x080e	(jr destination)
+; 0x0805	(jr destination)
+; 0x07f8	(jr destination)
+; 0x07e1	(jr destination)
+; 0x07ba	(jr destination)
+
+l07dbh:	equ 0x07db
+; Used at following locations:
+; 0x07cf	(jr destination)
+; 0x07c5	(jr destination)
+
+vdp_07E3:	equ 0x07e3
+; Used at following locations:
+; 0x07de	(jr destination)
+
+vdp_07F2:	equ 0x07f2
+; Used at following locations:
+; 0x07ee	(jr destination)
+
+vdp_07FA:	equ 0x07fa
+; Used at following locations:
+; 0x07d9	(jr destination)
+; 0x07d5	(jr destination)
+; 0x07cb	(jr destination)
+; 0x07c1	(jr destination)
+
+vdp_0803:	equ 0x0803
+; Used at following locations:
+; 0x07fd	(jr destination)
+
+vdp_0808:	equ 0x0808
+; Used at following locations:
+; 0x0801	(jr destination)
+
+vdp_0810:	equ 0x0810
+; Used at following locations:
+; 0x080a	(jr destination)
+
+snd_0826:	equ 0x0826
+; Used at following locations:
+; 0x0859	(jr destination)
+; 0x00e8	(call destination)
+
+snd_0851:	equ 0x0851
+; Used at following locations:
+; 0x08a2	(jr destination)
+
+snd_085E:	equ 0x085e
+; Used at following locations:
+; 0x0855	(jr destination)
+
+snd_08A4:	equ 0x08a4
+; Used at following locations:
+; 0x089c	(jr destination)
+
+sub_08aeh:	equ 0x08ae
+; Used at following locations:
+; 0x1298	(call destination)
+; 0x0230	(call destination)
+
+l08beh:	equ 0x08be
+; Used at following locations:
+; 0x08b9	(jr destination)
+; 0x08b1	(jr destination)
+
+sub_08c0h:	equ 0x08c0
+; Used at following locations:
+; 0x12a4	(call destination)
+; 0x021c	(call destination)
+
+l08c7h:	equ 0x08c7
+; Used at following locations:
+; 0x08d3	(djnz destination)
+
+l08cfh:	equ 0x08cf
+; Used at following locations:
+; 0x08cb	(jr destination)
+
+decDE:	equ 0x08d9
+; Used at following locations:
+; 0x1143	(call destination)
+; 0x071b	(call destination)
+; 0x0679	(call destination)
+; 0x066b	(call destination)
+; 0x0659	(call destination)
+
+l08e0h:	equ 0x08e0
+; Used at following locations:
+; 0x08dc	(jr destination)
+
+loadErrResetNPC$:	equ 0x08e2
+; Used at following locations:
+; 0x0974	(immediate value)
+
+noSysTrack$:	equ 0x0909
+; Used at following locations:
+; 0x0997	(immediate value)
+
+sub_0930h:	equ 0x0930
+; Used at following locations:
+; 0x0126	(call destination)
+
+l093eh:	equ 0x093e
+; Used at following locations:
+; 0x0938	(jr destination)
+
+l0940h:	equ 0x0940
+; Used at following locations:
+; 0x096f	(djnz destination)
+
+l0959h:	equ 0x0959
+; Used at following locations:
+; 0x0966	(jr destination)
+
+l095ah:	equ 0x095a
+; Used at following locations:
+; 0x0960	(jr destination)
+
+l0968h:	equ 0x0968
+; Used at following locations:
+; 0x095d	(jr destination)
+
+l0971h:	equ 0x0971
+; Used at following locations:
+; 0x09c4	(jp destination)
+
+l097ah:	equ 0x097a
+; Used at following locations:
+; 0x097a	(jr destination)
+
+l097ch:	equ 0x097c
+; Used at following locations:
+; 0x096c	(jr destination)
+
+l0989h:	equ 0x0989
+; Used at following locations:
+; 0x098f	(djnz destination)
+
+l098fh:	equ 0x098f
+; Used at following locations:
+; 0x098c	(jr destination)
+
+sub_09a1h:	equ 0x09a1
+; Used at following locations:
+; 0x0a56	(call destination)
+
+sub_09b4h:	equ 0x09b4
+; Used at following locations:
+; 0x0931	(call destination)
+
+l09b8h:	equ 0x09b8
+; Used at following locations:
+; 0x09c2	(djnz destination)
+
+l09c7h:	equ 0x09c7
+; Used at following locations:
+; 0x09bc	(jr destination)
+
+sub_09eah:	equ 0x09ea
+; Used at following locations:
+; 0x0a5a	(call destination)
+; 0x0a4a	(call destination)
+; 0x09a9	(call destination)
+; 0x09a1	(call destination)
+
+l09f2h:	equ 0x09f2
+; Used at following locations:
+; 0x09fa	(jr destination)
+
+l0a00h:	equ 0x0a00
+; Used at following locations:
+; 0x09f5	(jr destination)
+
+sub_0a03h:	equ 0x0a03
+; Used at following locations:
+; 0x0a33	(call destination)
+; 0x0a23	(call destination)
+
+l0a04h:	equ 0x0a04
+; Used at following locations:
+; 0x0a0c	(jr destination)
+
+l0a06h:	equ 0x0a06
+; Used at following locations:
+; 0x0a09	(jr destination)
+
+sub_0a10h:	equ 0x0a10
+; Used at following locations:
+; 0x0934	(call destination)
+
+l0a21h:	equ 0x0a21
+; Used at following locations:
+; 0x0a2c	(djnz destination)
+
+l0a31h:	equ 0x0a31
+; Used at following locations:
+; 0x0a3c	(djnz destination)
+; 0x0a2a	(jr destination)
+
+l0a41h:	equ 0x0a41
+; Used at following locations:
+; 0x0a3a	(jr destination)
+
+l0a4ah:	equ 0x0a4a
+; Used at following locations:
+; 0x0a54	(djnz destination)
+
+sub_0a5ah:	equ 0x0a5a
+; Used at following locations:
+; 0x097d	(call destination)
+; 0x0971	(call destination)
+; 0x093a	(call destination)
+
+sub_0a65h:	equ 0x0a65
+; Used at following locations:
+; 0x0a51	(call destination)
+; 0x09a6	(call destination)
+; 0x094e	(call destination)
+
+l0a6fh:	equ 0x0a6f
+; Used at following locations:
+; 0x0a70	(jr destination)
+
+sub_0a73h:	equ 0x0a73
+; Used at following locations:
+; 0x0a10	(call destination)
+; 0x09e2	(call destination)
+
+l0a7dh:	equ 0x0a7d
+; Used at following locations:
+; 0x0a7e	(jr destination)
+
+l0a81h:	equ 0x0a81
+; Used at following locations:
+; 0x025d	(immediate value)
+
+sub_0f09h:	equ 0x0f09
+; Used at following locations:
+; 0x0740	(call destination)
+; 0x0730	(call destination)
+
+table:	equ 0x0f26
+; Used at following locations:
+; 0x0f14	(immediate value)
+
+sub_1126h:	equ 0x1126
+; Used at following locations:
+; 0x0064	(call destination)
+
+l1143h:	equ 0x1143
+; Used at following locations:
+; 0x1166	(jr destination)
+; 0x1162	(jr destination)
+; 0x115d	(jr destination)
+; 0x1159	(jr destination)
+; 0x114f	(jr destination)
+
+l114ch:	equ 0x114c
+; Used at following locations:
+; 0x1148	(djnz destination)
+; 0x1146	(jr destination)
+
+l115fh:	equ 0x115f
+; Used at following locations:
+; 0x1168	(jr destination)
+
+l1164h:	equ 0x1164
+; Used at following locations:
+; 0x1155	(jr destination)
+
+l116ah:	equ 0x116a
+; Used at following locations:
+; 0x1160	(jr destination)
+
+l116eh:	equ 0x116e
+; Used at following locations:
+; 0x12b1	(jp destination)
+; 0x114a	(jr destination)
+
+l117dh:	equ 0x117d
+; Used at following locations:
+; 0x1173	(jr destination)
+
+l1188h:	equ 0x1188
+; Used at following locations:
+; 0x118e	(jr destination)
+
+l119ch:	equ 0x119c
+; Used at following locations:
+; 0x1194	(jr destination)
+
+vdp_119F:	equ 0x119f
+; Used at following locations:
+; 0x119a	(jr destination)
+
+vdp_11B1:	equ 0x11b1
+; Used at following locations:
+; 0x11b6	(jr destination)
+
+vdp_11C1:	equ 0x11c1
+; Used at following locations:
+; 0x11ee	(jr destination)
+
+vdp_11E4:	equ 0x11e4
+; Used at following locations:
+; 0x11ca	(jr destination)
+
+vdp_11E7:	equ 0x11e7
+; Used at following locations:
+; 0x11e2	(jr destination)
+
+l121eh:	equ 0x121e
+; Used at following locations:
+; 0x1216	(immediate value)
+
+l1221h:	equ 0x1221
+; Used at following locations:
+; 0x1203	(jr destination)
+
+l1224h:	equ 0x1224
+; Used at following locations:
+; 0x121f	(jr destination)
+
+snd_1229:	equ 0x1229
+; Used at following locations:
+; 0x1232	(djnz destination)
+
+snd_1236:	equ 0x1236
+; Used at following locations:
+; 0x124e	(jr destination)
+
+snd_1238:	equ 0x1238
+; Used at following locations:
+; 0x1248	(jr destination)
+
+snd_1252:	equ 0x1252
+; Used at following locations:
+; 0x1240	(call destination)
+
+snd_125F:	equ 0x125f
+; Used at following locations:
+; 0x1252	(immediate value)
+
+snd_126D:	equ 0x126d
+; Used at following locations:
+; 0x1250	(jr destination)
+
+snd_1278:	equ 0x1278
+; Used at following locations:
+; 0x12b9	(djnz destination)
+; 0x12b7	(jr destination)
+
+snd_128D:	equ 0x128d
+; Used at following locations:
+; 0x12bb	(jr destination)
+
+snd_1290:	equ 0x1290
+; Used at following locations:
+; 0x128b	(jr destination)
+
+l12a1h:	equ 0x12a1
+; Used at following locations:
+; 0x129c	(jr destination)
+
+l12aeh:	equ 0x12ae
+; Used at following locations:
+; 0x12a9	(jr destination)
+
+l12b4h:	equ 0x12b4
+; Used at following locations:
+; 0x1287	(jr destination)
+; 0x1283	(jr destination)
+; 0x127d	(jr destination)
+
+sub_12bdh:	equ 0x12bd
+; Used at following locations:
+; 0x1205	(immediate value)
+; 0x11ff	(call destination)
+
+l12cah:	equ 0x12ca
+; Used at following locations:
+; 0x12c1	(jr destination)
+
+l12d4h:	equ 0x12d4
+; Used at following locations:
+; 0x12db	(jr destination)
+
+l12e5h:	equ 0x12e5
+; Used at following locations:
+; 0x12fa	(jr destination)
+
+l12ffh:	equ 0x12ff
+; Used at following locations:
+; 0x12f4	(jr destination)
+; 0x12e9	(jr destination)
+
+l1301h:	equ 0x1301
+; Used at following locations:
+; 0x12fd	(jr destination)
+
+l130eh:	equ 0x130e
+; Used at following locations:
+; 0x1305	(jr destination)
+
+snd_1310:	equ 0x1310
+; Used at following locations:
+; 0x12ae	(call destination)
+; 0x12a1	(call destination)
+; 0x1290	(call destination)
+; 0x126d	(call destination)
+; 0x1224	(call destination)
+; 0x11f6	(call destination)
+; 0x119f	(call destination)
+
+l131bh:	equ 0x131b
+; Used at following locations:
+; 0x1317	(jr destination)
+
+l1329h:	equ 0x1329
+; Used at following locations:
+; 0x132a	(jr destination)
+
+l133eh:	equ 0x133e
+; Used at following locations:
+; 0x1330	(jr destination)
+
+l1348h:	equ 0x1348
+; Used at following locations:
+; 0x1344	(jr destination)
+; 0x133c	(jr destination)
+; 0x1338	(jr destination)
+
+l135ah:	equ 0x135a
+; Used at following locations:
+; 0x141c	(call destination)
+; 0x1350	(jr destination)
+
+l1366h:	equ 0x1366
+; Used at following locations:
+; 0x1375	(djnz destination)
+
+l1384h:	equ 0x1384
+; Used at following locations:
+; 0x1385	(djnz destination)
+
+l139ah:	equ 0x139a
+; Used at following locations:
+; 0x135e	(jr destination)
+
+l13aah:	equ 0x13aa
+; Used at following locations:
+; 0x13af	(jr destination)
+
+sub_13b1h:	equ 0x13b1
+; Used at following locations:
+; 0x1391	(call destination)
+
+sub_13c1h:	equ 0x13c1
+; Used at following locations:
+; 0x13ba	(call destination)
+
+l13c9h:	equ 0x13c9
+; Used at following locations:
+; 0x13c5	(jr destination)
+
+snd_13CB:	equ 0x13cb
+; Used at following locations:
+; 0x12ab	(call destination)
+; 0x129e	(call destination)
+; 0x128d	(call destination)
+; 0x1243	(call destination)
+; 0x1221	(call destination)
+; 0x11e4	(call destination)
+; 0x119c	(call destination)
+
+l13dfh:	equ 0x13df
+; Used at following locations:
+; 0x13d3	(jr destination)
+
+l13f2h:	equ 0x13f2
+; Used at following locations:
+; 0x13ef	(jr destination)
+
+sub_13f6h:	equ 0x13f6
+; Used at following locations:
+; 0x13d5	(call destination)
+; 0x1352	(call destination)
+; 0x1175	(call destination)
+
+l1402h:	equ 0x1402
+; Used at following locations:
+; 0x13f6	(immediate value)
+
+snd_1409:	equ 0x1409
+; Used at following locations:
+; 0x127a	(call destination)
+; 0x114c	(call destination)
+
+sub_1419h:	equ 0x1419
+; Used at following locations:
+; 0x11f3	(call destination)
+
+l141ch:	equ 0x141c
+; Used at following locations:
+; 0x1425	(jr destination)
+
+l1427h:	equ 0x1427
+; Used at following locations:
+; 0x1421	(jp destination)
+
+rom_fail$:	equ 0x1446
+; Used at following locations:
+; 0x13a3	(immediate value)
+
+vram_fail$:	equ 0x1459
+; Used at following locations:
+
+ram_fail$:	equ 0x146c
+; Used at following locations:
+
+sound_fail$:	equ 0x147f
+; Used at following locations:
+
+kbd_fail$:	equ 0x1492
+; Used at following locations:
+
+word_1:	equ 0x14a5
+; Used at following locations:
+; 0x142c	(word load pointer)
+
+byte_1:	equ 0x14a7
+; Used at following locations:
+; 0x1432	(byte load pointer)
+
+rom$:	equ 0x14a8
+; Used at following locations:
+
+vram$:	equ 0x14ae
+; Used at following locations:
+
+ram$:	equ 0x14b5
+; Used at following locations:
+
+sound$:	equ 0x14bb
+; Used at following locations:
+
+keyboard$:	equ 0x14c3
+; Used at following locations:
+
+adapter$:	equ 0x14ce
+; Used at following locations:
+
+floppy$:	equ 0x14d8
+; Used at following locations:
+
+rom_version$:	equ 0x14e1
+; Used at following locations:
+
+l14efh:	equ 0x14ef
+; Used at following locations:
+; 0x1362	(immediate value)
+
+l1ffdh:	equ 0x1ffd
+; Used at following locations:
+; 0x117d	(immediate value)
+
+l1ffeh:	equ 0x1ffe
+; Used at following locations:
+; 0x1190	(byte load pointer)
+
+l1fffh:	equ 0x1fff
+; Used at following locations:
+; 0x1196	(byte load pointer)
+

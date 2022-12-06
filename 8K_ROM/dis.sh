@@ -1,2 +1,1 @@
-z80dasm -t -a -g0x00 --labels -b  NabuPC-8K.txt  NabuPC-2764.bin -o NabuPC-8K-2.z80
-
+z80dasm -ltv -g0 -b NabuPC-8K.blk -S NabuPC-8K.sym -s NabuPC-8K.xrf -o NabuPC-8K.z80 NabuPC-2764.bin
