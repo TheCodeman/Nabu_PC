@@ -31,6 +31,7 @@
 ;				be replaced with labels where that is possible.
 ;
 ;	note: These additional block types were added to z80dasm by geowar1@mac.com
+;	see: https://github.com/geowar1/z80dasm
 ;
 ;	stringdata	Data block containing ASCII strings. Written with defb directives.
 ;
