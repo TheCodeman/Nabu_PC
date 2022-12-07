@@ -1,0 +1,88 @@
+;    -*- tab-width:	4; -*-
+; command line: z80dasm -ltv -g0 -b NabuPC-8K.blk -S NabuPC-8Kin.sym -s NabuPC-8Kout.sym -o NabuPC-8K.z80 NabuPC-2764.bin
+;
+;	notes:	NabuPC-2764.bin is the original ROM image
+;			NabuPC-8K.* are the z80dasm files based on the original ROM image
+;			NabuPC-8k.z80 is assembled (by asm.sh) to generate NabuPC-8k.bin
+;			The "check" binary (source:check.c) is used to generate the checksum for NabuPC-8k.bin
+;			If everything is then correct the original ROM image (NabuPC-2764.bin) should exactly match NabuPC-8k.bin
+;
+;   name: [unlabeled] [start|first] address [unlabeled] [end|last] address type type
+;
+;	Define a block with the start and end address that contains a certain type of binary data.
+;
+;	Start address is the 16 bit address of the first byte in the block.
+;	Keywords "start" and "first" are  synonymous.
+;	The keyword "end" is the 16 bit address of the last byte in the block plus one. (IOW: the beginning of the next block.)
+;	The keyword "last" is the 16 bit address of the last byte in block.
+;	Normally labels are defined at the addresses specified in the block definition.
+;	This can be suppressed by adding the  key-word "unlabeled" before the address.
+;
+; comment	All characters between a semi-colon and end of line are ignored.
+;
+;	The following block types are supported:
+;
+;	code	  	Block of Z80 machine code. Written in Z80 assembly language.
+;	bytedata	Data block of separate bytes. Written with defb directives.
+;	worddata	Data block containing 16 bit words (low order byte first).
+;				Data in this block will be written with defw directives.
+;	pointers	Data block containing 16 bit pointers (low order byte first).
+;				This type is equivalent to worddata except that values will
+;				be replaced with labels where that is possible.
+;
+;	note: These additional block types were added to z80dasm by geowar1@mac.com
+;	see: https://github.com/geowar1/z80dasm
+;
+;	stringdata	Data block containing ASCII strings. Written with defb directives.
+;
+;	stringdata,	//consecutive ASCII characters (no termination)
+;	defc_data,	//consecutive ASCII characters (last character has bit-7 set)
+;	defz_data,	//consecutive ASCII characters (null termination)
+;	defs_data,	//skipdata
+;
+;	defb_data	alias for bytedata
+;	defw_data	alias for worddata
+;
+
+: unlabeled start 0x0003 unlabeled last 0x0003 type defb_data
+: unlabeled start 0x0004 unlabeled last 0x0005 type defw_data
+: unlabeled start 0x0006 unlabeled last 0x0009 type defb_data
+: unlabeled start 0x012C unlabeled end 0x014d type stringdata
+: unlabeled start 0x014D unlabeled end 0x015b type stringdata
+: unlabeled start 0x015B unlabeled end 0x0169 type stringdata
+: unlabeled start 0x0169 unlabeled end 0x017e type stringdata
+: unlabeled start 0x017E unlabeled end 0x01c0 type stringdata
+: unlabeled start 0x01C0 unlabeled end 0x0202 type stringdata
+: unlabeled start 0x024A unlabeled last 0x0251 type defb_data
+: unlabeled start 0x0290 unlabeled last 0x0300 type defb_data
+: unlabeled start 0x0362 unlabeled end 0x0385 type stringdata
+: unlabeled start 0x0385 unlabeled end 0x0390 type stringdata
+: unlabeled start 0x0390 unlabeled end 0x03a1 type stringdata
+: unlabeled start 0x03A1 unlabeled end 0x03b0 type stringdata
+: unlabeled start 0x03CA unlabeled end 0x03e7 type stringdata
+: unlabeled start 0x0540 unlabeled end 0x0552 type stringdata
+: unlabeled start 0x0552 unlabeled end 0x059f type stringdata
+: unlabeled start 0x059F unlabeled end 0x05c4 type stringdata
+: unlabeled start 0x0764 unlabeled end 0x079b type stringdata
+: unlabeled start 0x079B unlabeled end 0x07b4 type stringdata
+: unlabeled start 0x08E2 unlabeled end 0x0909 type stringdata
+: unlabeled start 0x0909 unlabeled end 0x0930 type stringdata
+: unlabeled start 0x0A81 unlabeled last 0x0F08 type bytedata
+: unlabeled start 0x0F26 unlabeled last 0x1125 type bytedata
+: unlabeled start 0x125F unlabeled last 0x126C type stringdata
+: unlabeled start 0x1446 unlabeled end 0x1459 type stringdata
+: unlabeled start 0x1459 unlabeled end 0x146c type stringdata
+: unlabeled start 0x146C unlabeled end 0x147f type stringdata
+: unlabeled start 0x147F unlabeled end 0x1492 type stringdata
+: unlabeled start 0x1492 unlabeled end 0x14a5 type stringdata
+: unlabeled start 0x14A5 unlabeled end 0x14a7 type worddata
+: unlabeled start 0x14A7 unlabeled end 0x14a8 type bytedata
+: unlabeled start 0x14A8 unlabeled end 0x14ae type stringdata
+: unlabeled start 0x14AE unlabeled end 0x14b5 type stringdata
+: unlabeled start 0x14B5 unlabeled end 0x14bb type stringdata
+: unlabeled start 0x14BB unlabeled end 0x14c3 type stringdata
+: unlabeled start 0x14C3 unlabeled end 0x14ce type stringdata
+: unlabeled start 0x14CE unlabeled end 0x14d8 type stringdata
+: unlabeled start 0x14D8 unlabeled end 0x14e1 type stringdata
+: unlabeled start 0x14E1 unlabeled end 0x14ef type stringdata
+: unlabeled start 0x14EF unlabeled end 0x1FFF type stringdata
