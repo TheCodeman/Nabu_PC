@@ -55,6 +55,7 @@
 : unlabeled start 0x01C0 unlabeled end 0x0202 type stringdata
 : unlabeled start 0x024A unlabeled last 0x0251 type defb_data
 : unlabeled start 0x0290 unlabeled last 0x0300 type defb_data
+: unlabeled start 0x031F unlabeled last 0x0326 type defb_data
 : unlabeled start 0x0362 unlabeled end 0x0385 type stringdata
 : unlabeled start 0x0385 unlabeled end 0x0390 type stringdata
 : unlabeled start 0x0390 unlabeled end 0x03a1 type stringdata

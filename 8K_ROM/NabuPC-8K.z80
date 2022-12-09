@@ -1,5 +1,5 @@
 ; z80dasm 1.1.6
-; command line: z80dasm -ltv -g0 -b NabuPC-8K.blk -S NabuPC-8K.sym -s NabuPC-8K.xrf -o NabuPC-8K.z80 NabuPC-2764.bin
+; command line: z80dasm -ltv -g0 -b NabuPC-8K.blk -S NabuPC-8K.sym -s NabuPC-8Kout.xrf -o NabuPC-8K.z80 NabuPC-2764.bin
 
 	org	00000h
 ;
@@ -491,7 +491,7 @@ kb_0306:
 ;
 snd_init:
         ld      b,004h                  ;030f   06 04           '..'
-        ld      hl,l031fh               ;0311   21 1f 03        '!..'
+        ld      hl,snd_031F             ;0311   21 1f 03        '!..'
 ;
 snd_0314:
         ld      a,(hl)                  ;0314   7e              '~'
@@ -504,15 +504,15 @@ snd_0314:
 ;
         ret                             ;031e   c9              'I'
 ;
-l031fh:
-        rlca                            ;031f   07              '.'
-        ld      a,a                     ;0320   7f              '.'
-        ex      af,af'                  ;0321   08              '.'
-        nop                             ;0322   00              '.'
-        add     hl,bc                   ;0323   09              '.'
-        nop                             ;0324   00              '.'
-        ld      a,(bc)                  ;0325   0a              '.'
-        nop                             ;0326   00              '.'
+snd_031F:
+        defb        007h                ;031f   07              '.'
+        defb        07fh                ;0320   7f              '.'
+        defb        008h                ;0321   08              '.'
+        defb        000h                ;0322   00              '.'
+        defb        009h                ;0323   09              '.'
+        defb        000h                ;0324   00              '.'
+        defb        00ah                ;0325   0a              '.'
+        defb        000h                ;0326   00              '.'
 ;
 snd_0327:
         ld      a,007h                  ;0327   3e 07           '>.'

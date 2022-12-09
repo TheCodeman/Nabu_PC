@@ -27,6 +27,7 @@ kb_init:		equ	0x0301
 kb_0306:		equ	0x0306
 snd_init:		equ	0x030F
 snd_0314:		equ	0x0314
+snd_031F:		equ	0x031F
 snd_0327:		equ	0x0327
 vdp_out:		equ	0x033F
 vdp_blank:		equ	0x0350
